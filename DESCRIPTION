@@ -1,0 +1,47 @@
+Package: shinyplanr
+Title: Spatial Planning in Shiny
+Version: 0.0.1
+Authors@R: person('Jason', 'Everett', email = 'jaseeverett@gmail.com', role = c('cre', 'aut'))
+Description: A generic app package to facilitate spatial planning in Shiny.
+License: MIT + file LICENSE
+Imports: 
+    bslib,
+    config (>= 0.3.1),
+    dplyr,
+    ggnewscale,
+    ggplot2, 
+    ggridges, 
+    gridExtra,
+    golem (>= 0.4.1),
+    magrittr,
+    patchwork,
+    pkgload,
+    prioritizr,
+    purrr,
+    RColorBrewer,
+    rlang,
+    scales,
+    sf,
+    shiny (>= 1.7.4),
+    shinyalert,
+    shinycssloaders,
+    shinydisconnect, 
+    shinyjs, 
+    spatialplanr (>= 0.5.0),
+    stringr,
+    tibble,
+    tidyr, 
+    tidyselect,
+    viridis
+Suggests: 
+    spelling,
+    testthat (>= 3.0.0)
+Remotes: 
+    github::mathmarecol/spatialplanr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 7.2.3
+Depends: 
+    R (>= 2.10)
