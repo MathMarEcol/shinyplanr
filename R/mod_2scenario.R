@@ -11,9 +11,11 @@ mod_2scenario_ui <- function(id){
   ns <- shiny::NS(id)
 
   Vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_")
+  shinyjs::useShinyjs()
 
   shiny::tagList(
     shiny::sidebarLayout(
+
       shiny::sidebarPanel(
 
         shiny::h2("1. Select Features and Targets"),
@@ -23,12 +25,16 @@ mod_2scenario_ui <- function(id){
         purrr::pmap(Vars, fcustom_slider),
         shiny::h2("2. Select Rational Use"),
         fcustom_cost(id, "costid", Dict),
-        shiny::conditionalPanel(
-          condition = "climate_change == TRUE", #"options.climate_change == TRUE",
-          shiny::h2("3. Climate-resilient"),
-          shiny::p("Should the spatial plan be made climate-resilient?"),
-          shiny::checkboxInput(ns("checkClimsmart"),"Make Climate-resilient", FALSE),
-        ),
+        shinyjs::hidden(div(id = ns("switchClimSmart"),
+                              shiny::h2("3. Climate-resilient"),
+                              shiny::p("Should the spatial plan be made climate-resilient?"),
+                            shiny::checkboxInput(ns("checkClimsmart"),"Make Climate-resilient", FALSE))),
+        # shiny::conditionalPanel(
+        #   condition = "options$climate_change == TRUE",
+        #   shiny::h2("3. Climate-resilient"),
+        #   shiny::p("Should the spatial plan be made climate-resilient?"),
+        #   shiny::checkboxInput(ns("checkClimsmart"),"Make Climate-resilient", FALSE),
+        # ),
         shiny::br(), # Leave space for analysis button at bottom
         shiny::br(), # Leave space for analysis button at bottom
         shiny::fixedPanel(style="z-index:100", # To force the button above all plots.
@@ -119,6 +125,10 @@ mod_2scenario_server <- function(id){
   shiny::moduleServer(id, function(input, output, session){
     ns <- session$ns
 
+    if (options$climate_change != 0) { # dont make observeEvent because it's a global variable
+      shinyjs::show(id = "switchClimSmart")
+    }
+
     observeEvent(input$disconnect, {
       session$close()
     })
@@ -144,11 +154,12 @@ mod_2scenario_server <- function(id){
     }, ignoreInit = TRUE)
 
 
-
-
     # Return targets and names for all features from sliders ---------------------------------------------------
 
-    targets <- shiny::reactive({ ####### SPLIT in target, p, s (maybe features?)
+    #CONTINUE HERE: CREATE LIST OF TARGETS AND OUT_SF SO WE CAN HAVE CLIM SMART IN SAME REACTIVE
+
+
+    p1Data <- shiny::reactive({ ####### SPLIT in target, p, s (maybe features?)
 
       f <- vars[stringr::str_detect(vars, "Cost_", negate = TRUE)]
 
@@ -160,75 +171,69 @@ mod_2scenario_server <- function(id){
         dplyr::mutate(features = f)
 
 
-      if (input$checkClimsmart == TRUE){
+      out_sf <- raw_sf %>%
+        dplyr::select(.data$geometry,
+                      tidyselect::all_of(targets$features),
+                      tidyselect::starts_with("Cost_")) %>%
+        sf::st_as_sf()
 
-        Features <- raw_sf %>%
+      if (input$checkClimsmart == FALSE){
+
+        p_dat <- out_sf
+
+      } else if (input$checkClimsmart == TRUE){
+
+      if (options$climate_change == 1) {
+        featuresDF <- out_sf  %>%
           dplyr::select(.data$geometry,
-                        tidyselect::all_of(featureNames()))
+                        tidyselect::all_of(targets$features)) %>%
+          dplyr::mutate(cellID = 1:nrow(.))
 
-        targets <- fAssignTargets_CPA(featuresDF = Features,
-                                      targetsDF = target,
-                                      climateSmartDF = out_sfData(),
-                                      refugiaTarget = 1)
+        targets <- targets %>% #TODO: take renaming out and streamline between spatialplanr and shinyplanrS
+          dplyr::rename(feature = features,
+                        target = targets) %>%
+          dplyr::mutate(target = target/100)
+
+        # out_sf <- spatialplanr:::splnr_climate_priorityArea_preprocess(
+        #   featuresDF = featuresDF,
+        #   percentile = 5, metricDF = climate_sf, direction = 1
+        # )
+        #
+        # targTest <- spatialplanr:::splnr_climate_priorityArea_assignTargets(
+        #     targetsDF = targets,
+        #     climateSmartDF = out_sf,
+        #     refugiaTarget = 1
+        #   )
+
+        CS_Approach <- spatialplanr::splnr_climate_priorityAreaApproach(
+          featuresDF = featuresDF,
+          metricDF = climate_sf, targetsDF = targets, direction = -1, refugiaTarget = 1
+        )
       }
 
-      return(targets)
+      targets <- CS_Approach$Targets %>% #TODO: take renaming out and streamline between spatialplanr and shinyplanrS
+        dplyr::rename(targets = target,
+                      features = feature) %>%
+        dplyr::mutate(targets = targets*100)
 
-    })
 
+      p_dat <- CS_Approach$Features %>%
+        dplyr::left_join(
+          out_sf %>%
+            sf::st_drop_geometry() %>%
+            dplyr::mutate(cellID = 1:nrow(.)) %>%
+            dplyr::select(
+              "cellID",
+              tidyselect::starts_with("Cost_")
+            ),
+          by = "cellID"
+        ) %>%
+        dplyr::left_join(climate_sf %>%
+                           sf::st_drop_geometry(), by = "cellID")
 
-
-
-    # Prepare data for analysis -----------------------------------------------
-
-    out_sfData <- shiny::reactive({
-
-      if (input$checkClimsmart == TRUE){
-        Features <- raw_sf %>%
-          dplyr::select(.data$geometry, .data$cellID,
-                        tidyselect::all_of(featureNames()))
-        f_no <- fCheckFeatureNo(Features)
-        if (f_no > 1){
-          out_sf <- fClimatePriorityArea_CSapproach(featuresDF = Features,
-                                                    percentile = 5, # Considering the top 5 percentile of each feature as climate-smart areas
-                                                    metricDF = metric_df,
-                                                    direction = 1) %>% # Higher values = more climate-resilient
-            dplyr::left_join(raw_sf %>%
-                               dplyr::select(.data$cellID, tidyselect::starts_with("Cost_")), by = "cellID") %>%
-            dplyr::left_join(metric_df %>%
-                               sf::st_drop_geometry(), by = "cellID")
-        } else {
-          out_sf <- Features %>%
-            dplyr::left_join(raw_sf %>%
-                               dplyr::select(.data$cellID, tidyselect::starts_with("Cost_")), by = "cellID") %>%
-            dplyr::left_join(metric_df %>%
-                               sf::st_drop_geometry(), by = "cellID")
-        }
-
-        return(out_sf)
-
-      } else if (input$checkClimsmart == FALSE){
-        out_sf <- raw_sf %>%
-          dplyr::select(.data$geometry,
-                        tidyselect::all_of(targets()$features),
-                        tidyselect::starts_with("Cost_")) %>%
-          sf::st_as_sf()
-        return(out_sf)
+      } else {
+        print("Something odd is going on here. Check climat-smart tick box.")
       }
-    })
-
-
-
-
-
-
-
-
-    # Set up the problem ------------------------------------------------------
-
-    p1Data <- shiny::reactive({
-
-      p_dat <- out_sfData()
 
       f_no <- fCheckFeatureNo(p_dat)
 
@@ -255,13 +260,13 @@ mod_2scenario_server <- function(id){
             dplyr::select(-tidyselect::starts_with("Cost_"), -.data$cellID, -.data$metric) %>%
             names()
         } else {
-          usedFeatures <- targets()$features
+          usedFeatures <- targets$features
         }
 
 
         p1 <- prioritizr::problem(p_dat, usedFeatures, input$costid) %>%
           prioritizr::add_min_set_objective() %>%
-          prioritizr::add_relative_targets(targets()$targets/100) %>%
+          prioritizr::add_relative_targets(targets$targets/100) %>%
           prioritizr::add_binary_decisions() %>%
           prioritizr::add_cbc_solver(verbose = TRUE)
         # }
@@ -274,9 +279,9 @@ mod_2scenario_server <- function(id){
     })
 
 
-
     # Solve the problem -------------------------------------------------------
     selectedData <- shiny::reactive({
+      #browser()
       selectedData <- solve(p1Data(), run_checks = FALSE) %>%
         sf::st_as_sf()
       return(selectedData)
@@ -362,6 +367,8 @@ mod_2scenario_server <- function(id){
     observeEvent({input$tabs == 2}, {
 
       gg_Target <- shiny::reactive({
+
+        browser()
 
         targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(), climsmart = input$checkClimsmart)
 

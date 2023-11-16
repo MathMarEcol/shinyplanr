@@ -23,7 +23,7 @@ options <- list(
   mod_7credit = TRUE, #switch modules on/off
 
   # TODO Get this working - get conditional panels working for global variables
-  climate_change = TRUE, #switch climate change on/off
+ climate_change = 1, #switch climate change on/off
 
   # obj_func = # which objective function module are we using
 
