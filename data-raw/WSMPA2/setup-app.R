@@ -24,7 +24,7 @@ options <- list(
 
   # TODO Get this working - get conditional panels working for global variables
   #also make conditional panel for mainbody for plots?
- climate_change = 3, #switch climate change on/off; 0 = not clim-smart; 1 = CPA; 2 = Feature; 3 = Percentile
+ climate_change = 1, #switch climate change on/off; 0 = not clim-smart; 1 = CPA; 2 = Feature; 3 = Percentile
 #Warning: still requires some changes in the app: direction, percentile etc. should this be in here? those are input options to the functions
 
 

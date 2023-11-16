@@ -531,12 +531,18 @@ mod_2scenario_server <- function(id) {
       },
       {
         ggr_clim <- shiny::reactive({
-          s1 <- selectedData() %>%
-            dplyr::mutate(solution_1 = dplyr::if_else(.data$solution_1 == "Selected", 1, 0)) %>%
-            tibble::as_tibble()
-
-          ggr_clim <- create_climKernelDensityPlot(s1) # create_climKernelDensityPlot(s1)
-          return(ggr_clim)
+          ggClimDens <- spatialplanr::splnr_plot_climKernelDensity(
+            soln = list(selectedData()),
+            names = c("Input 1"), type = "Normal",
+            legendTitle = "Climate resilience metric (add unit)",
+            xAxisLab = "Climate resilience metric"
+          )
+          # s1 <- selectedData() %>%
+          #   dplyr::mutate(solution_1 = dplyr::if_else(.data$solution_1 == "Selected", 1, 0)) %>%
+          #   tibble::as_tibble()
+          #
+          # ggr_clim <- create_climKernelDensityPlot(s1) # create_climKernelDensityPlot(s1)
+          return(ggClimDens)
         }) %>%
           shiny::bindEvent(input$analyse)
 
