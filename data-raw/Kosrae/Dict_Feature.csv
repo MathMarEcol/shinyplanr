@@ -1,0 +1,30 @@
+﻿NameCommon,NameVariable,Category,CategoryID,Type,TargetInitial,TargetMin,TargetMax,IncludeApp,IncludeJust,Justification,WS_Class
+Epipelagic,epipelagic,Water Depth,Depth,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Mesopelagic,mesopelagic,Water Depth,Depth,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Bathypelagic,bathypelagic,Water Depth,Depth,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Abyssopelagic,abyssopelagic,Water Depth,Depth,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Hadopelagic,hadopelagic,Water Depth,Depth,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Basins Large Basins Of Seas And Oceans,basins_large_basins_of_seas_and_oceans,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Basins Major Ocean Basins,basins_major_ocean_basins,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Basins Small Basins Of Seas And Oceans,basins_small_basins_of_seas_and_oceans,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Bridges,bridges,Geomorphology,GeoMorph,Feature,30,0,85,FALSE,FALSE,This feature is important because…..,NA
+Canyons Blind,canyons_blind,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Canyons Shelf Incising,canyons_shelf_incising,Geomorphology,GeoMorph,Feature,30,0,85,FALSE,FALSE,This feature is important because…..,NA
+Escarpments,escarpments,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Guyots,guyots,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Plateaus,plateaus,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Ridges,ridges,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Rift Valleys,rift_valleys,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Spreading Ridges,spreading_ridges,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Trenches,trenches,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Troughs,troughs,Geomorphology,GeoMorph,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Knolls,knolls,Knolls,Knolls,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Seamounts,seamounts,Seamounts,Seamounts,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Antipatharia,antipatharia,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Cold Corals,cold_corals,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Octocoral,octocoral,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Environmental Region 1,environmental_region_1,Environmental Region,EnviroReg,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Environmental Region 2,environmental_region_2,Environmental Region,EnviroReg,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Environmental Region 3,environmental_region_3,Environmental Region,EnviroReg,Feature,30,0,85,TRUE,TRUE,This feature is important because…..,NA
+Cost None,Cost_None,Cost,Cost,Cost,30,0,85,TRUE,TRUE,This cost is important because…..,NA
+Cost Random,Cost_Random,Cost,Cost,Cost,30,0,85,TRUE,TRUE,This cost is important because…..,NA

@@ -16,7 +16,11 @@ micro_proj <- 'PROJCS["ProjWiz_Custom_Cylindrical_Equal_Area",
                      PARAMETER["Standard_Parallel_1",7],
                      UNIT["Meter",1.0]]'
 
-planning_grid <- offshoredatr::get_planning_grid(area_polygon = micro_eez, projection_crs = micro_proj, resolution_km = 20)
+# micro_proj <- "ESRI:54009"
+
+planning_grid <- offshoredatr::get_planning_grid(area_polygon = micro_eez,
+                                                 projection_crs = micro_proj,
+                                                 resolution_km = 20)
 
 micro_eez_projected <- micro_eez %>%
   sf::st_transform(crs = micro_proj) %>%
@@ -28,14 +32,32 @@ micro_eez_projected <- micro_eez %>%
 #   geom_sf(data = micro_eez, fill = NA, colour = "red")
 
 
-bathymetry <- offshoredatr::get_bathymetry(area_polygon = micro_eez, keep = FALSE)
-
-geomorphology <- offshoredatr::get_geomorphology(area_polygon = micro_eez, planning_grid = planning_grid)
-
-knolls <- offshoredatr::get_knolls(area_polygon = micro_eez, planning_grid = planning_grid)
-
-seamounts <- offshoredatr::get_seamounts_buffered(area_polygon = micro_eez, planning_grid = planning_grid, buffer_km = 30)
-
+# bathymetry <- offshoredatr::get_bathymetry(planning_grid = planning_grid, keep = FALSE)
+# geomorphology <- offshoredatr::get_geomorphology(area_polygon = micro_eez, planning_grid = planning_grid)
+# knolls <- offshoredatr::get_knolls(area_polygon = micro_eez, planning_grid = planning_grid)
+# seamounts <- offshoredatr::get_seamounts_buffered(area_polygon = micro_eez, planning_grid = planning_grid, buffer_km = 30)
 # coral_habitat <- offshoredatr::get_coral_habitat(area_polygon = micro_eez, planning_grid = planning_grid)
+# enviro_regions <- offshoredatr::get_enviro_regions(area_polygon = micro_eez, planning_grid = planning_grid, max_num_clusters = 5)
 
-enviro_regions <- offshoredatr::get_enviro_regions(area_polygon = micro_eez, planning_grid = planning_grid, max_num_clusters = 5)
+
+
+r <- c(offshoredatr::get_bathymetry(planning_grid = planning_grid, keep = FALSE),
+       offshoredatr::get_geomorphology(area_polygon = micro_eez, planning_grid = planning_grid),
+       offshoredatr::get_knolls(area_polygon = micro_eez, planning_grid = planning_grid),
+       offshoredatr::get_seamounts_buffered(area_polygon = micro_eez, planning_grid = planning_grid, buffer_km = 30),
+       offshoredatr::get_coral_habitat(area_polygon = micro_eez, planning_grid = planning_grid),
+       offshoredatr::get_enviro_regions(area_polygon = micro_eez, planning_grid = planning_grid, max_num_clusters = 5)
+)
+
+dat_sf <- r %>%
+  terra::as.polygons(round = FALSE, aggregate = FALSE,
+                     values = TRUE, na.rm = FALSE,
+                     na.all = TRUE, extent = FALSE,
+                     digits = 10, crs = "micro_proj") %>% # Convert to SpatVector
+  sf::st_as_sf() %>% # Convert to sf
+  dplyr::mutate(across(everything(), ~replace_na(.x, 0))) %>% # Replace NA/NaN with 0
+  dplyr::mutate(Cost_None = 0.1,
+                Cost_Random = runif(dim(.)[1]))
+
+
+saveRDS(dat_sf, file.path("data-raw", "Kosrae", "KosraeTestData.rds"))

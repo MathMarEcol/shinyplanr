@@ -16,7 +16,7 @@ app_ui <- function(request) {
     #TODO Can I move this into a css?
     theme = bslib::bs_theme(version = 5,
                             bootswatch = "flatly", # https://bootswatch.com/flatly/
-                            primary = "#2C3E50",
+                            primary = options$nav_primary,
                             # "border-width" = "5px",
                             # "border-color" = "red",
                             "h1-font-size" = "2rem", # Twice the base size
