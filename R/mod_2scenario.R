@@ -432,7 +432,17 @@ mod_2scenario_server <- function(id) {
 
           }
 
-          #browser()
+          rpl <- Dict %>%
+            dplyr::filter(.data$NameVariable %in% targetPlotData$feature) %>%
+            dplyr::select(.data$NameVariable, .data$NameCommon) %>%
+            tibble::deframe()
+
+          targetPlotData <- targetPlotData %>%
+            dplyr::mutate(feature = stringr::str_replace_all(.data$feature, rpl))
+
+          category <- category %>%
+            dplyr::mutate(feature = stringr::str_replace_all(.data$feature, rpl))
+
           # TODO Consider replacing category with Dict. In fact we can just make category a binary as Dict is available everywhere.
           gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData, category = category, nr = 2, showTarget = TRUE)
 
@@ -615,6 +625,13 @@ mod_2scenario_server <- function(id) {
                                                                  climsmart = input$checkClimsmart)
 
           }
+
+          # Create named vector to do the replacement
+          rpl <- Dict %>%
+            dplyr::filter(.data$NameVariable %in% targetPlotData$feature) %>%
+            dplyr::select(.data$NameVariable, .data$NameCommon) %>%
+            tibble::deframe()
+
           # TODO Add category to spatialplanr::splnr_get_featureRep and remove from splnr_plot_featureRep
           FeaturestoSave <- targetPlotData %>%
             dplyr::left_join(Dict %>% dplyr::select(.data$NameVariable, .data$Category), by = c("feature" = "NameVariable")) %>%
@@ -627,7 +644,8 @@ mod_2scenario_server <- function(id) {
               `Target (%)` = .data$target,
               Incidental = .data$incidental
             ) %>%
-            dplyr::arrange(.data$Category, .data$Feature)
+            dplyr::arrange(.data$Category, .data$Feature) %>%
+            dplyr::mutate(Feature = stringr::str_replace_all(.data$Feature, rpl))
 
           return(FeaturestoSave)
         }) %>%
