@@ -242,20 +242,20 @@ mod_2scenario_server <- function(id) {
         if (options$climate_change == 1) { # CPA approach
 
           CS_Approach <- spatialplanr::splnr_climate_priorityAreaApproach(
-            featuresDF = featuresDF,
-            metricDF = climate_sf, targetsDF = targets, direction = 1, refugiaTarget = 1
+            featuresDF = featuresDF, percentile = options$percentile,
+            metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
           )
         } else if (options$climate_change == 2) { # feature approach
 
           CS_Approach <- spatialplanr::splnr_climate_featureApproach(
-            featuresDF = featuresDF,
-            metricDF = climate_sf, targetsDF = targets, direction = 1, refugiaTarget = 30 #here: not 0.3 but 30 needed -> need to streamline; also: what to set as default for precentile and target here?
+            featuresDF = featuresDF, percentile = options$percentile,
+            metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
           )
         } else if (options$climate_change == 3) { # percentile approach
 
           CS_Approach <- spatialplanr::splnr_climate_percentileApproach(
-            featuresDF = featuresDF,
-            metricDF = climate_sf, targetsDF = targets, direction = 1 #default: 35%
+            featuresDF = featuresDF, percentile = options$percentile,
+            metricDF = climate_sf, targetsDF = targets,direction = options$direction
           )
         }
 
