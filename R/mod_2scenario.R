@@ -441,7 +441,7 @@ mod_2scenario_server <- function(id) {
             dplyr::mutate(feature = stringr::str_replace_all(.data$feature, rpl))
 
           category <- category %>%
-            dplyr::mutate(feature = stringr::str_replace_all(.data$feature, rpl))
+            dplyr::mutate(feature = stringr::str_replace_all(.data$feature, rpl)) #TODO maybe add this to file where category is created?
 
           # TODO Consider replacing category with Dict. In fact we can just make category a binary as Dict is available everywhere.
           gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData, category = category, nr = 2, showTarget = TRUE)
