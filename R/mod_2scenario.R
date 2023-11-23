@@ -433,8 +433,8 @@ mod_2scenario_server <- function(id) {
           }
 
           rpl <- Dict %>%
-            dplyr::filter(.data$NameVariable %in% targetPlotData$feature) %>%
-            dplyr::select(.data$NameVariable, .data$NameCommon) %>%
+            dplyr::filter(.data$nameVariable %in% targetPlotData$feature) %>%
+            dplyr::select(.data$nameVariable, .data$nameCommon) %>%
             tibble::deframe()
 
           targetPlotData <- targetPlotData %>%
@@ -628,21 +628,22 @@ mod_2scenario_server <- function(id) {
 
           # Create named vector to do the replacement
           rpl <- Dict %>%
-            dplyr::filter(.data$NameVariable %in% targetPlotData$feature) %>%
-            dplyr::select(.data$NameVariable, .data$NameCommon) %>%
+            dplyr::filter(.data$nameVariable %in% targetPlotData$feature) %>%
+            dplyr::select(.data$nameVariable, .data$nameCommon) %>%
             tibble::deframe()
 
           # TODO Add category to spatialplanr::splnr_get_featureRep and remove from splnr_plot_featureRep
           FeaturestoSave <- targetPlotData %>%
-            dplyr::left_join(Dict %>% dplyr::select(.data$NameVariable, .data$Category), by = c("feature" = "NameVariable")) %>%
+            dplyr::left_join(Dict %>% dplyr::select(.data$nameVariable, .data$category), by = c("feature" = "nameVariable")) %>%
             dplyr::mutate(value = as.integer(round(.data$relative_held * 100)),
                           target = as.integer(round(.data$target * 100))) %>%
-            dplyr::select(.data$Category, .data$feature, .data$target, .data$value, .data$incidental) %>%
+            dplyr::select(.data$category, .data$feature, .data$target, .data$value, .data$incidental) %>%
             dplyr::rename(
               Feature = .data$feature,
               `Protection (%)` = .data$value,
               `Target (%)` = .data$target,
-              Incidental = .data$incidental
+              Incidental = .data$incidental,
+              Category = .data$category
             ) %>%
             dplyr::arrange(.data$Category, .data$Feature) %>%
             dplyr::mutate(Feature = stringr::str_replace_all(.data$Feature, rpl))
@@ -659,11 +660,11 @@ mod_2scenario_server <- function(id) {
 
         SummaryTabler <- shiny::reactive({
           CosttoSave <- Dict %>%
-            dplyr::filter(.data$NameVariable %in% input$costid)
+            dplyr::filter(.data$nameVariable %in% input$costid)
 
           SummarytoSave <- tibble::tribble(
             ~`Rational Use`, ~`Climate Smart`,
-            CosttoSave$NameCommon, dplyr::if_else(input$checkClimsmart, "Yes", "No")
+            CosttoSave$nameCommon, dplyr::if_else(input$checkClimsmart, "Yes", "No")
           )
 
           return(SummarytoSave)

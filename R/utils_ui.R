@@ -7,11 +7,11 @@
 fcreate_vars <- function(id, Dict = Dict, name_check = "check"){
 
   vars <- Dict %>%
-    dplyr::filter(Type == "Feature") %>%
-    dplyr::select(-c("Justification", "WS_Class","IncludeApp", "IncludeJust", "Type")) %>%
+    dplyr::filter(type == "Feature") %>%
+    dplyr::select(-c("justification", "wsClass","includeApp", "includeJust", "type")) %>%
     dplyr::mutate(id = id,
-                  id_in = paste(name_check, .data$NameVariable, sep = "")) %>%
-    dplyr::select("id", "id_in", "NameCommon", "TargetMin", "TargetMax", "TargetInitial")
+                  id_in = paste(name_check, .data$nameVariable, sep = "")) %>%
+    dplyr::select("id", "id_in", "nameCommon", "targetMin", "targetMax", "targetInitial")
 
   return(vars)
 }
@@ -25,7 +25,7 @@ fcreate_vars <- function(id, Dict = Dict, name_check = "check"){
 fcustom_checkbox <- function(id, id_in, Dict, titl){
 
   Dict <- Dict %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+    dplyr::select(.data$nameCommon, .data$nameVariable) %>%
     tibble::deframe()
 
   shiny::checkboxGroupInput(shiny::NS(namespace = id, id = id_in),
@@ -40,13 +40,13 @@ fcustom_checkbox <- function(id, id_in, Dict, titl){
 #'
 #' @noRd
 #'
-fcustom_slider <- function(id, id_in, NameCommon, TargetMin, TargetMax, TargetInitial){
+fcustom_slider <- function(id, id_in, nameCommon, targetMin, targetMax, targetInitial){
 
 shiny:: sliderInput(inputId = shiny::NS(namespace = id, id = id_in),
-                    label = NameCommon,
-                    min = TargetMin,
-                    max = TargetMax,
-                    value = TargetInitial)
+                    label = nameCommon,
+                    min = targetMin,
+                    max = targetMax,
+                    value = targetInitial)
 }
 
 #' Custom Drop Down for Cost (Rational Use)
@@ -56,8 +56,8 @@ shiny:: sliderInput(inputId = shiny::NS(namespace = id, id = id_in),
 fcustom_cost <- function(id, id_in, Dict){
 
   choice <- Dict %>%
-    dplyr::filter(CategoryID == "Cost") %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+    dplyr::filter(categoryID == "Cost") %>%
+    dplyr::select(.data$nameCommon, .data$nameVariable) %>%
     tibble::deframe()
 
   shiny::selectInput(shiny::NS(namespace = id, id = id_in),
@@ -76,11 +76,11 @@ fcustom_cost <- function(id, id_in, Dict){
 create_fancy_dropdown <- function(id, Dict, id_in){
 
   featureList <- Dict %>%
-    dplyr::group_by(Category) %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable, .data$Category) %>%
+    dplyr::group_by(category) %>%
+    dplyr::select(.data$nameCommon, .data$nameVariable, .data$category) %>%
     dplyr::group_split() %>%
-    purrr::set_names(purrr::map_chr(., ~.x$Category[1])) %>%
-    purrr::map(~ (.x %>% dplyr::select(.data$NameCommon, .data$NameVariable))) %>%
+    purrr::set_names(purrr::map_chr(., ~.x$category[1])) %>%
+    purrr::map(~ (.x %>% dplyr::select(.data$nameCommon, .data$nameVariable))) %>%
     purrr::map(tibble::deframe)
 
   shiny::selectInput(shiny::NS(namespace = id, id = id_in),
