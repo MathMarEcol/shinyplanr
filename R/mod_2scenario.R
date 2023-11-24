@@ -353,8 +353,8 @@ mod_2scenario_server <- function(id) {
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              land = landmass,
-              cropLand = selectedData(),
+              overlay = landmass,
+              cropOverlay = selectedData(),
               ggtheme = map_theme
             )
 
@@ -432,19 +432,9 @@ mod_2scenario_server <- function(id) {
 
           }
 
-          rpl <- Dict %>%
-            dplyr::filter(.data$nameVariable %in% targetPlotData$feature) %>%
-            dplyr::select(.data$nameVariable, .data$nameCommon) %>%
-            tibble::deframe()
-
-          targetPlotData <- targetPlotData %>%
-            dplyr::mutate(feature = stringr::str_replace_all(.data$feature, rpl))
-
-          category <- category %>%
-            dplyr::mutate(feature = stringr::str_replace_all(.data$feature, rpl)) #TODO maybe add this to file where category is created?
-
-          # TODO Consider replacing category with Dict. In fact we can just make category a binary as Dict is available everywhere.
-          gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData, category = category, nr = 2, showTarget = TRUE)
+          gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData, nr = 2, showTarget = TRUE,
+                                                           category = category, renameFeatures = TRUE,
+                                                           namesToReplace = Dict)
 
           return(gg_Target)
         }) %>%
@@ -498,8 +488,8 @@ mod_2scenario_server <- function(id) {
           ) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              land = landmass,
-              cropLand = selectedData(),
+              overlay = landmass,
+              cropOverlay = selectedData(),
               ggtheme = map_theme
             )
         }) %>%
