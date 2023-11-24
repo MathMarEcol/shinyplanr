@@ -137,7 +137,7 @@ mod_4features_server <- function(id){
     # Feature justification table
     output$LayerTable <- shiny::renderTable(
       Dict %>%
-        dplyr::filter(.data$IncludeJust == TRUE) %>%
+        dplyr::filter(.data$includeJust == TRUE) %>%
         dplyr::select(.data$category, .data$nameCommon, .data$justification) %>%
         dplyr::arrange(.data$category, .data$nameCommon)
     )
