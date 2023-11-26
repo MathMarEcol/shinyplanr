@@ -1,21 +1,33 @@
 Package: shinyplanr
 Title: Spatial Planning in Shiny
 Version: 0.0.1
-Authors@R: person('Jason', 'Everett', email = 'jaseeverett@gmail.com', role = c('cre', 'aut'))
+Authors@R: c(
+    person(
+      given = 'Jason D.', 
+      family = 'Everett', 
+      email = 'jaseeverett@gmail.com', 
+      role = c('cre', 'aut'), 
+      comment = c(ORCID = "0000-0002-6681-8054")),
+    person(
+      given = "Sandra",
+      family = "Neubert",
+      role = c("aut"),
+      email = "sandra.neubert97@gmail.com",
+      comment = c(ORCID = "0000-0002-3112-4116")
+      )
+    )
 Description: A generic app package to facilitate spatial planning in Shiny.
 License: MIT + file LICENSE
 Imports: 
     bslib,
     config (>= 0.3.1),
     dplyr,
-    ggnewscale,
     ggplot2, 
     ggridges, 
     gridExtra,
     golem (>= 0.4.1),
     magrittr,
     patchwork,
-    pkgload,
     prioritizr,
     purrr,
     RColorBrewer,
@@ -27,12 +39,11 @@ Imports:
     shinycssloaders,
     shinydisconnect, 
     shinyjs, 
-    spatialplanr (>= 0.5.0),
+    spatialplanr (>= 0.6.0),
     stringr,
     tibble,
     tidyr, 
-    tidyselect,
-    viridis
+    tidyselect
 Suggests: 
     spelling,
     testthat (>= 3.0.0)

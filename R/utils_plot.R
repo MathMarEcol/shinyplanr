@@ -160,45 +160,45 @@ fPlotCostOverlay <- function(soln, cost_sf, titleCost){
   return(gg)
 }
 
-#'
-#' # Target Bar Plot ---------------------------------------------------------
-#' #'
+#
+# # Target Bar Plot ---------------------------------------------------------
+# #
 # @noRd
-#' #'
-#' create_targetBarPlot <- function(df, colorBars, slider){
-#'
-#'   nr <- 2
-#'   colr <- tibble::tibble(Category = unique(df$Category),
-#'                          Colour = viridis::viridis(length(unique(df$Category)))) %>%
-#'     tibble::deframe()
-#'
-#'   df <- df %>%
-#'     dplyr::arrange(.data$Category, .data$feature) %>%
-#'     dplyr::mutate(feature = factor(.data$feature, levels = .data$feature))
-#'
-#'   gg_target <- ggplot2::ggplot() +
-#'     ggplot2::geom_bar(data = df, stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value, fill = .data$Category), na.rm = TRUE) +
-#'     ggplot2::geom_bar(data = df %>% dplyr::mutate(value = ifelse(targets==0, value, NA_real_)), stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value), fill = "white", colour = "black", na.rm = TRUE) +
-#'     # ggplot2::geom_bar(data = df %>% dplyr::filter(incidental == FALSE), stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value, colour = .data$Category, fill = .data$Category), na.rm = TRUE) +
-#'     ggplot2::labs(title = ggplot2::element_blank(), x = "Feature", y = "Representation of features \nin total selected area (%)") +
-#'     ggplot2::theme_bw() +
-#'     ggplot2::scale_y_continuous(limits = c(0, ymax <- max(c(df$value, slider), na.rm = TRUE) + 10), expand = c(0,0)) +
-#'     ggplot2::scale_fill_manual(values = colr,
-#'                                guide = ggplot2::guide_legend(nrow = nr),
-#'                                aesthetics = c("colour", "fill")) +
-#'     ggplot2::geom_abline(slope = 0, intercept = slider, col = "black", lty = 2, size = 1.5) +
-#'     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5, size = 16, colour = "black"),
-#'                    axis.text.y = ggplot2::element_text(size = 16, colour = "black"),
-#'                    axis.title.x = ggplot2::element_blank(),
-#'                    legend.title = ggplot2::element_blank(),
-#'                    legend.text = ggplot2::element_text(size = 16),
-#'                    axis.title.y = ggplot2::element_text(size = 16),
-#'                    legend.position = c(0.5, 0.95),
-#'                    legend.direction = "horizontal",
-#'                    legend.background = ggplot2::element_rect(fill = "NA"))
-#'
-#'   return(gg_target)
-#' }
+# #
+# create_targetBarPlot <- function(df, colorBars, slider){
+#
+#   nr <- 2
+#   colr <- tibble::tibble(Category = unique(df$Category),
+#                          Colour = viridis::viridis(length(unique(df$Category)))) %>%
+#     tibble::deframe()
+#
+#   df <- df %>%
+#     dplyr::arrange(.data$Category, .data$feature) %>%
+#     dplyr::mutate(feature = factor(.data$feature, levels = .data$feature))
+#
+#   gg_target <- ggplot2::ggplot() +
+#     ggplot2::geom_bar(data = df, stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value, fill = .data$Category), na.rm = TRUE) +
+#     ggplot2::geom_bar(data = df %>% dplyr::mutate(value = ifelse(targets==0, value, NA_real_)), stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value), fill = "white", colour = "black", na.rm = TRUE) +
+#     # ggplot2::geom_bar(data = df %>% dplyr::filter(incidental == FALSE), stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value, colour = .data$Category, fill = .data$Category), na.rm = TRUE) +
+#     ggplot2::labs(title = ggplot2::element_blank(), x = "Feature", y = "Representation of features \nin total selected area (%)") +
+#     ggplot2::theme_bw() +
+#     ggplot2::scale_y_continuous(limits = c(0, ymax <- max(c(df$value, slider), na.rm = TRUE) + 10), expand = c(0,0)) +
+#     ggplot2::scale_fill_manual(values = colr,
+#                                guide = ggplot2::guide_legend(nrow = nr),
+#                                aesthetics = c("colour", "fill")) +
+#     ggplot2::geom_abline(slope = 0, intercept = slider, col = "black", lty = 2, size = 1.5) +
+#     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5, size = 16, colour = "black"),
+#                    axis.text.y = ggplot2::element_text(size = 16, colour = "black"),
+#                    axis.title.x = ggplot2::element_blank(),
+#                    legend.title = ggplot2::element_blank(),
+#                    legend.text = ggplot2::element_text(size = 16),
+#                    axis.title.y = ggplot2::element_text(size = 16),
+#                    legend.position = c(0.5, 0.95),
+#                    legend.direction = "horizontal",
+#                    legend.background = ggplot2::element_rect(fill = "NA"))
+#
+#   return(gg_target)
+# }
 
 
 # Regionalisation Plot ----------------------------------------------------

@@ -64,8 +64,8 @@ mod_4features_server <- function(id){
         }
 
         common <- Dict %>%
-          dplyr::filter(.data$NameVariable %in% region_names) %>%
-          dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+          dplyr::filter(.data$nameVariable %in% region_names) %>%
+          dplyr::select(.data$nameCommon, .data$nameVariable) %>%
           tibble::deframe()
 
         # Get the columns for regionalisation and pivot longer
@@ -95,8 +95,8 @@ mod_4features_server <- function(id){
           titleCost <- " "
         } else {
           titleCost <- Dict %>%
-            dplyr::filter(.data$NameVariable %in% input$checkFeat) %>%
-            dplyr::select(.data$NameVariable, .data$NameCommon) %>%
+            dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
+            dplyr::select(.data$nameVariable, .data$nameCommon) %>%
             tibble::deframe()
           titleCost <- paste0("Rational Use: ",titleCost)
         }
@@ -137,16 +137,16 @@ mod_4features_server <- function(id){
     # Feature justification table
     output$LayerTable <- shiny::renderTable(
       Dict %>%
-        dplyr::filter(.data$IncludeJust == TRUE) %>%
-        dplyr::select(.data$Category, .data$NameCommon, .data$Justification) %>%
-        dplyr::arrange(.data$Category, .data$NameCommon)
+        dplyr::filter(.data$includeJust == TRUE) %>%
+        dplyr::select(.data$category, .data$nameCommon, .data$justification) %>%
+        dplyr::arrange(.data$category, .data$nameCommon)
     )
 
     # Text justification for the spatial plot
     output$txt_just <- shiny::renderText(
       Dict %>%
-        dplyr::filter(.data$NameVariable == input$checkFeat) %>%
-        dplyr::pull(.data$Justification)
+        dplyr::filter(.data$nameVariable == input$checkFeat) %>%
+        dplyr::pull(.data$justification)
     )
 
   })
