@@ -30,7 +30,7 @@ mod_4features_ui <- function(id){
                            )
                          )
                 ),
-                tabPanel("Layer justification", value = 2,
+                tabPanel("Layer Justification", value = 2,
                          shiny::fluidPage(
                            shiny::tableOutput(ns("LayerTable")),
                          )),
