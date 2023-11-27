@@ -2,7 +2,6 @@
 
 library(tidyverse)
 
-
 # APP PARAMETERS --------------------------------------------------
 options <- list(
 
