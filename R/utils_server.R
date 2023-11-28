@@ -11,13 +11,13 @@ fupdate_checkbox <- function(session, id_in, Dict, selected = NA){ #works unless
 
   if (stringr::str_detect(id_in, "check2") == TRUE){
     choice <- Dict %>%
-      dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check2")) #%>%
+      dplyr::filter(.data$category  == stringr::str_remove(id_in, "check2")) #%>%
   } else if (stringr::str_detect(id_in, "check") == TRUE){
     choice <- Dict %>%
-      dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check")) #%>%
+      dplyr::filter(.data$category  == stringr::str_remove(id_in, "check")) #%>%
   }
   choice <- choice %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+    dplyr::select(.data$nameCommon, .data$nameVariable) %>%
     tibble::deframe()
 
   shiny::updateCheckboxGroupInput(session = session,
@@ -34,13 +34,13 @@ fupdate_checkboxReset <- function(session, id_in, Dict, selected = NA){ #works u
 
   if (stringr::str_detect(id_in, "check2") == TRUE){
     choice <- Dict %>%
-      dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check2")) #%>%
+      dplyr::filter(.data$category  == stringr::str_remove(id_in, "check2")) #%>%
   } else if (stringr::str_detect(id_in, "check") == TRUE){
     choice <- Dict %>%
-      dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check")) #%>%
+      dplyr::filter(.data$category  == stringr::str_remove(id_in, "check")) #%>%
   }
   choice <- choice %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+    dplyr::select(.data$nameCommon, .data$nameVariable) %>%
     tibble::deframe()
 
   # selected <- ifelse(selected == NA, unlist(choice), selected)
@@ -57,6 +57,7 @@ fupdate_checkboxReset <- function(session, id_in, Dict, selected = NA){ #works u
 #' @noRd
 #'
 fDeselectVars <- function(session, input, output, id = 1){
+  browser()
 
   # Add 2 to check ID if using Input2 in the Compare module
   if (id == 2){

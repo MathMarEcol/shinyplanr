@@ -10,7 +10,8 @@
 mod_2scenario_ui <- function(id) {
   ns <- shiny::NS(id)
 
-  Vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_")
+  Vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
+  # browser()
   shinyjs::useShinyjs()
 
   shiny::tagList(
@@ -21,7 +22,8 @@ mod_2scenario_ui <- function(id) {
           width = "100%", class = "btn btn-outline-primary",
           style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
         ),
-        purrr::pmap(Vars, fcustom_slider),
+        fcustom_sliderCategory(Vars, labelNum = 1),
+        #   purrr::pmap(Vars, fcustom_slider),
         shiny::h2("2. Select Rational Use"),
         fcustom_cost(id, "costid", Dict),
         shinyjs::hidden(div(
@@ -200,7 +202,7 @@ mod_2scenario_server <- function(id) {
         tidyr::unnest(cols = value) %>%
         dplyr::rename(feature = name, target = value) %>%
         dplyr::mutate(feature = f) %>%
-        dplyr::mutate(target = target / 100) #requires number between 0-1
+        dplyr::mutate(target = target / 100) # requires number between 0-1
 
       return(targets)
     })
@@ -255,7 +257,7 @@ mod_2scenario_server <- function(id) {
 
           CS_Approach <- spatialplanr::splnr_climate_percentileApproach(
             featuresDF = featuresDF, percentile = options$percentile,
-            metricDF = climate_sf, targetsDF = targets,direction = options$direction
+            metricDF = climate_sf, targetsDF = targets, direction = options$direction
           )
         }
 
@@ -417,24 +419,25 @@ mod_2scenario_server <- function(id) {
       },
       {
         gg_Target <- shiny::reactive({
-
           if (input$checkClimsmart == TRUE) {
-
             targets <- targetData()
-            targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(),
-                                                                 climsmart = input$checkClimsmart, climsmartApproach = options$climate_change,
-                                                                 targetsDF = targets)
-
+            targetPlotData <- spatialplanr::splnr_get_featureRep(
+              soln = selectedData(), pDat = p1Data(),
+              climsmart = input$checkClimsmart, climsmartApproach = options$climate_change,
+              targetsDF = targets
+            )
           } else {
-
-            targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(),
-                                                                 climsmart = input$checkClimsmart)
-
+            targetPlotData <- spatialplanr::splnr_get_featureRep(
+              soln = selectedData(), pDat = p1Data(),
+              climsmart = input$checkClimsmart
+            )
           }
 
-          gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData, nr = 2, showTarget = TRUE,
-                                                           category = category, renameFeatures = TRUE,
-                                                           namesToReplace = Dict)
+          gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData,
+            nr = 2, showTarget = TRUE,
+            category = category, renameFeatures = TRUE,
+            namesToReplace = Dict
+          )
 
           return(gg_Target)
         }) %>%
@@ -603,17 +606,17 @@ mod_2scenario_server <- function(id) {
       {
         DataTabler <- shiny::reactive({
           if (input$checkClimsmart == TRUE) {
-
             targets <- targetData()
-            targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(),
-                                                                 climsmart = input$checkClimsmart, climsmartApproach = options$climate_change,
-                                                                 targetsDF = targets)
-
+            targetPlotData <- spatialplanr::splnr_get_featureRep(
+              soln = selectedData(), pDat = p1Data(),
+              climsmart = input$checkClimsmart, climsmartApproach = options$climate_change,
+              targetsDF = targets
+            )
           } else {
-
-            targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(),
-                                                                 climsmart = input$checkClimsmart)
-
+            targetPlotData <- spatialplanr::splnr_get_featureRep(
+              soln = selectedData(), pDat = p1Data(),
+              climsmart = input$checkClimsmart
+            )
           }
 
           # Create named vector to do the replacement
@@ -625,8 +628,10 @@ mod_2scenario_server <- function(id) {
           # TODO Add category to spatialplanr::splnr_get_featureRep and remove from splnr_plot_featureRep
           FeaturestoSave <- targetPlotData %>%
             dplyr::left_join(Dict %>% dplyr::select(.data$nameVariable, .data$category), by = c("feature" = "nameVariable")) %>%
-            dplyr::mutate(value = as.integer(round(.data$relative_held * 100)),
-                          target = as.integer(round(.data$target * 100))) %>%
+            dplyr::mutate(
+              value = as.integer(round(.data$relative_held * 100)),
+              target = as.integer(round(.data$target * 100))
+            ) %>%
             dplyr::select(.data$category, .data$feature, .data$target, .data$value, .data$incidental) %>%
             dplyr::rename(
               Feature = .data$feature,
