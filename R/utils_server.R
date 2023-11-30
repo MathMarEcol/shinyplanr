@@ -1,8 +1,6 @@
 
 
 
-
-
 #' Title
 #'
 #' @noRd
@@ -154,6 +152,3 @@ fDownloadPlotServer <- function(input, gg_id, gg_prefix, time_date, width = 19, 
   #     })
   # }
 }
-
-
-

@@ -19,8 +19,8 @@ mod_2scenario_ui <- function(id) {
       shiny::sidebarPanel(
         shiny::h2("1. Select Features and Targets"),
         shiny::actionButton(ns("deselectVars"), "Reset All Features",
-          width = "100%", class = "btn btn-outline-primary",
-          style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
+                            width = "100%", class = "btn btn-outline-primary",
+                            style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
         ),
         fcustom_sliderCategory(Vars, labelNum = 1),
         #   purrr::pmap(Vars, fcustom_slider),
@@ -43,8 +43,8 @@ mod_2scenario_ui <- function(id) {
         shiny::fixedPanel(
           style = "z-index:100", # To force the button above all plots.
           shiny::actionButton(ns("analyse"), "Run Analysis", shiny::icon("paper-plane"),
-            width = "100%", class = "btn btn-primary",
-            style = "display: block; float: left; padding:4px; font-size:150%;"
+                              width = "100%", class = "btn btn-primary",
+                              style = "display: block; float: left; padding:4px; font-size:150%;"
           ),
           right = "71%", bottom = "1%", left = "5%"
         ),
@@ -63,44 +63,44 @@ mod_2scenario_ui <- function(id) {
         tabsetPanel(
           id = ns("tabs"), # type = "pills",
           tabPanel("Scenario",
-            value = 1,
-            shiny::fixedPanel(
-              style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns("dlPlot1"), "Download Plot",
-                style = "float: right; padding:4px; font-size:120%"
-              ),
-              right = "1%", bottom = "1%", left = "34%"
-            ),
-            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_soln")))),
-            shiny::textOutput(ns("txt_soln")),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_soln"), height = "700px"))
+                   value = 1,
+                   shiny::fixedPanel(
+                     style = "z-index:100", # To force the button above all plots.=
+                     shiny::downloadButton(ns("dlPlot1"), "Download Plot",
+                                           style = "float: right; padding:4px; font-size:120%"
+                     ),
+                     right = "1%", bottom = "1%", left = "34%"
+                   ),
+                   shiny::span(shiny::h2(shiny::textOutput(ns("hdr_soln")))),
+                   shiny::textOutput(ns("txt_soln")),
+                   shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_soln"), height = "700px"))
           ),
           tabPanel("Targets",
-            value = 2,
-            shiny::fixedPanel(
-              style = "z-index:100", # To force the button above all plots.
-              shiny::downloadButton(ns("dlPlot2"), "Download Plots",
-                style = "float: right; padding:4px; font-size:120%"
-              ),
-              right = "1%", bottom = "1%", left = "34%"
-            ),
-            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_target")))),
-            shiny::textOutput(ns("txt_target")),
-            shiny::br(),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_TargetPlot"), height = "600px"))
+                   value = 2,
+                   shiny::fixedPanel(
+                     style = "z-index:100", # To force the button above all plots.
+                     shiny::downloadButton(ns("dlPlot2"), "Download Plots",
+                                           style = "float: right; padding:4px; font-size:120%"
+                     ),
+                     right = "1%", bottom = "1%", left = "34%"
+                   ),
+                   shiny::span(shiny::h2(shiny::textOutput(ns("hdr_target")))),
+                   shiny::textOutput(ns("txt_target")),
+                   shiny::br(),
+                   shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_TargetPlot"), height = "600px"))
           ),
           tabPanel("Rational Use",
-            value = 3,
-            shiny::fixedPanel(
-              style = "z-index:100", # To force the button above all plots.
-              shiny::downloadButton(ns("dlPlot3"), "Download Plot",
-                style = "float: right; padding:4px; font-size:120%"
-              ),
-              right = "1%", bottom = "1%", left = "34%"
-            ),
-            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_cost")))),
-            shiny::textOutput(ns("txt_cost")),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_cost"), height = "700px"))
+                   value = 3,
+                   shiny::fixedPanel(
+                     style = "z-index:100", # To force the button above all plots.
+                     shiny::downloadButton(ns("dlPlot3"), "Download Plot",
+                                           style = "float: right; padding:4px; font-size:120%"
+                     ),
+                     right = "1%", bottom = "1%", left = "34%"
+                   ),
+                   shiny::span(shiny::h2(shiny::textOutput(ns("hdr_cost")))),
+                   shiny::textOutput(ns("txt_cost")),
+                   shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_cost"), height = "700px"))
           ),
           # tabPanel("Selection Frequency", value = 5,
           #          shiny::fixedPanel(style="z-index:100", # To force the button above all plots.
@@ -115,32 +115,32 @@ mod_2scenario_ui <- function(id) {
           #          shiny::textOutput(ns("txt_selFreq")),
           #          shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_selFreq"), height = "700px"))),
           tabPanel("Climate Resilience",
-            value = 6,
-            shiny::fixedPanel(
-              style = "z-index:100", # To force the button above all plots.
-              shiny::downloadButton(ns("dlPlot6"), "Download Plot",
-                style = "float: right; padding:4px; font-size:120%"
-              ),
-              right = "1%", bottom = "1%", left = "34%"
-            ),
-            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_clim")))),
-            shiny::textOutput(ns("txt_clim")),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_clim"), height = "700px"))
+                   value = 6,
+                   shiny::fixedPanel(
+                     style = "z-index:100", # To force the button above all plots.
+                     shiny::downloadButton(ns("dlPlot6"), "Download Plot",
+                                           style = "float: right; padding:4px; font-size:120%"
+                     ),
+                     right = "1%", bottom = "1%", left = "34%"
+                   ),
+                   shiny::span(shiny::h2(shiny::textOutput(ns("hdr_clim")))),
+                   shiny::textOutput(ns("txt_clim")),
+                   shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_clim"), height = "700px"))
           ),
           tabPanel("Details",
-            value = 7,
-            shiny::fixedPanel(
-              style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns("dlPlot7"), "Download Table",
-                style = "float: right; padding:4px; font-size:120%"
-              ),
-              right = "1%", bottom = "1%", left = "34%"
-            ),
-            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_DetsSummary")))),
-            shiny::br(),
-            shiny::tableOutput(ns("SummaryTable")),
-            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_DetsData")))),
-            shiny::tableOutput(ns("DataTable"))
+                   value = 7,
+                   shiny::fixedPanel(
+                     style = "z-index:100", # To force the button above all plots.=
+                     shiny::downloadButton(ns("dlPlot7"), "Download Table",
+                                           style = "float: right; padding:4px; font-size:120%"
+                     ),
+                     right = "1%", bottom = "1%", left = "34%"
+                   ),
+                   shiny::span(shiny::h2(shiny::textOutput(ns("hdr_DetsSummary")))),
+                   shiny::br(),
+                   shiny::tableOutput(ns("SummaryTable")),
+                   shiny::span(shiny::h2(shiny::textOutput(ns("hdr_DetsData")))),
+                   shiny::tableOutput(ns("DataTable"))
           ),
         )
       )
@@ -175,18 +175,18 @@ mod_2scenario_server <- function(id) {
 
     # Reset values
     shiny::observeEvent(input$reset,
-      {
-        fResetInputs(session, input, output)
-      },
-      ignoreInit = TRUE
+                        {
+                          fResetInputs(session, input, output)
+                        },
+                        ignoreInit = TRUE
     )
 
     # Deselect features
     shiny::observeEvent(input$deselectVars,
-      {
-        fDeselectVars(session, input, output)
-      },
-      ignoreInit = TRUE
+                        {
+                          fDeselectVars(session, input, output)
+                        },
+                        ignoreInit = TRUE
     )
 
 
@@ -275,7 +275,7 @@ mod_2scenario_server <- function(id) {
             by = "cellID"
           ) %>%
           dplyr::left_join(climate_sf %>%
-            sf::st_drop_geometry(), by = "cellID")
+                             sf::st_drop_geometry(), by = "cellID")
       } else {
         print("Something odd is going on here. Check climat-smart tick box.")
       }
@@ -284,8 +284,8 @@ mod_2scenario_server <- function(id) {
 
       if (f_no == 1) {
         shinyalert::shinyalert("Error", "No features have been selected. You can't run a spatial prioritization without any features.",
-          type = "error",
-          callbackR = shinyjs::runjs("window.scrollTo(0, 0)")
+                               type = "error",
+                               callbackR = shinyjs::runjs("window.scrollTo(0, 0)")
         )
 
         p_dat <- p_dat %>%
@@ -397,7 +397,7 @@ mod_2scenario_server <- function(id) {
               because they are within areas valuable and accessible for other rational uses.
               For the chosen inputs.",
             round((selectedData() %>% dplyr::filter(.data$solution_1 == "Selected") %>% # TODO probably should adjust the txt function to return numerics to use here
-              nrow() / nrow(selectedData())) * 100),
+                     nrow() / nrow(selectedData())) * 100),
             "% of the planning region was selected."
           )
         }) %>%
@@ -434,9 +434,9 @@ mod_2scenario_server <- function(id) {
           }
 
           gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData,
-            nr = 2, showTarget = TRUE,
-            category = category, renameFeatures = TRUE,
-            namesToReplace = Dict
+                                                           nr = 2, showTarget = TRUE,
+                                                           category = category, renameFeatures = TRUE,
+                                                           namesToReplace = Dict
           )
 
           return(gg_Target)
@@ -485,9 +485,9 @@ mod_2scenario_server <- function(id) {
       {
         costPlotData <- shiny::reactive({
           spatialplanr::splnr_plot_costOverlay(selectedData(),
-            Cost = NA, Cost_name = input$costid,
-            legendTitle = "Cost",
-            plotTitle = "Solution overlaid with cost"
+                                               Cost = NA, Cost_name = input$costid,
+                                               legendTitle = "Cost",
+                                               plotTitle = "Solution overlaid with cost"
           ) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,

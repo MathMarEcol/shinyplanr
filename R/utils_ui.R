@@ -34,9 +34,9 @@ fcustom_checkbox <- function(id, id_in, Dict, titl) {
     tibble::deframe()
 
   shiny::checkboxGroupInput(shiny::NS(namespace = id, id = id_in),
-    shiny::h5(titl),
-    choices = Dict,
-    selected = unlist(Dict)
+                            shiny::h5(titl),
+                            choices = Dict,
+                            selected = unlist(Dict)
   )
 }
 
@@ -88,9 +88,9 @@ fcustom_cost <- function(id, id_in, Dict) {
     tibble::deframe()
 
   shiny::selectInput(shiny::NS(namespace = id, id = id_in),
-    label = shiny::h3(" "),
-    choices = choice,
-    multiple = FALSE
+                     label = shiny::h3(" "),
+                     choices = choice,
+                     multiple = FALSE
   )
 }
 
@@ -111,9 +111,9 @@ create_fancy_dropdown <- function(id, Dict, id_in) {
     purrr::map(tibble::deframe)
 
   shiny::selectInput(shiny::NS(namespace = id, id = id_in),
-    shiny::h4(" "),
-    choices = featureList,
-    # selected = "ANFS_breeding",
-    multiple = FALSE
+                     shiny::h4(" "),
+                     choices = featureList,
+                     # selected = "ANFS_breeding",
+                     multiple = FALSE
   )
 }
