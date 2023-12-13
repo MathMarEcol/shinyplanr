@@ -17,21 +17,21 @@ mod_2scenario_ui <- function(id) {
   shiny::tagList(
     shiny::sidebarLayout(
       shiny::sidebarPanel(
-        shiny::h2("1. Select Features and Targets"),
-        shiny::actionButton(ns("deselectVars"), "Reset All Features",
-                            width = "100%", class = "btn btn-outline-primary",
-                            style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
-        ),
-        fcustom_sliderCategory(Vars, labelNum = 1),
-        #   purrr::pmap(Vars, fcustom_slider),
-        shiny::h2("2. Select Rational Use"),
-        fcustom_cost(id, "costid", Dict),
-        shinyjs::hidden(div(
-          id = ns("switchClimSmart"),
-          shiny::h2("3. Climate-resilient"),
-          shiny::p("Should the spatial plan be made climate-resilient?"),
-          shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
-        )),
+        # shiny::h2("1. Select Features and Targets"),
+        # shiny::actionButton(ns("deselectVars"), "Reset All Features",
+        #                     width = "100%", class = "btn btn-outline-primary",
+        #                     style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
+        # ),
+        # fcustom_sliderCategory(Vars, labelNum = 1),
+        # #   purrr::pmap(Vars, fcustom_slider),
+        # shiny::h2("2. Select Rational Use"),
+        # fcustom_cost(id, "costid", Dict),
+        # shinyjs::hidden(div(
+        #   id = ns("switchClimSmart"),
+        #   shiny::h2("3. Climate-resilient"),
+        #   shiny::p("Should the spatial plan be made climate-resilient?"),
+        #   shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
+        # )),
         # shiny::conditionalPanel(
         #   condition = "options$climate_change == TRUE",
         #   shiny::h2("3. Climate-resilient"),
@@ -62,6 +62,24 @@ mod_2scenario_ui <- function(id) {
         shinyjs::useShinyjs(),
         tabsetPanel(
           id = ns("tabs"), # type = "pills",
+          tabPanel("Settings",
+                   value = 8,
+                   shiny::h2("1. Select Features and Targets"),
+                   shiny::actionButton(ns("deselectVars"), "Reset All Features",
+                                       width = "100%", class = "btn btn-outline-primary",
+                                       style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
+                   ),
+                   fcustom_sliderCategory(Vars, labelNum = 1),
+                   #   purrr::pmap(Vars, fcustom_slider),
+                   shiny::h2("2. Select Rational Use"),
+                   fcustom_cost(id, "costid", Dict),
+                   shinyjs::hidden(div(
+                     id = ns("switchClimSmart"),
+                     shiny::h2("3. Climate-resilient"),
+                     shiny::p("Should the spatial plan be made climate-resilient?"),
+                     shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
+                   ))
+          ),
           tabPanel("Scenario",
                    value = 1,
                    shiny::fixedPanel(
