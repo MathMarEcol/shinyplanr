@@ -1,8 +1,7 @@
 library(tidyverse)
 
-
 # Test stuff
-micro_eez <- offshoredatr::get_area("Micronesia")
+micro_eez <- oceandatr::get_area("Micronesia")
 micro_proj <- 'PROJCS["ProjWiz_Custom_Cylindrical_Equal_Area",
                      GEOGCS["GCS_WGS_1984",
                             DATUM["D_WGS_1984",
@@ -18,9 +17,9 @@ micro_proj <- 'PROJCS["ProjWiz_Custom_Cylindrical_Equal_Area",
 
 # micro_proj <- "ESRI:54009"
 
-planning_grid <- offshoredatr::get_planning_grid(area_polygon = micro_eez,
+planning_grid <- oceandatr::get_planning_grid(area_polygon = micro_eez,
                                                  projection_crs = micro_proj,
-                                                 resolution_km = 20)
+                                                 resolution = 20000)
 
 micro_eez_projected <- micro_eez %>%
   sf::st_transform(crs = micro_proj) %>%
@@ -32,21 +31,21 @@ micro_eez_projected <- micro_eez %>%
 #   geom_sf(data = micro_eez, fill = NA, colour = "red")
 
 
-# bathymetry <- offshoredatr::get_bathymetry(planning_grid = planning_grid, keep = FALSE)
-# geomorphology <- offshoredatr::get_geomorphology(area_polygon = micro_eez, planning_grid = planning_grid)
-# knolls <- offshoredatr::get_knolls(area_polygon = micro_eez, planning_grid = planning_grid)
-# seamounts <- offshoredatr::get_seamounts_buffered(area_polygon = micro_eez, planning_grid = planning_grid, buffer_km = 30)
-# coral_habitat <- offshoredatr::get_coral_habitat(area_polygon = micro_eez, planning_grid = planning_grid)
-# enviro_regions <- offshoredatr::get_enviro_regions(area_polygon = micro_eez, planning_grid = planning_grid, max_num_clusters = 5)
+# bathymetry <- oceandatr::get_bathymetry(planning_grid = planning_grid, keep = FALSE)
+# geomorphology <- oceandatr::get_geomorphology(planning_grid = planning_grid)
+# knolls <- oceandatr::get_knolls(planning_grid = planning_grid)
+# seamounts <- oceandatr::get_seamounts_buffered(planning_grid = planning_grid, buffer = 30000)
+# coral_habitat <- oceandatr::get_coral_habitat(planning_grid = planning_grid)
+# enviro_regions <- oceandatr::get_enviro_regions(planning_grid = planning_grid, max_num_clusters = 5)
 
 
 
-r <- c(offshoredatr::get_bathymetry(planning_grid = planning_grid, keep = FALSE),
-       offshoredatr::get_geomorphology(area_polygon = micro_eez, planning_grid = planning_grid),
-       offshoredatr::get_knolls(area_polygon = micro_eez, planning_grid = planning_grid),
-       offshoredatr::get_seamounts_buffered(area_polygon = micro_eez, planning_grid = planning_grid, buffer_km = 30),
-       offshoredatr::get_coral_habitat(area_polygon = micro_eez, planning_grid = planning_grid),
-       offshoredatr::get_enviro_regions(area_polygon = micro_eez, planning_grid = planning_grid, max_num_clusters = 5)
+r <- c(oceandatr::get_bathymetry(planning_grid = planning_grid, keep = FALSE),
+       oceandatr::get_geomorphology(planning_grid = planning_grid),
+       oceandatr::get_knolls(planning_grid = planning_grid),
+       oceandatr::get_seamounts_buffered(planning_grid = planning_grid, buffer = 30000),
+       oceandatr::get_coral_habitat(planning_grid = planning_grid),
+       oceandatr::get_enviro_regions(planning_grid = planning_grid, max_num_clusters = 5)
 )
 
 dat_sf <- r %>%
