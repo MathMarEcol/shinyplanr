@@ -1,4 +1,4 @@
-﻿NameCommon,NameVariable,Category,CategoryID,Type,TargetInitial,TargetMin,TargetMax,IncludeApp,IncludeJust,Justification,WS_Class
+﻿nameCommon,nameVariable,category,categoryID,type,targetInitial,targetMin,targetMax,includeApp,includeJust,justification,wsClass
 Vessel Accessibility,Cost_IceA,Cost,Cost,Cost,NA,NA,NA,TRUE,TRUE,This cost layer is important because,
 Krill,Cost_Krill,Cost,Cost,Cost,NA,NA,NA,TRUE,TRUE,This cost layer is important because,
 Toothfish,Cost_Toothfish,Cost,Cost,Cost,NA,NA,NA,TRUE,TRUE,This cost layer is important because,

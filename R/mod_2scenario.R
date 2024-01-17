@@ -190,7 +190,7 @@ mod_2scenario_server <- function(id) {
 
     # Return targets and names for all features from sliders ---------------------------------------------------
 
-    p1Data <- shiny::reactive({ ####### SPLIT in target, p, s (maybe features?)
+    targetData <- shiny::reactive({ ####### SPLIT in target, p, s (maybe features?)
 
       f <- vars[stringr::str_detect(vars, "Cost_", negate = TRUE)]
 
@@ -198,14 +198,33 @@ mod_2scenario_server <- function(id) {
         purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0("sli_", x))))) %>%
         tibble::enframe() %>%
         tidyr::unnest(cols = value) %>%
-        dplyr::rename(features = name, targets = value) %>%
-        dplyr::mutate(features = f)
+        dplyr::rename(feature = name, target = value) %>%
+        dplyr::mutate(feature = f) %>%
+        dplyr::mutate(target = target / 100) #requires number between 0-1
 
+      return(targets)
+    })
+
+
+    p1Data <- shiny::reactive({ ####### SPLIT in target, p, s (maybe features?)
+
+      # f <- vars[stringr::str_detect(vars, "Cost_", negate = TRUE)]
+      #
+      # targets <- f %>%
+      #   purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0("sli_", x))))) %>%
+      #   tibble::enframe() %>%
+      #   tidyr::unnest(cols = value) %>%
+      #   dplyr::rename(feature = name, target = value) %>%
+      #   dplyr::mutate(feature = f) %>%
+      #   dplyr::mutate(target = target / 100) #requires number between 0-1
+      #
+
+      targets <- targetData()
 
       out_sf <- raw_sf %>%
         dplyr::select(
           .data$geometry,
-          tidyselect::all_of(targets$features),
+          tidyselect::all_of(targets$feature),
           tidyselect::starts_with("Cost_")
         ) %>%
         sf::st_as_sf()
@@ -216,46 +235,31 @@ mod_2scenario_server <- function(id) {
         featuresDF <- out_sf %>%
           dplyr::select(
             .data$geometry,
-            tidyselect::all_of(targets$features)
+            tidyselect::all_of(targets$feature)
           ) %>%
           dplyr::mutate(cellID = 1:nrow(.))
 
-        targets <- targets %>% # TODO: take renaming out and streamline between spatialplanr and shinyplanrS
-          dplyr::rename(
-            feature = features,
-            target = targets
-          )
-
         if (options$climate_change == 1) { # CPA approach
 
-          targets <- targets %>%
-            dplyr::mutate(target = target / 100) #requires number between 0-1
-
           CS_Approach <- spatialplanr::splnr_climate_priorityAreaApproach(
-            featuresDF = featuresDF,
-            metricDF = climate_sf, targetsDF = targets, direction = 1, refugiaTarget = 1
+            featuresDF = featuresDF, percentile = options$percentile,
+            metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
           )
         } else if (options$climate_change == 2) { # feature approach
 
           CS_Approach <- spatialplanr::splnr_climate_featureApproach(
-            featuresDF = featuresDF,
-            metricDF = climate_sf, targetsDF = targets, direction = 1, refugiaTarget = 30 #here: not 0.3 but 30 needed -> need to streamline; also: what to set as default for precentile and target here?
+            featuresDF = featuresDF, percentile = options$percentile,
+            metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
           )
         } else if (options$climate_change == 3) { # percentile approach
 
           CS_Approach <- spatialplanr::splnr_climate_percentileApproach(
-            featuresDF = featuresDF,
-            metricDF = climate_sf, targetsDF = targets, direction = 1 #default: 35%
+            featuresDF = featuresDF, percentile = options$percentile,
+            metricDF = climate_sf, targetsDF = targets,direction = options$direction
           )
         }
 
-        targets <- CS_Approach$Targets %>% # TODO: take renaming out and streamline between spatialplanr and shinyplanrS
-          dplyr::rename(
-            targets = target,
-            features = feature
-          ) %>%
-          dplyr::mutate(targets = targets * 100)
-
+        targets <- CS_Approach$Targets
 
         p_dat <- CS_Approach$Features %>%
           dplyr::left_join(
@@ -298,13 +302,13 @@ mod_2scenario_server <- function(id) {
             dplyr::select(-tidyselect::starts_with("Cost_"), -.data$cellID, -.data$metric) %>%
             names()
         } else {
-          usedFeatures <- targets$features
+          usedFeatures <- targets$feature
         }
 
 
         p1 <- prioritizr::problem(p_dat, usedFeatures, input$costid) %>%
           prioritizr::add_min_set_objective() %>%
-          prioritizr::add_relative_targets(targets$targets / 100) %>%
+          prioritizr::add_relative_targets(targets$target) %>%
           prioritizr::add_binary_decisions() %>%
           prioritizr::add_cbc_solver(verbose = TRUE)
         # }
@@ -349,8 +353,8 @@ mod_2scenario_server <- function(id) {
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              land = landmass,
-              cropLand = selectedData(),
+              overlay = landmass,
+              cropOverlay = selectedData(),
               ggtheme = map_theme
             )
 
@@ -413,10 +417,24 @@ mod_2scenario_server <- function(id) {
       },
       {
         gg_Target <- shiny::reactive({
-          targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(), climsmart = input$checkClimsmart)
 
-          # TODO Consider replacing category with Dict. In fact we can just make category a binary as Dict is available everywhere.
-          gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData, category = category, nr = 2, showTarget = TRUE)
+          if (input$checkClimsmart == TRUE) {
+
+            targets <- targetData()
+            targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(),
+                                                                 climsmart = input$checkClimsmart, climsmartApproach = options$climate_change,
+                                                                 targetsDF = targets)
+
+          } else {
+
+            targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(),
+                                                                 climsmart = input$checkClimsmart)
+
+          }
+
+          gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData, nr = 2, showTarget = TRUE,
+                                                           category = category, renameFeatures = TRUE,
+                                                           namesToReplace = Dict)
 
           return(gg_Target)
         }) %>%
@@ -470,8 +488,8 @@ mod_2scenario_server <- function(id) {
           ) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              land = landmass,
-              cropLand = selectedData(),
+              overlay = landmass,
+              cropOverlay = selectedData(),
               ggtheme = map_theme
             )
         }) %>%
@@ -513,14 +531,6 @@ mod_2scenario_server <- function(id) {
         output$dlPlot3 <- fDownloadPlotServer(input, gg_id = costPlotData(), gg_prefix = "RationalUse", time_date = analysisTime()) # Download figure
       }
     ) # end observeEvent 3
-
-
-
-
-
-
-
-
 
     ## Climate Resilience Plot -------------------------------------------------
 
@@ -592,20 +602,41 @@ mod_2scenario_server <- function(id) {
       },
       {
         DataTabler <- shiny::reactive({
-          targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(), climsmart = input$checkClimsmart)
+          if (input$checkClimsmart == TRUE) {
+
+            targets <- targetData()
+            targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(),
+                                                                 climsmart = input$checkClimsmart, climsmartApproach = options$climate_change,
+                                                                 targetsDF = targets)
+
+          } else {
+
+            targetPlotData <- spatialplanr::splnr_get_featureRep(soln = selectedData(), pDat = p1Data(),
+                                                                 climsmart = input$checkClimsmart)
+
+          }
+
+          # Create named vector to do the replacement
+          rpl <- Dict %>%
+            dplyr::filter(.data$nameVariable %in% targetPlotData$feature) %>%
+            dplyr::select(.data$nameVariable, .data$nameCommon) %>%
+            tibble::deframe()
 
           # TODO Add category to spatialplanr::splnr_get_featureRep and remove from splnr_plot_featureRep
           FeaturestoSave <- targetPlotData %>%
-            dplyr::left_join(Dict %>% dplyr::select(.data$NameVariable, .data$Category), by = c("feature" = "NameVariable")) %>%
-            dplyr::mutate(value = as.integer(round(.data$relative_held * 100))) %>%
-            dplyr::select(.data$Category, .data$feature, .data$target, .data$value, .data$incidental) %>%
+            dplyr::left_join(Dict %>% dplyr::select(.data$nameVariable, .data$category), by = c("feature" = "nameVariable")) %>%
+            dplyr::mutate(value = as.integer(round(.data$relative_held * 100)),
+                          target = as.integer(round(.data$target * 100))) %>%
+            dplyr::select(.data$category, .data$feature, .data$target, .data$value, .data$incidental) %>%
             dplyr::rename(
               Feature = .data$feature,
               `Protection (%)` = .data$value,
               `Target (%)` = .data$target,
-              Incidental = .data$incidental
+              Incidental = .data$incidental,
+              Category = .data$category
             ) %>%
-            dplyr::arrange(.data$Category, .data$Feature)
+            dplyr::arrange(.data$Category, .data$Feature) %>%
+            dplyr::mutate(Feature = stringr::str_replace_all(.data$Feature, rpl))
 
           return(FeaturestoSave)
         }) %>%
@@ -619,11 +650,11 @@ mod_2scenario_server <- function(id) {
 
         SummaryTabler <- shiny::reactive({
           CosttoSave <- Dict %>%
-            dplyr::filter(.data$NameVariable %in% input$costid)
+            dplyr::filter(.data$nameVariable %in% input$costid)
 
           SummarytoSave <- tibble::tribble(
             ~`Rational Use`, ~`Climate Smart`,
-            CosttoSave$NameCommon, dplyr::if_else(input$checkClimsmart, "Yes", "No")
+            CosttoSave$nameCommon, dplyr::if_else(input$checkClimsmart, "Yes", "No")
           )
 
           return(SummarytoSave)
