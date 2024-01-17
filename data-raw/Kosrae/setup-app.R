@@ -55,19 +55,19 @@ file.copy(options$file_logo, file.path("inst", "app", "www", "logo.png"), overwr
 
 # A dictionary of all data and feature-specific set up values
 Dict <- readr::read_csv(file.path("data-raw","Kosrae", "Dict_Feature.csv")) %>%
-  dplyr::filter(IncludeApp) %>% # Only those features to be included
-  dplyr::arrange(.data$Type, .data$Category, .data$NameCommon)
+  dplyr::filter(includeApp) %>% # Only those features to be included
+  dplyr::arrange(.data$type, .data$category, .data$nameCommon)
 
 vars <- Dict %>%
-  dplyr::filter(!Type == "Justification") %>%
-  dplyr::pull(NameVariable)
+  dplyr::filter(!type == "Justification") %>%
+  dplyr::pull(nameVariable)
 
 # TODO Consider using Dict for this and not creating a new dataframe
 # It would just mean cleaning up the names a little
 category <- Dict %>%
-  dplyr::filter(!Type %in% c("Cost", "Justification")) %>%
-  dplyr::select(NameVariable, Category) %>%
-  dplyr::rename("feature" = NameVariable, "category" = "Category") # TODO Consider adapting the spatialplanr code to remove the need for this
+  dplyr::filter(!type %in% c("Cost", "Justification")) %>%
+  dplyr::select(nameVariable, category) #%>%
+  # dplyr::rename("feature" = nameVariable, "category" = "Category") # TODO Consider adapting the spatialplanr code to remove the need for this
 
 # An sf object for all layers
 raw_sf <- readRDS(options$file_data)
