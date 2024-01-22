@@ -7,7 +7,7 @@ library(tidyverse)
 options <- list(
 
   ## General Options
-  nav_title = "Kosrae Planning", # Navbar title
+  nav_title = "FSM Planning", # Navbar title
   nav_primary = "#2C3E50",
   ## File locations
   file_logo = file.path("data-raw", "Kosrae", "logos", "WaittSquareLogo_invert.png"),
