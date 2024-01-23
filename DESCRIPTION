@@ -1,6 +1,6 @@
 Package: shinyplanr
 Title: Spatial Planning in Shiny
-Version: 0.0.1
+Version: 0.0.5
 Authors@R: c(
     person(
       given = 'Jason D.', 
@@ -16,7 +16,7 @@ Authors@R: c(
       comment = c(ORCID = "0000-0002-3112-4116")
       )
     )
-Description: A generic app package to facilitate spatial planning in Shiny.
+Description: A generic app package to facilitate spatial planning in prioritizr and Shiny.
 License: MIT + file LICENSE
 Imports: 
     bslib,

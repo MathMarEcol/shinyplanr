@@ -37,6 +37,10 @@ app_ui <- function(request) {
                     shiny::fluidPage(
                       value = "soln", mod_2scenario_ui("2scenario_ui_1"))
     ),
+    shiny::tabPanel("Comparison", #maybe make this optional?
+                    shiny::fluidPage(
+                      value = "compare", mod_3compare_ui("3compare_ui_1"))
+    ),
     shiny::tabPanel("Layer Information",
                     shiny::fluidPage(
                       value = "features", mod_4features_ui("4features_ui_1"))

@@ -26,6 +26,14 @@ app_server <- function(input, output, session) {
       }
     }
 
+    if (options$mod_3compare == FALSE){
+      hideTab(inputId = "navbar", target = "Comparison")
+    } else{
+      if (shiny::req(input$navbar) == "Comparison"){
+        mod_3compare_server("3compare_ui_1")
+      }
+    }
+
     if (options$mod_4features == FALSE){
       hideTab(inputId = "navbar", target = "Layer Information")
     } else{
