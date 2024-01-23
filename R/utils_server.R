@@ -1,7 +1,131 @@
 
 
+# Get Targets
+
+#' Calculate targets based on inputs
+#'
+#' @noRd
+#'
+fget_targets<- function(input, name_check = "sli_"){
+
+  f <- vars[stringr::str_detect(vars, "Cost_", negate = TRUE)]
+
+  targets <- f %>%
+    purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0(name_check, x))))) %>%
+    tibble::enframe() %>%
+    tidyr::unnest(cols = .data$value) %>%
+    dplyr::rename(feature = "name", target = "value") %>%
+    dplyr::mutate(feature = f) %>%
+    dplyr::mutate(target = target / 100) # requires number between 0-1
+
+  return(targets)
+}
+
+# Define Problem
+
+#' Define conservation problem
+#'
+#' @noRd
+#'
+fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
+  targets <- target
+  out_sf <- raw_sf %>%
+    dplyr::select(
+      .data$geometry,
+      tidyselect::all_of(targets$feature),
+      tidyselect::starts_with("Cost_")
+    ) %>%
+    sf::st_as_sf()
+
+  if (clim_input == FALSE) {
+    p_dat <- out_sf
+  } else if (clim_input == TRUE) {
+    featuresDF <- out_sf %>%
+      dplyr::select(
+        .data$geometry,
+        tidyselect::all_of(targets$feature)
+      ) %>%
+      dplyr::mutate(cellID = 1:nrow(.))
+
+    if (options$climate_change == 1) { # CPA approach
+
+      CS_Approach <- spatialplanr::splnr_climate_priorityAreaApproach(
+        featuresDF = featuresDF, percentile = options$percentile,
+        metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
+      )
+    } else if (options$climate_change == 2) { # feature approach
+
+      CS_Approach <- spatialplanr::splnr_climate_featureApproach(
+        featuresDF = featuresDF, percentile = options$percentile,
+        metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
+      )
+    } else if (options$climate_change == 3) { # percentile approach
+
+      CS_Approach <- spatialplanr::splnr_climate_percentileApproach(
+        featuresDF = featuresDF, percentile = options$percentile,
+        metricDF = climate_sf, targetsDF = targets, direction = options$direction
+      )
+    }
+
+    targets <- CS_Approach$Targets
+
+    p_dat <- CS_Approach$Features %>%
+      dplyr::left_join(
+        out_sf %>%
+          sf::st_drop_geometry() %>%
+          dplyr::mutate(cellID = 1:nrow(.)) %>%
+          dplyr::select(
+            "cellID",
+            tidyselect::starts_with("Cost_")
+          ),
+        by = "cellID"
+      ) %>%
+      dplyr::left_join(climate_sf %>%
+                         sf::st_drop_geometry(), by = "cellID")
+  } else {
+    print("Something odd is going on here. Check climate-smart tick box.")
+  }
+
+  f_no <- fCheckFeatureNo(p_dat)
+
+  if (f_no == 1) {
+    shinyalert::shinyalert("Error", "No features have been selected. You can't run a spatial prioritization without any features.",
+                           type = "error",
+                           callbackR = shinyjs::runjs("window.scrollTo(0, 0)")
+    )
+
+    p_dat <- p_dat %>%
+      dplyr::mutate(DummyVar = 1)
+
+    p1 <- prioritizr::problem(p_dat, "DummyVar", input$costid) %>%
+      prioritizr::add_min_set_objective() %>%
+      prioritizr::add_relative_targets(0) %>%
+      prioritizr::add_binary_decisions() %>%
+      prioritizr::add_cbc_solver(verbose = TRUE)
+  } else {
+    ## Get names of the features
+    if (clim_input == TRUE) {
+      usedFeatures <- p_dat %>%
+        sf::st_drop_geometry() %>%
+        dplyr::select(-tidyselect::starts_with("Cost_"), -.data$cellID, -.data$metric) %>%
+        names()
+    } else {
+      usedFeatures <- targets$feature
+    }
 
 
+    p1 <- prioritizr::problem(p_dat, usedFeatures, input$costid) %>%
+      prioritizr::add_min_set_objective() %>%
+      prioritizr::add_relative_targets(targets$target) %>%
+      prioritizr::add_binary_decisions() %>%
+      prioritizr::add_cbc_solver(verbose = TRUE)
+    # }
+  }
+
+  rm(p_dat)
+
+  return(p1)
+}
 
 #' Title
 #'

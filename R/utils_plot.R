@@ -1,116 +1,4 @@
 
-# Generic layer for maps --------------------------------------------------
-#' Generic layer for maps
-#'
-# @noRd
-#'
-# gg_add_layers <- function(x) {
-#
-#   list(
-#     ggplot2::geom_sf(data = Bndry, colour = "black", size = 0.4, fill = NA, show.legend = FALSE),
-#     ggnewscale::new_scale_fill(),
-#     ggplot2::geom_sf(data = land, ggplot2::aes(fill = .data$Category), colour = NA),
-#     ggplot2::scale_fill_manual("",
-#                                breaks = c("Antarctica", "Ice Shelf"),
-#                                values = c("grey50", "grey70"),
-#                                aesthetics = "fill",
-#                                guide = ggplot2::guide_legend(
-#                                  override.aes = list(linetype = 0),
-#                                  order = 2,
-#                                  nrow = 2)),
-#     ggnewscale::new_scale_colour(),
-#     ggplot2::geom_sf(data = conts, colour = "black", fill = NA, ggplot2::aes(linetype = .data$Category), size = 0.5, show.legend = "line"),
-#     ggplot2::scale_linetype_manual(" ",
-#                                    breaks = c("3000 m Depth Contour", "Fisheries Research Block"),
-#                                    values = c("solid", "dashed"),
-#                                    guide = ggplot2::guide_legend(
-#                                      override.aes = list(fill = NA),
-#                                      nrow = 2,
-#                                      direction = "horizontal",
-#                                      order = 3,
-#                                      keywidth = grid::unit(0.05, "npc"))),
-#     ggnewscale::new_scale_fill(),
-#     ggplot2::geom_sf(data = Phase1, ggplot2::aes(fill = .data$Name), colour = NA, size = 1),
-#     ggplot2::scale_fill_manual("",
-#                                breaks = c("Phase 1 Boundary", "Phase 1 FRZ"),
-#                                values = c("orange", "red"),
-#                                aesthetics = "fill",
-#                                guide = ggplot2::guide_legend(
-#                                  # override.aes = list(fill = NA),
-#                                  order = 4,
-#                                  nrow = 2)),
-#     ggplot2::theme_bw(),
-#     ggplot2::coord_sf(xlim = c(sf::st_bbox(Bndry)$xmin-10000, sf::st_bbox(Bndry)$xmax),
-#                       ylim = c(sf::st_bbox(Bndry)$ymin, sf::st_bbox(Bndry)$ymax),
-#                       expand = FALSE),
-#     ggplot2::theme(#legend.title = ggplot2::element_text(angle = -90, hjust = 0.5),
-#       legend.position = "bottom",
-#       legend.direction = "horizontal",
-#       text = ggplot2::element_text(size = 20),
-#       plot.title = ggplot2::element_text(size = 16),
-#       axis.title = ggplot2::element_blank()),
-#     ggplot2::annotate("text", x = 481500, y = 2420000, label = "Astrid\nRidge", size = 6),
-#     ggplot2::annotate("text", x = 125000, y = 2755000, label = "Maud\nRise", size = 6)
-#   )
-# }
-
-
-# Plot of Number of Features ----------------------------------------------
-#' Number of Features
-#'
-# @noRd
-#' #'
-#' SpatPlan_Plot_FeatureNo <- function(df){
-#'
-#'   df <- df %>%
-#'     dplyr::as_tibble() %>%
-#'     dplyr::select(-tidyselect::starts_with(c("Cost_", "solution_", "metric", "cellID"))) %>%
-#'     dplyr::mutate(FeatureSum = rowSums(dplyr::across(tidyselect:::where(is.numeric)), na.rm = TRUE)) %>%
-#'     sf::st_as_sf(sf_column_name = "geometry") %>%
-#'     dplyr::select(.data$FeatureSum)
-#'
-#'   gg <- ggplot2::ggplot() +
-#'     ggplot2::geom_sf(data = df, ggplot2::aes(fill = .data$FeatureSum), colour = "grey80", size = 0.1, show.legend = TRUE) +
-#'     ggplot2::scale_fill_distiller(name = "Number of Features",
-#'                                   palette = "YlGnBu",
-#'                                   aesthetics = c("fill"),
-#'                                   oob = scales::squish,
-#'                                   trans = "log10",
-#'                                   guide = ggplot2::guide_colorbar(
-#'                                     title.position = "bottom",
-#'                                     title.hjust = 0.5,
-#'                                     order = 1,
-#'                                     barheight = grid::unit(0.03, "npc"),
-#'                                     barwidth = grid::unit(0.25, "npc"))) #+
-#'   # gg_add_layers()
-#'
-#'   return(gg)
-#' }
-
-
-#'
-#' # Binary Map --------------------------------------------------------------
-#' #' Binary Map
-#' #'
- # @noRd
-#' #'
-#' fcreate_binPlot <- function(df, colInterest, values = c("Selected" = "#3182bd", "Not Selected" = "#c6dbef"), title = "") {
-#'   p <- ggplot2::ggplot() +
-#'     ggplot2::geom_sf(data = df, ggplot2::aes(fill = colInterest), colour = NA, size = 0.001) +
-#'     ggplot2::scale_fill_manual(name = title,
-#'                                values = values,
-#'                                aesthetics = "fill",
-#'                                guide = ggplot2::guide_legend(override.aes = list(linetype = 0),
-#'                                                              nrow = 2,
-#'                                                              order = 1,
-#'                                                              direction = "horizontal",
-#'                                                              title.position = "top",
-#'                                                              title.hjust = 0.5)) #+
-#'   # gg_add_layers()
-#'   return(p)
-#' }
-
-
 # Comparison Plot ---------------------------------------------------------
 #'
 #' @noRd
@@ -125,8 +13,7 @@ create_compPlot <- function(df){
                                guide = ggplot2::guide_legend(override.aes = list(linetype = 0),
                                                              title.position = "top",
                                                              title.hjust = 0.5,
-                                                             order = 1,)) +
-    gg_add_layers()
+                                                             order = 1,))
 
   return(gg_comp)
 }
@@ -154,51 +41,11 @@ fPlotCostOverlay <- function(soln, cost_sf, titleCost){
                                    title.hjust = 0.5,
                                    order = 1,
                                    barheight = grid::unit(0.03, "npc"),
-                                   barwidth = grid::unit(0.25, "npc"))) #+
-  # gg_add_layers()
+                                   barwidth = grid::unit(0.25, "npc")))
 
   return(gg)
 }
 
-#
-# # Target Bar Plot ---------------------------------------------------------
-# #
-# @noRd
-# #
-# create_targetBarPlot <- function(df, colorBars, slider){
-#
-#   nr <- 2
-#   colr <- tibble::tibble(Category = unique(df$Category),
-#                          Colour = viridis::viridis(length(unique(df$Category)))) %>%
-#     tibble::deframe()
-#
-#   df <- df %>%
-#     dplyr::arrange(.data$Category, .data$feature) %>%
-#     dplyr::mutate(feature = factor(.data$feature, levels = .data$feature))
-#
-#   gg_target <- ggplot2::ggplot() +
-#     ggplot2::geom_bar(data = df, stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value, fill = .data$Category), na.rm = TRUE) +
-#     ggplot2::geom_bar(data = df %>% dplyr::mutate(value = ifelse(targets==0, value, NA_real_)), stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value), fill = "white", colour = "black", na.rm = TRUE) +
-#     # ggplot2::geom_bar(data = df %>% dplyr::filter(incidental == FALSE), stat = "identity", ggplot2::aes(x = .data$feature, y = .data$value, colour = .data$Category, fill = .data$Category), na.rm = TRUE) +
-#     ggplot2::labs(title = ggplot2::element_blank(), x = "Feature", y = "Representation of features \nin total selected area (%)") +
-#     ggplot2::theme_bw() +
-#     ggplot2::scale_y_continuous(limits = c(0, ymax <- max(c(df$value, slider), na.rm = TRUE) + 10), expand = c(0,0)) +
-#     ggplot2::scale_fill_manual(values = colr,
-#                                guide = ggplot2::guide_legend(nrow = nr),
-#                                aesthetics = c("colour", "fill")) +
-#     ggplot2::geom_abline(slope = 0, intercept = slider, col = "black", lty = 2, size = 1.5) +
-#     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5, size = 16, colour = "black"),
-#                    axis.text.y = ggplot2::element_text(size = 16, colour = "black"),
-#                    axis.title.x = ggplot2::element_blank(),
-#                    legend.title = ggplot2::element_blank(),
-#                    legend.text = ggplot2::element_text(size = 16),
-#                    axis.title.y = ggplot2::element_text(size = 16),
-#                    legend.position = c(0.5, 0.95),
-#                    legend.direction = "horizontal",
-#                    legend.background = ggplot2::element_rect(fill = "NA"))
-#
-#   return(gg_target)
-# }
 
 
 # Regionalisation Plot ----------------------------------------------------
@@ -217,8 +64,7 @@ create_regionPlot <- function(df){
                                      ncol = 1,
                                      order = 1,
                                      keyheight = grid::unit(0.02, "npc"),
-                                     keywidth = grid::unit(0.02, "npc"))) #+
-  # gg_add_layers()
+                                     keywidth = grid::unit(0.02, "npc")))
   return(gg)
 }
 
@@ -241,8 +87,7 @@ create_costPlot <- function(cost_sf, titleCost){
                                     title.hjust = 0.5,
                                     order = 1,
                                     barheight = grid::unit(0.03, "npc"),
-                                    barwidth = grid::unit(0.25, "npc"))) #+
-  # gg_add_layers()
+                                    barwidth = grid::unit(0.25, "npc")))
   return(gg)
 }
 
@@ -263,8 +108,7 @@ create_selFreqPlot <- function(df){
                                                              title.position = "right",
                                                              order = 1,
                                                              keyheight = grid::unit(0.05, "npc"),
-                                                             keywidth = grid::unit(0.05, "npc"))) #+
-  # gg_add_layers()
+                                                             keywidth = grid::unit(0.05, "npc")))
 
   return(gg)
 }
@@ -286,8 +130,7 @@ create_climDataPlot <- function(df){
                                     title.hjust = 0.5,
                                     order = 1,
                                     barheight = grid::unit(0.03, "npc"),
-                                    barwidth = grid::unit(0.25, "npc"))) #+
-  # gg_add_layers()
+                                    barwidth = grid::unit(0.25, "npc")))
 
   return(gg_clim)
 
@@ -435,8 +278,7 @@ create_binPlot <- function(df, colInterest, values = c("Selected" = "#3182bd", "
                                                              order = 1,
                                                              direction = "horizontal",
                                                              title.position = "top",
-                                                             title.hjust = 0.5)) #+
-    # gg_add_layers()
+                                                             title.hjust = 0.5))
   return(p)
 }
 
