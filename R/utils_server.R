@@ -2,7 +2,7 @@
 
 # Get Targets
 
-#' Calculate argets based on inputs
+#' Calculate targets based on inputs
 #'
 #' @noRd
 #'
@@ -13,8 +13,8 @@ fget_targets<- function(input, name_check = "sli_"){
   targets <- f %>%
     purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0(name_check, x))))) %>%
     tibble::enframe() %>%
-    tidyr::unnest(cols = value) %>%
-    dplyr::rename(feature = name, target = value) %>%
+    tidyr::unnest(cols = .data$value) %>%
+    dplyr::rename(feature = "name", target = "value") %>%
     dplyr::mutate(feature = f) %>%
     dplyr::mutate(target = target / 100) # requires number between 0-1
 
@@ -83,7 +83,7 @@ fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
       dplyr::left_join(climate_sf %>%
                          sf::st_drop_geometry(), by = "cellID")
   } else {
-    print("Something odd is going on here. Check climat-smart tick box.")
+    print("Something odd is going on here. Check climate-smart tick box.")
   }
 
   f_no <- fCheckFeatureNo(p_dat)

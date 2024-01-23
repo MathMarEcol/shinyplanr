@@ -213,16 +213,19 @@ mod_3compare_server <- function(id) {
       return(p2)
     })
 
+
+    analysisTime <- shiny::reactive({
+      analysisTime <- format(Sys.time(), "%Y%m%d%H%M%S")
+    }) %>% shiny::bindEvent(input$analyse)
+
     # Solve the problem -------------------------------------------------------
     selectedData1 <- shiny::reactive({
-      # browser()
       selectedData <- solve(p1Data(), run_checks = FALSE) %>%
         sf::st_as_sf()
       return(selectedData)
     }) %>% shiny::bindEvent(input$analyse)
 
     selectedData2 <- shiny::reactive({
-      # browser()
       selectedData <- solve(p2Data(), run_checks = FALSE) %>%
         sf::st_as_sf()
       return(selectedData)

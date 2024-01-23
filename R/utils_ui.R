@@ -3,8 +3,9 @@
 #' @noRd
 #'
 fcreate_vars <- function(id, Dict = Dict, name_check = "check", categoryOut = FALSE) {
+
   vars <- Dict %>%
-    dplyr::filter(type == "Feature") %>%
+    dplyr::filter(.data$type == "Feature") %>%
     dplyr::select(-c("justification", "wsClass", "includeApp", "includeJust", "type")) %>%
     dplyr::mutate(
       id = id,
@@ -97,7 +98,7 @@ fcustom_cost <- function(id, id_in, Dict) {
 
 
 
-#' Title
+#' Fancy dropdown menu with categories
 #'
 #' @noRd
 #'

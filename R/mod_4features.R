@@ -50,18 +50,18 @@ mod_4features_server <- function(id){
 
       # Get the names of the categories in regionalisations
       if (stringr::str_detect(input$checkFeat, "region_"))  {
-        if (input$checkFeat == "region_ech") {
-          region_names <- c(names_echinoid)
-        }
-        if (input$checkFeat == "region_pel") {
-          region_names <- c(names_pelagic)
-        }
-        if (input$checkFeat == "region_ben") {
-          region_names <- c(names_benthic_LayerMod)
-        }
-        if (input$checkFeat == "region_SOBD") {
-          region_names <- c(names_SOBD)
-        }
+        # if (input$checkFeat == "region_ech") {
+        #   region_names <- c(names_echinoid)
+        # }
+        # if (input$checkFeat == "region_pel") {
+        #   region_names <- c(names_pelagic)
+        # }
+        # if (input$checkFeat == "region_ben") {
+        #   region_names <- c(names_benthic_LayerMod)
+        # }
+        # if (input$checkFeat == "region_SOBD") {
+        #   region_names <- c(names_SOBD)
+        # }
 
         common <- Dict %>%
           dplyr::filter(.data$nameVariable %in% region_names) %>%
@@ -81,7 +81,7 @@ mod_4features_server <- function(id){
         RegionPlot <- create_regionPlot(df)
         return(RegionPlot)
       } else if (input$checkFeat == "climdat") {
-        Bin_plot <- create_climDataPlot(metric_df)
+        Bin_plot <- create_climDataPlot(climate_sf)
         return(Bin_plot)
       } else if (startsWith(input$checkFeat, "Cost_")) {
 
