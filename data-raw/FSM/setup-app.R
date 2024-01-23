@@ -2,7 +2,7 @@
 
 library(tidyverse)
 
-
+data_dir <- file.path("data-raw", "FSM")
 # APP PARAMETERS --------------------------------------------------
 options <- list(
 
@@ -10,9 +10,9 @@ options <- list(
   nav_title = "FSM Planning", # Navbar title
   nav_primary = "#2C3E50",
   ## File locations
-  file_logo = file.path("data-raw", "Kosrae", "logos", "WaittSquareLogo_invert.png"),
-  file_data = file.path("data-raw", "Kosrae", "KosraeTestData.rds"),
-  # file_climate = file.path("data-raw", "Kosrae", "Ensemble-ssp585-combined.rds"),
+  file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
+  file_data = file.path(data_dir, "KosraeTestData.rds"),
+  # file_climate = file.path(data_dir, "Ensemble-ssp585-combined.rds"),
 
   ## App Setup Options
   mod_1welcome = TRUE, #switch modules on/off
@@ -28,18 +28,7 @@ options <- list(
   # obj_func = # which objective function module are we using
 
   ## Geographic Options
-  cCRS = 'PROJCS["ProjWiz_Custom_Cylindrical_Equal_Area",
-                     GEOGCS["GCS_WGS_1984",
-                            DATUM["D_WGS_1984",
-                                  SPHEROID["WGS_1984",6378137.0,298.257223563]],
-                            PRIMEM["Greenwich",0.0],
-                            UNIT["Degree",0.0174532925199433]],
-                     PROJECTION["Cylindrical_Equal_Area"],
-                     PARAMETER["False_Easting",0.0],
-                     PARAMETER["False_Northing",0.0],
-                     PARAMETER["Central_Meridian",150.5],
-                     PARAMETER["Standard_Parallel_1",7],
-                     UNIT["Meter",1.0]]'
+  cCRS = "ESRI:54009"
 
   # Limits = c(xmin = 0, xmax = 30, ymin = -70.5, ymax = -60),
   # Shape = "Hexagon", # Shape of PUs
@@ -54,7 +43,7 @@ file.copy(options$file_logo, file.path("inst", "app", "www", "logo.png"), overwr
 # DATASETS --------------------------------------------------------
 
 # A dictionary of all data and feature-specific set up values
-Dict <- readr::read_csv(file.path("data-raw","Kosrae", "Dict_Feature.csv")) %>%
+Dict <- readr::read_csv(file.path(data_dir, "Dict_Feature.csv")) %>%
   dplyr::filter(includeApp) %>% # Only those features to be included
   dplyr::arrange(.data$type, .data$category, .data$nameCommon)
 
@@ -99,7 +88,7 @@ landmass <- rnaturalearth::ne_countries(scale = "large", type = "countries",
 
 
 # MODULE 1 - WELCOME ------------------------------------------------------
-tx_1welcome <- readr::read_file(file.path("data-raw", "Kosrae", "html_1welcome.txt"))
+tx_1welcome <- readr::read_file(file.path(data_dir, "html_1welcome.txt"))
 
 # return_list <- read_textboxes(FILENAME)
 
@@ -114,14 +103,14 @@ tx_1welcome <- readr::read_file(file.path("data-raw", "Kosrae", "html_1welcome.t
 
 
 # MODULE 6 - HELP ------------------------------------------------------
-tx_6faq <- readr::read_file(file.path("data-raw", "Kosrae", "html_6faq.txt"))
-tx_6changelog <- readr::read_file(file.path("data-raw", "Kosrae", "html_6changelog.txt"))
-tx_6technical <- readr::read_file(file.path("data-raw", "Kosrae", "html_6technical.txt"))
-tx_6references <- readr::read_file(file.path("data-raw", "Kosrae", "html_6references.txt"))
+tx_6faq <- readr::read_file(file.path(data_dir, "html_6faq.txt"))
+tx_6changelog <- readr::read_file(file.path(data_dir, "html_6changelog.txt"))
+tx_6technical <- readr::read_file(file.path(data_dir, "html_6technical.txt"))
+tx_6references <- readr::read_file(file.path(data_dir, "html_6references.txt"))
 
 
 # MODULE 7 - CREDIT ------------------------------------------------------
-tx_7credit <- readr::read_file(file.path("data-raw", "Kosrae", "html_7credit.txt"))
+tx_7credit <- readr::read_file(file.path(data_dir, "html_7credit.txt"))
 
 
 
