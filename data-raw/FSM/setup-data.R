@@ -125,4 +125,4 @@ dat_sf <- bind_cols(dat_sf,
                     cost %>% sf::st_drop_geometry()) %>%
   dplyr::relocate(geometry, .after = tidyselect::everything())
 
-saveRDS(dat_sf, file.path("data-raw", "Kosrae", "KosraeTestData.rds"))
+saveRDS(dat_sf, file.path("data-raw", "FSM", "FSM_TestData.rds"))
