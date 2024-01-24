@@ -1,14 +1,15 @@
 ## code to prepare the app goes here
 
 library(tidyverse)
-
 data_dir <- file.path("data-raw", "FSM")
+
 # APP PARAMETERS --------------------------------------------------
 options <- list(
 
   ## General Options
   nav_title = "FSM Planning", # Navbar title
-  nav_primary = "#2C3E50",
+  nav_primary = "#2C3E50", # Hex colour codes: https://htmlcolorcodes.com
+
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
   file_data = file.path(data_dir, "KosraeTestData.rds"),
@@ -25,7 +26,9 @@ options <- list(
   # TODO Get this working - get conditional panels working for global variables
   climate_change = FALSE, #switch climate change on/off
 
-  # obj_func = # which objective function module are we using
+  ## Which objective function module are we using
+  obj_func = "min_set", # Minimum set objective
+  # obj_func = min_shortfall # Minimum shortfall objective
 
   ## Geographic Options
   cCRS = "ESRI:54009"

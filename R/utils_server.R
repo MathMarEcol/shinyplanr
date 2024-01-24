@@ -27,8 +27,8 @@ fget_targets<- function(input, name_check = "sli_"){
 #'
 #' @noRd
 #'
-fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
-  targets <- target
+fdefine_problem <- function(targets, input, name_check = "sli_", clim_input){
+
   out_sf <- raw_sf %>%
     dplyr::select(
       .data$geometry,
@@ -86,7 +86,7 @@ fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
     print("Something odd is going on here. Check climate-smart tick box.")
   }
 
-  f_no <- fCheckFeatureNo(p_dat)
+  f_no <- fCheckFeatureNo(p_dat) # Check number of features
 
   if (f_no == 1) {
     shinyalert::shinyalert("Error", "No features have been selected. You can't run a spatial prioritization without any features.",
@@ -102,6 +102,7 @@ fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
       prioritizr::add_relative_targets(0) %>%
       prioritizr::add_binary_decisions() %>%
       prioritizr::add_cbc_solver(verbose = TRUE)
+
   } else {
     ## Get names of the features
     if (clim_input == TRUE) {
@@ -113,13 +114,15 @@ fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
       usedFeatures <- targets$feature
     }
 
-
-    p1 <- prioritizr::problem(p_dat, usedFeatures, input$costid) %>%
-      prioritizr::add_min_set_objective() %>%
-      prioritizr::add_relative_targets(targets$target) %>%
-      prioritizr::add_binary_decisions() %>%
-      prioritizr::add_cbc_solver(verbose = TRUE)
-    # }
+    if (options$obj_func == "min_set") {
+      p1 <- prioritizr::problem(p_dat, usedFeatures, input$costid) %>%
+        prioritizr::add_min_set_objective() %>%
+        prioritizr::add_relative_targets(targets$target) %>%
+        prioritizr::add_binary_decisions() %>%
+        prioritizr::add_cbc_solver(verbose = TRUE)
+    } else if (options$obj_func == "min_shortfall") {
+        # Add new objective functions
+    }
   }
 
   rm(p_dat)
