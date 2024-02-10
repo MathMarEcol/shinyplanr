@@ -1,4 +1,20 @@
 
+#' Return category df from Dict
+#'
+#' @noRd
+#'
+fget_category <- function(Dict){
+
+  category <- Dict %>%
+    dplyr::filter(!type %in% c("Cost", "Justification")) %>%
+    dplyr::select(nameVariable, category) %>%
+    dplyr::rename(feature = nameVariable)
+  # TODO I want to remove this last command and have the app deal with `nanmeVariable`
+
+  return(category)
+}
+
+
 
 # Get Targets
 
@@ -8,14 +24,14 @@
 #'
 fget_targets<- function(input, name_check = "sli_"){
 
-  f <- vars[stringr::str_detect(vars, "Cost_", negate = TRUE)]
+  ft <- vars[stringr::str_detect(vars, "Cost_", negate = TRUE)]
 
-  targets <- f %>%
+  targets <- ft %>%
     purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0(name_check, x))))) %>%
     tibble::enframe() %>%
     tidyr::unnest(cols = .data$value) %>%
     dplyr::rename(feature = "name", target = "value") %>%
-    dplyr::mutate(feature = f) %>%
+    dplyr::mutate(feature = ft) %>%
     dplyr::mutate(target = target / 100) # requires number between 0-1
 
   return(targets)

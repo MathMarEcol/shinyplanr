@@ -2,47 +2,21 @@ library(tidyverse)
 library(spatialplanr)
 library(oceandatr)
 
-# TODO Fix interp script to work with data files only. Check Jason's version
+## Check EEZ methods
+# eez1 <- mregions2::mrp_get("eez", cql_filter = "sovereign1 = 'Australia'")
+# eez1a <- eez1[5,]
+# eez2 <- oceandatr::get_area("Australia")
+# eez3 <- oceandatr::get_area("United States")
 
-## TEST CASE
-# cCRS <- "ESRI:54009"
-#
-# eez <- oceandatr::get_area("Australia") %>%
-#   sf::st_transform(crs = cCRS)
-#
-# PUs <- oceandatr::get_planning_grid(area_polygon = eez,
-#                                     projection_crs = cCRS,
-#                                     option = "sf_hex",
-#                                     resolution = 20000)
-# ggplot() +
-#    geom_sf(data = PUs, fill = NA) +
-#   geom_sf(data = eez, fill = NA, colour = "red")
-
-
-# Organise Planning Grid --------------------------------------------------
-
-proj <- 'PROJCS["ProjWiz_Custom_Cylindrical_Equal_Area",
-                     GEOGCS["GCS_WGS_1984",
-                            DATUM["D_WGS_1984",
-                                  SPHEROID["WGS_1984",6378137.0,298.257223563]],
-                            PRIMEM["Greenwich",0.0],
-                            UNIT["Degree",0.0174532925199433]],
-                     PROJECTION["Cylindrical_Equal_Area"],
-                     PARAMETER["False_Easting",0.0],
-                     PARAMETER["False_Northing",0.0],
-                     PARAMETER["Central_Meridian",150.5],
-                     PARAMETER["Standard_Parallel_1",7],
-                     UNIT["Meter",1.0]]'
-
-# proj <- "ESRI:54009"
+proj <- "ESRI:54009"
 
 # Get eez to create grid
-eez <- oceandatr::get_area("Micronesia") %>%
+eez <- oceandatr::get_area("Micronesia", mregions_column = "sovereign1") %>%
   sf::st_transform(crs = proj) %>%
   sf::st_geometry() %>%
   sf::st_sf()
 
-# TODO is there a better way to do the code below
+# TODO is there a better way to do the code below? For the app we need a boundary and the coastline.
 # TODO Chat to JF about get_area which returns a multipolygon.
 # How do they deal with this when creating the Planning grid.
 # It looks like they look at overlap between the centroid and the polygon
@@ -97,7 +71,9 @@ dat_sf <- bind_cols(
 # Add cost data -----------------------------------------------------------
 
 cost <- PUs %>%
-  splnr_get_distCoast(custom_coast = coast) # Distance to nearest coast
+  splnr_get_distCoast(custom_coast = coast) %>%  # Distance to nearest coast
+  dplyr::mutate(Cost_None = 0.1,
+                Cost_Random = runif(dim(.)[1]))
 
 # Locked in areas ---------------------------------------------------------
 
@@ -111,12 +87,12 @@ lock_in <- "Micronesia (Federated States of)" %>%
   dplyr::bind_rows() %>%
   dplyr::filter(.data$MARINE > 0) %>%
   sf::st_transform(crs = proj)
-
+#TODO Remove extra columns in lock_in. Otherwise they are added to dat_sf
 
 #%>%
-  # oceandatr::data_to_planning_grid(planning_grid = PUs, dat = .) %>%
-  # dplyr::mutate(data = as.logical(data)) %>%
-  # dplyr::rename(locked_in = data)
+# oceandatr::data_to_planning_grid(planning_grid = PUs, dat = .) %>%
+# dplyr::mutate(data = as.logical(data)) %>%
+# dplyr::rename(locked_in = data)
 
 # Save raw data -----------------------------------------------------------
 
@@ -125,4 +101,9 @@ dat_sf <- bind_cols(dat_sf,
                     cost %>% sf::st_drop_geometry()) %>%
   dplyr::relocate(geometry, .after = tidyselect::everything())
 
-saveRDS(dat_sf, file.path("data-raw", "FSM", "FSM_TestData.rds"))
+rm(cost, lock_in, eez)
+
+
+
+save(dat_sf, bndry, coast, file = file.path("data-raw", "FSM", "FSM_TestData.rda"))
+

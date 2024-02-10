@@ -267,7 +267,7 @@ mod_3compare_server <- function(id) {
             ) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              overlay = landmass,
+              overlay = overlay,
               cropOverlay = selectedData1(),
               ggtheme = map_theme
             )
@@ -296,7 +296,7 @@ mod_3compare_server <- function(id) {
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              overlay = landmass,
+              overlay = overlay,
               cropOverlay = selectedData1(),
               ggtheme = map_theme
             )
@@ -317,7 +317,7 @@ mod_3compare_server <- function(id) {
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              overlay = landmass,
+              overlay = overlay,
               cropOverlay = selectedData2(),
               ggtheme = map_theme
             )
@@ -465,7 +465,7 @@ mod_3compare_server <- function(id) {
           ) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              overlay = landmass,
+              overlay = overlay,
               cropOverlay = selectedData1(),
               ggtheme = map_theme
             )
@@ -480,7 +480,7 @@ mod_3compare_server <- function(id) {
           ) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              overlay = landmass,
+              overlay = overlay,
               cropOverlay = selectedData2(),
               ggtheme = map_theme
             )

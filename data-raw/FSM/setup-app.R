@@ -1,7 +1,12 @@
 ## code to prepare the app goes here
 
 library(tidyverse)
+
 data_dir <- file.path("data-raw", "FSM")
+
+# TODO Write function to load default options
+# Especially different colours for the plotting etc
+
 
 # APP PARAMETERS --------------------------------------------------
 options <- list(
@@ -12,7 +17,7 @@ options <- list(
 
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
-  file_data = file.path(data_dir, "KosraeTestData.rds"),
+  file_data = file.path(data_dir, "FSM_TestData.rda"),
   # file_climate = file.path(data_dir, "Ensemble-ssp585-combined.rds"),
 
   ## App Setup Options
@@ -38,6 +43,7 @@ options <- list(
   # PU_size = 100 # km2
 )
 
+# load(options$fil)
 
 # Copy logo to required directory
 file.copy(options$file_logo, file.path("inst", "app", "www", "logo.png"), overwrite = TRUE)
@@ -54,21 +60,15 @@ vars <- Dict %>%
   dplyr::filter(!type == "Justification") %>%
   dplyr::pull(nameVariable)
 
-# TODO Consider using Dict for this and not creating a new dataframe
-# It would just mean cleaning up the names a little
-category <- Dict %>%
-  dplyr::filter(!type %in% c("Cost", "Justification")) %>%
-  dplyr::select(nameVariable, category) #%>%
-  # dplyr::rename("feature" = nameVariable, "category" = "Category") # TODO Consider adapting the spatialplanr code to remove the need for this
 
 # An sf object for all layers
-raw_sf <- readRDS(options$file_data)
+load(options$file_data)
 
-raw_sf <- raw_sf %>%
+raw_sf <- dat_sf %>%
   sf::st_drop_geometry() %>%
   dplyr::select(tidyselect::all_of(vars)) %>%
   dplyr::select(which(!colSums(., na.rm=TRUE) %in% 0)) %>% # Remove all zero columns
-  dplyr::bind_cols(raw_sf %>% dplyr::select(geometry)) # Add geometry back in
+  dplyr::bind_cols(dat_sf %>% dplyr::select(geometry)) # Add geometry back in
 
 # Check if variables were removed from the data due to zero columns
 if (length(vars) != dim(raw_sf)[2]-1){
@@ -77,17 +77,19 @@ if (length(vars) != dim(raw_sf)[2]-1){
        variable from Dict")}
 
 
-#
 # # Include the climate data if needed.
 # climate_sf <- readRDS(options$file_climate) %>%
 #   dplyr::select(-velocityRescaled, -exposureRescaled) %>%
 #   dplyr::rename(metric = gMean)
+climate_sf <- NULL
 
-# Load Antarctic shapefile from Teschke et al 2020
-landmass <- rnaturalearth::ne_countries(scale = "large", type = "countries",
-                                        country = "Federated States of Micronesia",
-                                        returnclass = "sf") %>%
-  sf::st_transform(crs = options$cCRS) # Transform to SthPoleEqualArea
+# Plotting Overlays -------------------------------------------------------
+
+bndry <- bndry
+overlay <- coast
+
+# TODO Work out how to add options here without having to define all.
+# Change to a list called plot_options()? that is passed to the function.
 
 
 # MODULE 1 - WELCOME ------------------------------------------------------
@@ -134,7 +136,6 @@ hexSticker::sticker(options$file_logo,
 golem::use_favicon(file.path("inst", "app", "www", "Hex.png"), pkg = golem::get_golem_wd(), method = "curl")
 
 
-
 # PLOTTING THEME -----------------------------------------------------------
 map_theme <- list(
   ggplot2::theme_bw(),
@@ -167,12 +168,12 @@ bar_theme <- list(
 usethis::use_data(options,
                   map_theme,
                   bar_theme,
-                  landmass,
                   Dict,
                   vars,
-                  category,
                   raw_sf,
-                  # climate_sf,
+                  climate_sf,
+                  bndry,
+                  overlay,
                   tx_1welcome,
                   tx_6faq,
                   tx_6technical,

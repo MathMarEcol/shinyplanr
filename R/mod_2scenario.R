@@ -10,7 +10,10 @@
 mod_2scenario_ui <- function(id) {
   ns <- shiny::NS(id)
 
-  Vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
+  slider_vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
+
+  browser()
+
   shinyjs::useShinyjs()
 
   shiny::tagList(
@@ -21,7 +24,7 @@ mod_2scenario_ui <- function(id) {
                             width = "100%", class = "btn btn-outline-primary",
                             style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
         ),
-        fcustom_sliderCategory(Vars, labelNum = 1),
+        fcustom_sliderCategory(slider_vars, labelNum = 1),
         #   purrr::pmap(Vars, fcustom_slider),
         shiny::h2("2. Select Rational Use"),
         fcustom_cost(id, "costid", Dict),
@@ -230,8 +233,8 @@ mod_2scenario_server <- function(id) {
           plot1 <- spatialplanr::splnr_plot_binFeature(df = selectedData(), colInterest = selectedData()$solution_1, plotTitle = "Planning Units") +
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
-              # Bndry = Bndry,
-              overlay = landmass,
+              Bndry = bndry,
+              overlay = overlay,
               cropOverlay = selectedData(),
               ggtheme = map_theme
             )
@@ -309,9 +312,16 @@ mod_2scenario_server <- function(id) {
             )
           }
 
+
+
+
+          browser()
+
           gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData,
-                                                           nr = 2, showTarget = TRUE,
-                                                           category = category, renameFeatures = TRUE,
+                                                           nr = 2,
+                                                           showTarget = TRUE,
+                                                           category = fget_category(Dict = Dict),
+                                                           renameFeatures = TRUE,
                                                            namesToReplace = Dict
           )
 
@@ -361,7 +371,7 @@ mod_2scenario_server <- function(id) {
           ) +
             spatialplanr::splnr_gg_add(
               # Bndry = Bndry,
-              overlay = landmass,
+              overlay = overlay,
               cropOverlay = selectedData(),
               ggtheme = map_theme
             )
