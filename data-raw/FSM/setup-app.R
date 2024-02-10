@@ -23,7 +23,7 @@ options <- list(
   ## App Setup Options
   mod_1welcome = TRUE, #switch modules on/off
   mod_2scenario = TRUE, #switch modules on/off
-  mod_3compare = FALSE, #switch modules on/off
+  mod_3compare = TRUE, #switch modules on/off
   mod_4features = TRUE, #switch modules on/off
   mod_6help = TRUE, #switch modules on/off
   mod_7credit = TRUE, #switch modules on/off
