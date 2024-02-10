@@ -263,6 +263,7 @@ mod_2scenario_server <- function(id) {
         }) %>%
           shiny::bindEvent(input$analyse)
 
+        # TODO Move this text to the setup script as the default. It can then be modified.
         output$txt_soln <- shiny::renderText({
           paste(
             "This plot shows the optimal planning scenario for the study area
@@ -368,7 +369,7 @@ mod_2scenario_server <- function(id) {
                                                plotTitle = "Solution overlaid with cost"
           ) +
             spatialplanr::splnr_gg_add(
-              # Bndry = Bndry,
+              Bndry = bndry,
               overlay = overlay,
               cropOverlay = selectedData(),
               ggtheme = map_theme
