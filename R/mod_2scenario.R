@@ -12,8 +12,6 @@ mod_2scenario_ui <- function(id) {
 
   slider_vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
 
-  browser()
-
   shinyjs::useShinyjs()
 
   shiny::tagList(
@@ -430,11 +428,7 @@ mod_2scenario_server <- function(id) {
             legendTitle = "Climate resilience metric (add unit)",
             xAxisLab = "Climate resilience metric"
           )
-          # s1 <- selectedData() %>%
-          #   dplyr::mutate(solution_1 = dplyr::if_else(.data$solution_1 == "Selected", 1, 0)) %>%
-          #   tibble::as_tibble()
-          #
-          # ggr_clim <- create_climKernelDensityPlot(s1) # create_climKernelDensityPlot(s1)
+
           return(ggClimDens)
         }) %>%
           shiny::bindEvent(input$analyse)

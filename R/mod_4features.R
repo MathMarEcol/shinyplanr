@@ -46,6 +46,11 @@ mod_4features_server <- function(id){
   shiny::moduleServer( id, function(input, output, session){
     ns <- session$ns
 
+
+    #TODO Get features plotting regardless of name. One way could be to
+    # test the category (or similar) in the Dict. Otherwise I could test
+    # the data type in the _sf file
+
     plotFeature <- shiny::reactive({
 
       # Get the names of the categories in regionalisations
@@ -101,9 +106,9 @@ mod_4features_server <- function(id){
           titleCost <- paste0("Rational Use: ",titleCost)
         }
 
-        gg_cost <- create_costPlot(df, titleCost)
+        gg_cost <- spatialplanr::splnr_plot_cost(df)
 
-        return(gg_cost)
+          return(gg_cost)
 
       } else {
         df <- raw_sf %>%
