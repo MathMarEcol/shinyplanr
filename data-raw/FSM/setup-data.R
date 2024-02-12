@@ -75,6 +75,15 @@ cost <- PUs %>%
   dplyr::mutate(Cost_None = 0.1,
                 Cost_Random = runif(dim(.)[1]))
 
+
+
+
+
+
+
+
+
+
 # Locked in areas ---------------------------------------------------------
 
 # TODO These are only point MPAs. Need some polygons to do this right.

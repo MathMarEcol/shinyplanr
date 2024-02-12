@@ -311,11 +311,6 @@ mod_2scenario_server <- function(id) {
             )
           }
 
-
-
-
-          browser()
-
           gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData,
                                                            nr = 2,
                                                            showTarget = TRUE,
@@ -344,7 +339,8 @@ mod_2scenario_server <- function(id) {
       suitable habitat/area of each of the important and representative
       conservation features that are included. The dashed line represents
       the set target for the features. Hollow bars with a black border indicate incidental
-        protection of features which were not chosen in this analysis but have areal overlap with selected planning units."
+        protection of features which were not chosen in this analysis but
+          have areal overlap with selected planning units."
         })
 
         output$dlPlot2 <- fDownloadPlotServer(input, gg_id = gg_Target(), gg_prefix = "Target", time_date = analysisTime()) # Download figure
@@ -527,27 +523,6 @@ mod_2scenario_server <- function(id) {
         }) %>%
           shiny::bindEvent(input$analyse)
 
-
-        SummaryTabler <- shiny::reactive({
-          CosttoSave <- Dict %>%
-            dplyr::filter(.data$nameVariable %in% input$costid)
-
-          SummarytoSave <- tibble::tribble(
-            ~`Rational Use`, ~`Climate Smart`,
-            CosttoSave$nameCommon, dplyr::if_else(input$checkClimsmart, "Yes", "No")
-          )
-
-          return(SummarytoSave)
-        }) %>%
-          shiny::bindEvent(input$analyse)
-
-
-        output$SummaryTable <- shiny::renderTable({
-          SummaryTabler()
-        }) %>%
-          shiny::bindEvent(input$analyse)
-
-        output$hdr_DetsSummary <- shiny::renderText("General")
         output$hdr_DetsData <- shiny::renderText("Feature Summary")
 
         # Create data tables for download
