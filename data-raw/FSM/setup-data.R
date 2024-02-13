@@ -83,7 +83,7 @@ cost <- PUs %>%
   dplyr::rename(Cost_Distance = coastDistance_km) %>%
   dplyr::mutate(Cost_None = 0.1,
                 Cost_Random = runif(dim(.)[1]),
-                Cost_FishingHrs = gfw_cost$Apparent.Fishing.Hours) %>%
+                Cost_FishingHrs = tidyr::replace_na(gfw_cost$Apparent.Fishing.Hours, 0.00001)) %>%
   dplyr::relocate(geometry, .after = tidyselect::last_col())
 
 
