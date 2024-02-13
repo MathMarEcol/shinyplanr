@@ -70,15 +70,21 @@ dat_sf <- bind_cols(
 
 # Add cost data -----------------------------------------------------------
 
+source("data-raw/FSM/get_gfwData.R")
+gfw_cost <- get_gfwData("Micronesia", "2013-01-01", "2023-12-31", "yearly", "low", compress = TRUE) %>%
+  dplyr::mutate(`Apparent Fishing Hours` = if_else(`Apparent Fishing Hours` > 1000, NA, `Apparent Fishing Hours`)) %>%
+  sf::st_transform(sf::st_crs(PUs)) %>%
+  sf::st_interpolate_aw(., PUs, extensive = TRUE, keep_NA = TRUE)
+
+
+
 cost <- PUs %>%
   splnr_get_distCoast(custom_coast = coast) %>%  # Distance to nearest coast
+  dplyr::rename(Cost_Distance = coastDistance_km) %>%
   dplyr::mutate(Cost_None = 0.1,
-                Cost_Random = runif(dim(.)[1]))
-
-
-
-
-
+                Cost_Random = runif(dim(.)[1]),
+                Cost_FishingHrs = gfw_cost$Apparent.Fishing.Hours) %>%
+  dplyr::relocate(geometry, .after = tidyselect::last_col())
 
 
 
@@ -95,13 +101,13 @@ lock_in <- "Micronesia (Federated States of)" %>%
   ) %>%
   dplyr::bind_rows() %>%
   dplyr::filter(.data$MARINE > 0) %>%
-  sf::st_transform(crs = proj)
-#TODO Remove extra columns in lock_in. Otherwise they are added to dat_sf
+  sf::st_transform(crs = proj) %>%
+  dplyr::select(geometry) %>%
+  oceandatr::data_to_planning_grid(planning_grid = PUs, dat = ., name = "MPAs") %>%
+  dplyr::mutate(MPAs = forcats::as_factor(MPAs))
 
-#%>%
-# oceandatr::data_to_planning_grid(planning_grid = PUs, dat = .) %>%
-# dplyr::mutate(data = as.logical(data)) %>%
-# dplyr::rename(locked_in = data)
+ggplot(lock_in, aes(fill = MPAs)) + geom_sf()
+
 
 # Save raw data -----------------------------------------------------------
 
