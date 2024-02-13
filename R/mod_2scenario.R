@@ -89,7 +89,7 @@ mod_2scenario_ui <- function(id) {
                    shiny::br(),
                    shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_TargetPlot"), height = "600px"))
           ),
-          tabPanel("Rational Use",
+          tabPanel("Cost",
                    value = 3,
                    shiny::fixedPanel(
                      style = "z-index:100", # To force the button above all plots.
@@ -268,11 +268,11 @@ mod_2scenario_server <- function(id) {
           paste(
             "This plot shows the optimal planning scenario for the study area
               that meets the selected targets for the chosen features whilst
-              minimising the rational use. The categorical map displays, which of
+              minimising the cost. The categorical map displays, which of
               the hexagonal planning units were selected as important for meeting
               the conservation targets (dark blue) and which were not selected (light blue)
               either due to not being in an area prioritized for the selected features or
-              because they are within areas valuable and accessible for other rational uses.
+              because they are within areas valuable for other uses.
               For the chosen inputs.",
             round((selectedData() %>% dplyr::filter(.data$solution_1 == "Selected") %>% # TODO probably should adjust the txt function to return numerics to use here
                      nrow() / nrow(selectedData())) * 100),
@@ -380,33 +380,25 @@ mod_2scenario_server <- function(id) {
           shiny::bindEvent(input$analyse)
 
         output$hdr_cost <- shiny::renderText({
-          "Rational Use Overlaid with Selection"
+          "Cost Layer Overlaid with Selection"
         }) %>%
           shiny::bindEvent(input$analyse)
 
 
         # TODO Move this text to the Dictionary and implement call to display here as usual
         output$txt_cost <- shiny::renderText({
-          if (input$costid == "Cost_Total" || input$costid == "Cost_Krill" || input$costid == "Cost_Toothfish") {
-            cost_txt <- paste("For the chosen input, the rational use is low in areas with low predicted Antarctic krill
-                          and/or toothfish abundances (light orange). The rational use is high in planning units with
-                          suitable Antarctic krill/toothfish habitat that would be lost to fishing if a
-                          particular planning unit was included in a protected area (dark orange).")
-          } else if (input$costid == "Cost_IceA") {
-            cost_txt <- paste("For the chosen input, the rational use is low where the area is inaccessible to fishing
-                          due to ice coverage (light orange). The rational use is high in planning units with low ice
-                          area, i.e. area is accessible (dark orange).")
-          } else if (input$costid == "Cost_None") {
-            cost_txt <- paste("For the chosen input, there is no rational use. The prioritisation minimizes the area
-                          that is selected in the scenario.")
-          }
-          paste0("To illustrate how the chosen rational use influences the spatial plan, this plot shows the
-             spatial plan (= scenario) overlaid with the rational use of including a planning unit in a
+
+          # Extract cost info from Dictionary for justification
+          cost_txt <- Dict %>% dplyr::filter(nameVariable == input$costid) %>% dplyr::pull(justification)
+
+          paste0("To illustrate how the chosen cost influences the spatial plan, this plot shows the
+             spatial plan (= scenario) overlaid with the cost of including a planning unit in a
              reserve. ", cost_txt)
+
         }) %>%
           shiny::bindEvent(input$analyse)
 
-        output$dlPlot3 <- fDownloadPlotServer(input, gg_id = costPlotData(), gg_prefix = "RationalUse", time_date = analysisTime()) # Download figure
+        output$dlPlot3 <- fDownloadPlotServer(input, gg_id = costPlotData(), gg_prefix = "Cost", time_date = analysisTime()) # Download figure
       }
     ) # end observeEvent 3
 
@@ -452,7 +444,7 @@ mod_2scenario_server <- function(id) {
           These two components are combined into a single climate-resilience metric so that higher values represent areas
           likely to warm less and where biodiversity is more likely to be retained. The prioritization preferentially places protected areas
           where there are higher values of the climate-resilience metric, whilst still meeting the biodiversity targets and
-          minimising overlap with rational use areas. The dark blue polygon represents the climate-resilience metric in planning units
+          minimising overlap with high cost areas. The dark blue polygon represents the climate-resilience metric in planning units
           selected for protection. The light blue polygon represents the climate-resilience metric in areas not selected for protection. The median values of the climate-resilience metric for the two groups are represented by the vertical lines.")
           } else if (input$checkClimsmart == FALSE) {
             paste("Climate-smart spatial planning option not selected.")

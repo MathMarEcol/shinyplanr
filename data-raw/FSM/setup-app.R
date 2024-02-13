@@ -43,7 +43,6 @@ options <- list(
   # PU_size = 100 # km2
 )
 
-# load(options$fil)
 
 # Copy logo to required directory
 file.copy(options$file_logo, file.path("inst", "app", "www", "logo.png"), overwrite = TRUE)
