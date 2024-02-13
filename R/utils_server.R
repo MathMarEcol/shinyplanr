@@ -43,7 +43,7 @@ fget_targets<- function(input, name_check = "sli_"){
 #'
 #' @noRd
 #'
-fdefine_problem <- function(targets, input, name_check = "sli_", clim_input){
+fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, cost_var = input$costid){
 
   out_sf <- raw_sf %>%
     dplyr::select(
@@ -113,7 +113,7 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input){
     p_dat <- p_dat %>%
       dplyr::mutate(DummyVar = 1)
 
-    p1 <- prioritizr::problem(p_dat, "DummyVar", input$costid) %>%
+    p1 <- prioritizr::problem(p_dat, "DummyVar", cost_var) %>%
       prioritizr::add_min_set_objective() %>%
       prioritizr::add_relative_targets(0) %>%
       prioritizr::add_binary_decisions() %>%
@@ -131,7 +131,7 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input){
     }
 
     if (options$obj_func == "min_set") {
-      p1 <- prioritizr::problem(p_dat, usedFeatures, input$costid) %>%
+      p1 <- prioritizr::problem(p_dat, usedFeatures, cost_var) %>%
         prioritizr::add_min_set_objective() %>%
         prioritizr::add_relative_targets(targets$target) %>%
         prioritizr::add_binary_decisions() %>%

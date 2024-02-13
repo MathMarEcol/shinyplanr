@@ -208,7 +208,7 @@ mod_3compare_server <- function(id) {
     })
 
     p2Data <- shiny::reactive({
-      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart)
+      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, cost_var = input$costid2)
       return(p2)
     })
 
@@ -219,15 +219,15 @@ mod_3compare_server <- function(id) {
 
     # Solve the problem -------------------------------------------------------
     selectedData1 <- shiny::reactive({
-      selectedData <- solve(p1Data(), run_checks = FALSE) %>%
+      selectedData1 <- solve(p1Data(), run_checks = FALSE) %>%
         sf::st_as_sf()
-      return(selectedData)
+      return(selectedData1)
     }) %>% shiny::bindEvent(input$analyse)
 
     selectedData2 <- shiny::reactive({
-      selectedData <- solve(p2Data(), run_checks = FALSE) %>%
+      selectedData2 <- solve(p2Data(), run_checks = FALSE) %>%
         sf::st_as_sf()
-      return(selectedData)
+      return(selectedData2)
     }) %>% shiny::bindEvent(input$analyse)
 
 
@@ -237,6 +237,7 @@ mod_3compare_server <- function(id) {
         input$tabsComp == 1
       },
       {
+
         ggr_comp <- shiny::reactive({
           area1 <- selectedData1() %>%
             dplyr::filter(.data$solution_1 == 1) %>%
