@@ -24,7 +24,9 @@ fget_category <- function(Dict){
 #'
 fget_targets<- function(input, name_check = "sli_"){
 
-  ft <- vars[stringr::str_detect(vars, "Cost_", negate = TRUE)]
+  ft <- Dict %>%#vars[stringr::str_detect(vars, "Cost_", negate = TRUE)] %>%
+    dplyr::filter(type != "Constraint", type != "Cost") %>%
+    dplyr::pull(nameVariable)
 
   targets <- ft %>%
     purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0(name_check, x))))) %>%
@@ -37,7 +39,6 @@ fget_targets<- function(input, name_check = "sli_"){
   return(targets)
 }
 
-# Define Problem
 
 #' Define conservation problem
 #'
@@ -136,6 +137,22 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input){
         prioritizr::add_relative_targets(targets$target) %>%
         prioritizr::add_binary_decisions() %>%
         prioritizr::add_cbc_solver(verbose = TRUE)
+
+      if (options$lockedInArea != 0) {
+        LI <- Dict %>%
+          dplyr::filter(categoryID == "LockedInArea") %>%
+          pull(nameVariable)
+
+        LI_check <- LI %>%  purrr::map(\(x)paste0("input$", paste0("checkLI_", x)))
+        LI_sf <- LI %>%  purrr::map(\(x)paste0("raw_sf$", x))
+
+        for (area in 1:length(LI)) {
+          if (rlang::eval_tidy(rlang::parse_expr(unlist(LI_check[1])))) {
+            p1 <- p1 %>%
+              prioritizr::add_locked_in_constraints(as.logical(rlang::eval_tidy(rlang::parse_expr(unlist(LI_sf[1])))))
+          }
+        }
+      }
     } else if (options$obj_func == "min_shortfall") {
         # Add new objective functions
     }
