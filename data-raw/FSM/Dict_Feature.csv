@@ -30,3 +30,4 @@ Cost None,Cost_None,Cost,Cost,Cost,30,0,85,TRUE,TRUE,This cost is important beca
 Cost Random,Cost_Random,Cost,Cost,Cost,30,0,85,TRUE,TRUE,This cost is important because,NA
 Cost Distance,Cost_Distance,Cost,Cost,Cost,30,0,85,TRUE,TRUE,This cost is important because,NA
 Cost Fishing Hrs,Cost_FishingHrs,Cost,Cost,Cost,30,0,85,TRUE,TRUE,This cost is important because,NA
+MPAs,MPAs,Locked In Area,LockedInArea,Constraint,30,0,85,TRUE,TRUE,This constraint is important because,NA

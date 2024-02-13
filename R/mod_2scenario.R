@@ -10,7 +10,8 @@
 mod_2scenario_ui <- function(id) {
   ns <- shiny::NS(id)
 
-  slider_vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
+  slider_vars <- fcreate_vars(id = id, Dict = Dict %>%dplyr::filter(.data$type == "Feature"), name_check = "sli_", categoryOut = TRUE)
+  check_constraints <- fcreate_check(id = id, Dict = Dict%>%dplyr::filter(.data$type == "Constraint"), name_check = "checkLI_", categoryOut = TRUE)
 
   shinyjs::useShinyjs()
 
@@ -31,6 +32,13 @@ mod_2scenario_ui <- function(id) {
           shiny::h2("3. Climate-resilient"),
           shiny::p("Should the spatial plan be made climate-resilient?"),
           shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
+        )),
+        shinyjs::hidden(div(
+          id = ns("switchConstraints"),
+          shiny::h2("3. Constraints"),
+          fcustom_checkCategory(check_constraints, labelNum = 3),
+
+          #shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
         )),
         # shiny::h2("Locked-In Areas"),
         # shiny::p("You can also lock-in some pre-defined areas to ensure they are protected. Planning Units outside these areas will also be selected if needed to meet the targets."),
@@ -159,6 +167,10 @@ mod_2scenario_server <- function(id) {
       shinyjs::show(id = "switchClimSmart")
     }
 
+    if (options$lockedInArea != 0) { # dont make observeEvent because it's a global variable
+      shinyjs::show(id = "switchConstraints")
+    }
+
     observeEvent(input$disconnect, {
       session$close()
     })
@@ -187,11 +199,11 @@ mod_2scenario_server <- function(id) {
 
 
     # Return targets and names for all features from sliders ---------------------------------------------------
-
     targetData <- shiny::reactive({
       targets <- fget_targets(input)
       return(targets)
     })
+
 
 
     p1Data <- shiny::reactive({
@@ -202,6 +214,7 @@ mod_2scenario_server <- function(id) {
 
     # Solve the problem -------------------------------------------------------
     selectedData <- shiny::reactive({
+      #browser()
       selectedData <- solve(p1Data(), run_checks = FALSE) %>%
         sf::st_as_sf()
       return(selectedData)
