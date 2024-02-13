@@ -24,7 +24,7 @@ mod_2scenario_ui <- function(id) {
         ),
         fcustom_sliderCategory(slider_vars, labelNum = 1),
         #   purrr::pmap(Vars, fcustom_slider),
-        shiny::h2("2. Select Rational Use"),
+        shiny::h2("2. Select Cost Layers"),
         fcustom_cost(id, "costid", Dict),
         shinyjs::hidden(div(
           id = ns("switchClimSmart"),
@@ -32,12 +32,12 @@ mod_2scenario_ui <- function(id) {
           shiny::p("Should the spatial plan be made climate-resilient?"),
           shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
         )),
-        # shiny::conditionalPanel(
-        #   condition = "options$climate_change == TRUE",
-        #   shiny::h2("3. Climate-resilient"),
-        #   shiny::p("Should the spatial plan be made climate-resilient?"),
-        #   shiny::checkboxInput(ns("checkClimsmart"),"Make Climate-resilient", FALSE),
-        # ),
+        # shiny::h2("Locked-In Areas"),
+        # shiny::p("You can also lock-in some pre-defined areas to ensure they are protected. Planning Units outside these areas will also be selected if needed to meet the targets."),
+        # shiny::radioButtons(inputId = ns("checkLockIn"),
+        #                     label = NULL,
+        #                     choices = "",
+        #                     selected = "None"),
         shiny::br(), # Leave space for analysis button at bottom
         shiny::br(), # Leave space for analysis button at bottom
         shiny::fixedPanel(
