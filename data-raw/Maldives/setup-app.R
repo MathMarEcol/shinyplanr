@@ -31,6 +31,8 @@ options <- list(
   # TODO Get this working - get conditional panels working for global variables
   climate_change = FALSE, #switch climate change on/off
 
+  lockedInArea = 1, #Includes locked in areas
+
   ## Which objective function module are we using
   obj_func = "min_set", # Minimum set objective
   # obj_func = min_shortfall # Minimum shortfall objective
@@ -85,6 +87,7 @@ climate_sf <- NULL
 # Plotting Overlays -------------------------------------------------------
 
 bndry <- bndry
+
 overlay <- coast
 
 # TODO Work out how to add options here without having to define all.

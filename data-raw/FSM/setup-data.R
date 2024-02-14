@@ -40,7 +40,7 @@ bndry <- temp %>%
 rm(temp)
 
 
-PUs <- oceandatr::get_planning_grid(area_polygon = eez,
+PUs <- spatialgridr::get_grid(area_polygon = eez,
                                     projection_crs = proj,
                                     option = "sf_hex",
                                     resolution = 20000) %>%
@@ -56,12 +56,12 @@ ggplot() +
 # Compile datasets -------------------------------------------------------------
 
 dat_sf <- bind_cols(
-  oceandatr::get_bathymetry(planning_grid = PUs, keep = FALSE) %>% sf::st_drop_geometry(),
-  oceandatr::get_geomorphology(planning_grid = PUs) %>% sf::st_drop_geometry(),
-  oceandatr::get_knolls(planning_grid = PUs) %>% sf::st_drop_geometry(),
-  oceandatr::get_seamounts_buffered(planning_grid = PUs, buffer = 30000) %>% sf::st_drop_geometry(),
-  oceandatr::get_coral_habitat(planning_grid = PUs) %>% sf::st_drop_geometry(),
-  oceandatr::get_enviro_regions(planning_grid = PUs, max_num_clusters = 5)
+  oceandatr::get_bathymetry(spatial_grid = PUs, keep = FALSE) %>% sf::st_drop_geometry(),
+  oceandatr::get_geomorphology(spatial_grid = PUs) %>% sf::st_drop_geometry(),
+  oceandatr::get_knolls(spatial_grid = PUs) %>% sf::st_drop_geometry(),
+  oceandatr::get_seamounts_buffered(spatial_grid = PUs, buffer = 30000) %>% sf::st_drop_geometry(),
+  oceandatr::get_coral_habitat(spatial_grid = PUs) %>% sf::st_drop_geometry(),
+  oceandatr::get_enviro_regions(spatial_grid = PUs, max_num_clusters = 5)
 ) %>%
   dplyr::mutate(across(everything(), ~replace_na(.x, 0))) %>%  # Replace NA/NaN with 0
   dplyr::rename(geometry = x) # Temp fix while oceandatr return x
@@ -103,8 +103,7 @@ lock_in <- "Micronesia (Federated States of)" %>%
   dplyr::filter(.data$MARINE > 0) %>%
   sf::st_transform(crs = proj) %>%
   dplyr::select(geometry) %>%
-  oceandatr::data_to_planning_grid(planning_grid = PUs, dat = ., name = "MPAs") %>%
-  dplyr::mutate(MPAs = forcats::as_factor(MPAs))
+  spatialgridr::get_data_in_grid(spatial_grid = PUs, dat = ., name = "MPAs")
 
 ggplot(lock_in, aes(fill = MPAs)) + geom_sf()
 

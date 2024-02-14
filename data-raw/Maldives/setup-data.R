@@ -25,24 +25,19 @@ ggplot(data = eez) + geom_sf()
 # but it doesn't seem to work for the FSM example. There are PUs on land....
 
 # Separate Boundary and Coastline
-temp <- eez %>%
+bndry <- eez %>%
   sf::st_cast(to = "POLYGON") %>%
   dplyr::mutate(Area_km2 = sf::st_area(.) %>%
                   units::set_units("km2") %>%
                   units::drop_units())
 
-coast <- temp %>%
-  dplyr::filter(Area_km2 < max(Area_km2)) %>%
-  dplyr::select(-Area_km2)
-
-bndry <- temp %>%
-  dplyr::filter(Area_km2 == max(Area_km2)) %>%
-  dplyr::select(-Area_km2)
-
-rm(temp)
+# The above doesn't work properly because of the single polygon.
+# TODO I think I need to get the coastlines, separate to the bndry....
+coast <- rnaturalearth::ne_countries(country = "Maldives", scale = "medium", returnclass = "sf")
 
 
-PUs <- oceandatr::get_planning_grid(area_polygon = eez,
+
+PUs <- spatialgridr::get_grid(area_polygon = eez,
                                     projection_crs = proj,
                                     option = "sf_hex",
                                     resolution = 20000) %>%
@@ -59,12 +54,12 @@ ggplot() +
 # Compile datasets -------------------------------------------------------------
 
 dat_sf <- bind_cols(
-  oceandatr::get_bathymetry(planning_grid = PUs, keep = FALSE) %>% sf::st_drop_geometry(),
-  oceandatr::get_geomorphology(planning_grid = PUs) %>% sf::st_drop_geometry(),
-  oceandatr::get_knolls(planning_grid = PUs) %>% sf::st_drop_geometry(),
-  oceandatr::get_seamounts_buffered(planning_grid = PUs, buffer = 30000) %>% sf::st_drop_geometry(),
-  oceandatr::get_coral_habitat(planning_grid = PUs) %>% sf::st_drop_geometry(),
-  oceandatr::get_enviro_regions(planning_grid = PUs, max_num_clusters = 5)
+  oceandatr::get_bathymetry(spatial_grid = PUs, keep = FALSE) %>% sf::st_drop_geometry(),
+  oceandatr::get_geomorphology(spatial_grid = PUs) %>% sf::st_drop_geometry(),
+  oceandatr::get_knolls(spatial_grid = PUs) %>% sf::st_drop_geometry(),
+  oceandatr::get_seamounts_buffered(spatial_grid = PUs, buffer = 30000) %>% sf::st_drop_geometry(),
+  oceandatr::get_coral_habitat(spatial_grid = PUs) %>% sf::st_drop_geometry(),
+  oceandatr::get_enviro_regions(spatial_grid = PUs, max_num_clusters = 5)
 ) %>%
   dplyr::mutate(across(everything(), ~replace_na(.x, 0))) %>%  # Replace NA/NaN with 0
   dplyr::rename(geometry = x) # Temp fix while oceandatr return x
@@ -73,7 +68,7 @@ dat_sf <- bind_cols(
 
 # Add cost data -----------------------------------------------------------
 
-source("data-raw/FSM/get_gfwData.R")
+source("data-raw/Maldives/get_gfwData.R")
 gfw_cost <- get_gfwData("Maldives", "2014-01-01", "2023-12-31", "yearly", "low", compress = TRUE) %>%
   dplyr::mutate(`Apparent Fishing Hours` = if_else(`Apparent Fishing Hours` > 1000, NA, `Apparent Fishing Hours`)) %>%
   sf::st_transform(sf::st_crs(PUs)) %>%
@@ -106,7 +101,7 @@ lock_in <- "Maldives" %>%
   dplyr::filter(.data$MARINE > 0) %>%
   sf::st_transform(crs = proj) %>%
   dplyr::select(geometry) %>%
-  oceandatr::data_to_planning_grid(planning_grid = PUs, dat = ., name = "MPAs")
+  spatialgridr::get_data_in_grid(spatial_grid = PUs, dat = ., name = "MPAs")
 
 ggplot(lock_in, aes(fill = MPAs)) + geom_sf()
 

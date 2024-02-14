@@ -31,7 +31,7 @@ options <- list(
   # TODO Get this working - get conditional panels working for global variables
   climate_change = FALSE, #switch climate change on/off
 
-  lockedInArea = 1, #Inlcudes lcoked in areas
+  lockedInArea = 1, #Includes locked in areas
 
   ## Which objective function module are we using
   obj_func = "min_set", # Minimum set objective
@@ -58,7 +58,7 @@ Dict <- readr::read_csv(file.path(data_dir, "Dict_Feature.csv")) %>%
   dplyr::arrange(.data$type, .data$category, .data$nameCommon)
 
 vars <- Dict %>%
-  dplyr::filter(!type == "Justification") %>%
+  dplyr::filter(!type %in% c("Justification")) %>%
   dplyr::pull(nameVariable)
 
 
@@ -68,7 +68,6 @@ load(options$file_data)
 raw_sf <- dat_sf %>%
   sf::st_drop_geometry() %>%
   dplyr::select(tidyselect::all_of(vars)) %>%
-  dplyr::mutate(MPAs = as.numeric(as.character(MPAs))) %>% #!!! UGLY HARDWIRED FOR TIME REASONS; CHANGE BACK
   dplyr::select(which(!colSums(., na.rm=TRUE) %in% 0)) %>% # Remove all zero columns
   dplyr::bind_cols(dat_sf %>% dplyr::select(geometry)) # Add geometry back in
 
