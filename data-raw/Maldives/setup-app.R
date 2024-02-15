@@ -30,7 +30,7 @@ options <- list(
   mod_7credit = TRUE, #switch modules on/off
 
   # TODO Get this working - get conditional panels working for global variables
-  climate_change = FALSE, #switch climate change on/off
+  climate_change = 0, #switch climate change on/off
 
   lockedInArea = 1, #Includes locked in areas
 
