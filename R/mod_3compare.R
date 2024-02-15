@@ -57,7 +57,7 @@ mod_3compare_ui <- function(id) {
           )
         )),
 
-          shinyjs::hidden(div(
+        shinyjs::hidden(div(
           id = ns_comp("switchConstraints"),
           shiny::h2("3. Constraints"),
           shiny::splitLayout(
@@ -226,10 +226,7 @@ mod_3compare_server <- function(id) {
     })
 
     p2Data <- shiny::reactive({
-
-      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, name_checkLI = "check2LI_", cost_var = input$costid2)
-#      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, compare_id = "2")
-
+      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, compare_id = "2")
       return(p2)
     })
 

@@ -24,7 +24,6 @@ mod_2scenario_ui <- function(id) {
                             style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
         ),
         fcustom_sliderCategory(slider_vars, labelNum = 1),
-        #   purrr::pmap(Vars, fcustom_slider),
         shiny::h2("2. Select Cost Layers"),
         fcustom_cost(id, "costid", Dict),
         shinyjs::hidden(div(

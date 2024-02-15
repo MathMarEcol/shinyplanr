@@ -45,8 +45,8 @@ fget_targets<- function(input, name_check = "sli_"){
 #' @noRd
 #'
 
-fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, name_checkLI = "checkLI_", cost_var = input$costid){
-# fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, compare_id = ""){
+# fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, name_checkLI = "checkLI_", cost_var = input$costid){
+fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, compare_id = ""){
 
 
   # cost_var = input$costid
@@ -148,24 +148,23 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
       # Do Locked In Regions ----------------------------------------------------
 
       if (options$lockedInArea != 0) {
+
         LI <- Dict %>%
           dplyr::filter(categoryID == "LockedInArea") %>%
           dplyr::pull(nameVariable)
 
-        LI_check <- LI %>%  purrr::map(\(x)paste0("input$", paste0(name_checkLI, x)))
-        LI_sf <- LI %>%  purrr::map(\(x)paste0("raw_sf$", x))
+        LI_check <- paste0("input$check",compare_id, "LI_", LI)
+        LI_sf <- paste0("raw_sf$", LI)
 
-        for (area in 1:length(LI)) {
-
-          if (rlang::eval_tidy(rlang::parse_expr(LI_check[[1]]))) {
-
+        for (area in 1:length(LI)) { # TODO Why is area here? It is not used anywhere.... Is a placeholder needed?
+          if (!rlang::is_null(rlang::eval_tidy(rlang::parse_expr(LI_check)))) {
             p1 <- p1 %>%
-              prioritizr::add_locked_in_constraints(as.logical(rlang::eval_tidy(rlang::parse_expr(LI_sf[[1]]))))
+              prioritizr::add_locked_in_constraints(as.logical(rlang::eval_tidy(rlang::parse_expr(LI_sf))))
           }
         }
       }
     } else if (options$obj_func == "min_shortfall") {
-        # Add new objective functions
+      # Add new objective functions
     }
   }
 
