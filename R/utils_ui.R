@@ -24,12 +24,37 @@ fcreate_vars <- function(id, Dict = Dict, name_check = "check", categoryOut = FA
 }
 
 
+#' Title
+#'
+#' @noRd
+#'
+fcreate_check <- function(id, Dict = Dict, idCategory = "LockedInArea", name_check = "check", categoryOut = FALSE) {
+
+  vars <- Dict %>%
+    dplyr::filter(.data$categoryID == idCategory) %>%
+    dplyr::select(-c("justification", "wsClass", "includeApp", "includeJust", "type", "targetMin", "targetMax", "targetInitial")) %>%
+    dplyr::mutate(
+      id = id,
+      id_in = paste(name_check, .data$nameVariable, sep = "")
+    )
+
+  if (categoryOut == TRUE) {
+    vars <- vars %>%
+      dplyr::select("id", "id_in", "nameCommon", "category")
+  } else {
+    vars <- vars %>%
+      dplyr::select("id", "id_in", "nameCommon")
+  }
+
+  return(vars)
+}
+
 
 #' Title
 #'
 #' @noRd
 #'
-fcustom_checkbox <- function(id, id_in, Dict, titl) {
+fcustom_checkboxGroup <- function(id, id_in, Dict, titl) {
   Dict <- Dict %>%
     dplyr::select(.data$nameCommon, .data$nameVariable) %>%
     tibble::deframe()
@@ -38,6 +63,17 @@ fcustom_checkbox <- function(id, id_in, Dict, titl) {
                             shiny::h5(titl),
                             choices = Dict,
                             selected = unlist(Dict)
+  )
+}
+
+#' Title
+#'
+#' @noRd
+#'
+fcustom_checkbox <- function(id, id_in, nameCommon) {
+  shiny::checkboxInput(shiny::NS(namespace = id, id = id_in),
+                       label = nameCommon,
+                            FALSE
   )
 }
 
@@ -75,6 +111,28 @@ fcustom_sliderCategory <- function(varsIn, labelNum) {
       list(shiny::h3(paste0(labelNum, ".", ctg, " ", ctgs[ctg])))
   }
   # browser()
+  return(shinyList)
+}
+
+#' Title
+#'
+#' @noRd
+#'
+fcustom_checkCategory <- function(varsIn, labelNum) {
+  ctgs <- unique(varsIn$category)
+
+  shinyList <- vector("list", length = length(ctgs) * 2)
+
+  for (ctg in 1:length(ctgs)) {
+    feats <- varsIn %>%
+      dplyr::filter(category == ctgs[ctg]) %>%
+      dplyr::select(-"category")
+
+    shinyList[ctg * 2] <- # times as many entries as you want to have for one category per list: here: title and sliders (=2); for example with gap between =3
+      list(purrr::pmap(feats, fcustom_checkbox))
+    shinyList[ctg * 2 - 1] <-
+      list(shiny::h3(paste0(labelNum, ".", ctg, " ", ctgs[ctg])))
+  }
   return(shinyList)
 }
 

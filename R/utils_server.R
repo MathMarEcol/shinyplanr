@@ -1,4 +1,20 @@
 
+#' Return category df from Dict
+#'
+#' @noRd
+#'
+fget_category <- function(Dict){
+
+  category <- Dict %>%
+    dplyr::filter(!type %in% c("Cost", "Justification")) %>%
+    dplyr::select(nameVariable, category) %>%
+    dplyr::rename(feature = nameVariable)
+  # TODO I want to remove this last command and have the app deal with `nanmeVariable`
+
+  return(category)
+}
+
+
 
 # Get Targets
 
@@ -8,27 +24,34 @@
 #'
 fget_targets<- function(input, name_check = "sli_"){
 
-  f <- vars[stringr::str_detect(vars, "Cost_", negate = TRUE)]
+  ft <- Dict %>%#vars[stringr::str_detect(vars, "Cost_", negate = TRUE)] %>%
+    dplyr::filter(type != "Constraint", type != "Cost") %>%
+    dplyr::pull(nameVariable)
 
-  targets <- f %>%
+  targets <- ft %>%
     purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0(name_check, x))))) %>%
     tibble::enframe() %>%
     tidyr::unnest(cols = .data$value) %>%
     dplyr::rename(feature = "name", target = "value") %>%
-    dplyr::mutate(feature = f) %>%
+    dplyr::mutate(feature = ft) %>%
     dplyr::mutate(target = target / 100) # requires number between 0-1
 
   return(targets)
 }
 
-# Define Problem
 
 #' Define conservation problem
 #'
 #' @noRd
 #'
-fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
-  targets <- target
+
+# fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, name_checkLI = "checkLI_", cost_var = input$costid){
+fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, compare_id = ""){
+
+
+  # cost_var = input$costid
+  # TODO raw_sf is not passed into the function
+
   out_sf <- raw_sf %>%
     dplyr::select(
       .data$geometry,
@@ -86,7 +109,7 @@ fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
     print("Something odd is going on here. Check climate-smart tick box.")
   }
 
-  f_no <- fCheckFeatureNo(p_dat)
+  f_no <- fCheckFeatureNo(p_dat) # Check number of features
 
   if (f_no == 1) {
     shinyalert::shinyalert("Error", "No features have been selected. You can't run a spatial prioritization without any features.",
@@ -97,11 +120,12 @@ fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
     p_dat <- p_dat %>%
       dplyr::mutate(DummyVar = 1)
 
-    p1 <- prioritizr::problem(p_dat, "DummyVar", input$costid) %>%
+    p1 <- prioritizr::problem(p_dat, "DummyVar", ) %>%
       prioritizr::add_min_set_objective() %>%
       prioritizr::add_relative_targets(0) %>%
       prioritizr::add_binary_decisions() %>%
       prioritizr::add_cbc_solver(verbose = TRUE)
+
   } else {
     ## Get names of the features
     if (clim_input == TRUE) {
@@ -113,13 +137,35 @@ fdefine_problem <- function(target, input, name_check = "sli_", clim_input){
       usedFeatures <- targets$feature
     }
 
+    if (options$obj_func == "min_set") {
 
-    p1 <- prioritizr::problem(p_dat, usedFeatures, input$costid) %>%
-      prioritizr::add_min_set_objective() %>%
-      prioritizr::add_relative_targets(targets$target) %>%
-      prioritizr::add_binary_decisions() %>%
-      prioritizr::add_cbc_solver(verbose = TRUE)
-    # }
+      p1 <- prioritizr::problem(p_dat, usedFeatures, eval(parse(text=paste0("input$costid",compare_id)))) %>%
+        prioritizr::add_min_set_objective() %>%
+        prioritizr::add_relative_targets(targets$target) %>%
+        prioritizr::add_binary_decisions() %>%
+        prioritizr::add_cbc_solver(verbose = TRUE)
+
+      # Do Locked In Regions ----------------------------------------------------
+
+      if (options$lockedInArea != 0) {
+
+        LI <- Dict %>%
+          dplyr::filter(categoryID == "LockedInArea") %>%
+          dplyr::pull(nameVariable)
+
+        LI_check <- paste0("input$check",compare_id, "LI_", LI)
+        LI_sf <- paste0("raw_sf$", LI)
+
+        for (area in 1:length(LI)) { # TODO Why is area here? It is not used anywhere.... Is a placeholder needed?
+          if (!rlang::is_null(rlang::eval_tidy(rlang::parse_expr(LI_check)))) {
+            p1 <- p1 %>%
+              prioritizr::add_locked_in_constraints(as.logical(rlang::eval_tidy(rlang::parse_expr(LI_sf))))
+          }
+        }
+      }
+    } else if (options$obj_func == "min_shortfall") {
+      # Add new objective functions
+    }
   }
 
   rm(p_dat)

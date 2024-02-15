@@ -10,7 +10,9 @@
 mod_2scenario_ui <- function(id) {
   ns <- shiny::NS(id)
 
-  Vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
+  slider_vars <- fcreate_vars(id = id, Dict = Dict %>%dplyr::filter(.data$type == "Feature"), name_check = "sli_", categoryOut = TRUE)
+  check_constraints <- fcreate_check(id = id, Dict = Dict%>%dplyr::filter(.data$type == "Constraint"), name_check = "checkLI_", categoryOut = TRUE)
+
   shinyjs::useShinyjs()
 
   shiny::tagList(
@@ -21,9 +23,8 @@ mod_2scenario_ui <- function(id) {
                             width = "100%", class = "btn btn-outline-primary",
                             style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
         ),
-        fcustom_sliderCategory(Vars, labelNum = 1),
-        #   purrr::pmap(Vars, fcustom_slider),
-        shiny::h2("2. Select Rational Use"),
+        fcustom_sliderCategory(slider_vars, labelNum = 1),
+        shiny::h2("2. Select Cost Layers"),
         fcustom_cost(id, "costid", Dict),
         shinyjs::hidden(div(
           id = ns("switchClimSmart"),
@@ -31,12 +32,13 @@ mod_2scenario_ui <- function(id) {
           shiny::p("Should the spatial plan be made climate-resilient?"),
           shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
         )),
-        # shiny::conditionalPanel(
-        #   condition = "options$climate_change == TRUE",
-        #   shiny::h2("3. Climate-resilient"),
-        #   shiny::p("Should the spatial plan be made climate-resilient?"),
-        #   shiny::checkboxInput(ns("checkClimsmart"),"Make Climate-resilient", FALSE),
-        # ),
+        shinyjs::hidden(div(
+          id = ns("switchConstraints"),
+          shiny::h2("3. Constraints"),
+          fcustom_checkCategory(check_constraints, labelNum = 3),
+          shiny::p("You can also lock-in some pre-defined areas to ensure they are protected. Planning Units outside these areas will also be selected if needed to meet the targets."),
+          #shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
+        )),
         shiny::br(), # Leave space for analysis button at bottom
         shiny::br(), # Leave space for analysis button at bottom
         shiny::fixedPanel(
@@ -88,7 +90,7 @@ mod_2scenario_ui <- function(id) {
                    shiny::br(),
                    shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_TargetPlot"), height = "600px"))
           ),
-          tabPanel("Rational Use",
+          tabPanel("Cost",
                    value = 3,
                    shiny::fixedPanel(
                      style = "z-index:100", # To force the button above all plots.
@@ -158,6 +160,10 @@ mod_2scenario_server <- function(id) {
       shinyjs::show(id = "switchClimSmart")
     }
 
+    if (options$lockedInArea != 0) { # dont make observeEvent because it's a global variable
+      shinyjs::show(id = "switchConstraints")
+    }
+
     observeEvent(input$disconnect, {
       session$close()
     })
@@ -186,11 +192,11 @@ mod_2scenario_server <- function(id) {
 
 
     # Return targets and names for all features from sliders ---------------------------------------------------
-
     targetData <- shiny::reactive({
       targets <- fget_targets(input)
       return(targets)
     })
+
 
 
     p1Data <- shiny::reactive({
@@ -201,6 +207,7 @@ mod_2scenario_server <- function(id) {
 
     # Solve the problem -------------------------------------------------------
     selectedData <- shiny::reactive({
+      #browser()
       selectedData <- solve(p1Data(), run_checks = FALSE) %>%
         sf::st_as_sf()
       return(selectedData)
@@ -225,13 +232,16 @@ mod_2scenario_server <- function(id) {
       {
         # Solution plotting reactive
         plot_data1 <- shiny::reactive({
+
           soln_text <- fSolnText(input, selectedData())
 
-          plot1 <- spatialplanr::splnr_plot_binFeature(df = selectedData(), colInterest = selectedData()$solution_1, plotTitle = "Planning Units") +
+          plot1 <- spatialplanr::splnr_plot_binFeature(df = selectedData(),
+                                                       colInterest = selectedData()$solution_1,
+                                                       plotTitle = "Planning Units") +
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
-              # Bndry = Bndry,
-              overlay = landmass,
+              Bndry = bndry,
+              overlay = overlay,
               cropOverlay = selectedData(),
               ggtheme = map_theme
             )
@@ -262,15 +272,16 @@ mod_2scenario_server <- function(id) {
         }) %>%
           shiny::bindEvent(input$analyse)
 
+        # TODO Move this text to the setup script as the default. It can then be modified.
         output$txt_soln <- shiny::renderText({
           paste(
             "This plot shows the optimal planning scenario for the study area
               that meets the selected targets for the chosen features whilst
-              minimising the rational use. The categorical map displays, which of
+              minimising the cost. The categorical map displays, which of
               the hexagonal planning units were selected as important for meeting
               the conservation targets (dark blue) and which were not selected (light blue)
               either due to not being in an area prioritized for the selected features or
-              because they are within areas valuable and accessible for other rational uses.
+              because they are within areas valuable for other uses.
               For the chosen inputs.",
             round((selectedData() %>% dplyr::filter(.data$solution_1 == "Selected") %>% # TODO probably should adjust the txt function to return numerics to use here
                      nrow() / nrow(selectedData())) * 100),
@@ -310,8 +321,10 @@ mod_2scenario_server <- function(id) {
           }
 
           gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData,
-                                                           nr = 2, showTarget = TRUE,
-                                                           category = category, renameFeatures = TRUE,
+                                                           nr = 2,
+                                                           showTarget = TRUE,
+                                                           category = fget_category(Dict = Dict),
+                                                           renameFeatures = TRUE,
                                                            namesToReplace = Dict
           )
 
@@ -335,7 +348,8 @@ mod_2scenario_server <- function(id) {
       suitable habitat/area of each of the important and representative
       conservation features that are included. The dashed line represents
       the set target for the features. Hollow bars with a black border indicate incidental
-        protection of features which were not chosen in this analysis but have areal overlap with selected planning units."
+        protection of features which were not chosen in this analysis but
+          have areal overlap with selected planning units."
         })
 
         output$dlPlot2 <- fDownloadPlotServer(input, gg_id = gg_Target(), gg_prefix = "Target", time_date = analysisTime()) # Download figure
@@ -360,8 +374,8 @@ mod_2scenario_server <- function(id) {
                                                plotTitle = "Solution overlaid with cost"
           ) +
             spatialplanr::splnr_gg_add(
-              # Bndry = Bndry,
-              overlay = landmass,
+              Bndry = bndry,
+              overlay = overlay,
               cropOverlay = selectedData(),
               ggtheme = map_theme
             )
@@ -375,33 +389,25 @@ mod_2scenario_server <- function(id) {
           shiny::bindEvent(input$analyse)
 
         output$hdr_cost <- shiny::renderText({
-          "Rational Use Overlaid with Selection"
+          "Cost Layer Overlaid with Selection"
         }) %>%
           shiny::bindEvent(input$analyse)
 
 
         # TODO Move this text to the Dictionary and implement call to display here as usual
         output$txt_cost <- shiny::renderText({
-          if (input$costid == "Cost_Total" || input$costid == "Cost_Krill" || input$costid == "Cost_Toothfish") {
-            cost_txt <- paste("For the chosen input, the rational use is low in areas with low predicted Antarctic krill
-                          and/or toothfish abundances (light orange). The rational use is high in planning units with
-                          suitable Antarctic krill/toothfish habitat that would be lost to fishing if a
-                          particular planning unit was included in a protected area (dark orange).")
-          } else if (input$costid == "Cost_IceA") {
-            cost_txt <- paste("For the chosen input, the rational use is low where the area is inaccessible to fishing
-                          due to ice coverage (light orange). The rational use is high in planning units with low ice
-                          area, i.e. area is accessible (dark orange).")
-          } else if (input$costid == "Cost_None") {
-            cost_txt <- paste("For the chosen input, there is no rational use. The prioritisation minimizes the area
-                          that is selected in the scenario.")
-          }
-          paste0("To illustrate how the chosen rational use influences the spatial plan, this plot shows the
-             spatial plan (= scenario) overlaid with the rational use of including a planning unit in a
+
+          # Extract cost info from Dictionary for justification
+          cost_txt <- Dict %>% dplyr::filter(nameVariable == input$costid) %>% dplyr::pull(justification)
+
+          paste0("To illustrate how the chosen cost influences the spatial plan, this plot shows the
+             spatial plan (= scenario) overlaid with the cost of including a planning unit in a
              reserve. ", cost_txt)
+
         }) %>%
           shiny::bindEvent(input$analyse)
 
-        output$dlPlot3 <- fDownloadPlotServer(input, gg_id = costPlotData(), gg_prefix = "RationalUse", time_date = analysisTime()) # Download figure
+        output$dlPlot3 <- fDownloadPlotServer(input, gg_id = costPlotData(), gg_prefix = "Cost", time_date = analysisTime()) # Download figure
       }
     ) # end observeEvent 3
 
@@ -420,11 +426,7 @@ mod_2scenario_server <- function(id) {
             legendTitle = "Climate resilience metric (add unit)",
             xAxisLab = "Climate resilience metric"
           )
-          # s1 <- selectedData() %>%
-          #   dplyr::mutate(solution_1 = dplyr::if_else(.data$solution_1 == "Selected", 1, 0)) %>%
-          #   tibble::as_tibble()
-          #
-          # ggr_clim <- create_climKernelDensityPlot(s1) # create_climKernelDensityPlot(s1)
+
           return(ggClimDens)
         }) %>%
           shiny::bindEvent(input$analyse)
@@ -451,7 +453,7 @@ mod_2scenario_server <- function(id) {
           These two components are combined into a single climate-resilience metric so that higher values represent areas
           likely to warm less and where biodiversity is more likely to be retained. The prioritization preferentially places protected areas
           where there are higher values of the climate-resilience metric, whilst still meeting the biodiversity targets and
-          minimising overlap with rational use areas. The dark blue polygon represents the climate-resilience metric in planning units
+          minimising overlap with high cost areas. The dark blue polygon represents the climate-resilience metric in planning units
           selected for protection. The light blue polygon represents the climate-resilience metric in areas not selected for protection. The median values of the climate-resilience metric for the two groups are represented by the vertical lines.")
           } else if (input$checkClimsmart == FALSE) {
             paste("Climate-smart spatial planning option not selected.")
@@ -522,27 +524,6 @@ mod_2scenario_server <- function(id) {
         }) %>%
           shiny::bindEvent(input$analyse)
 
-
-        SummaryTabler <- shiny::reactive({
-          CosttoSave <- Dict %>%
-            dplyr::filter(.data$nameVariable %in% input$costid)
-
-          SummarytoSave <- tibble::tribble(
-            ~`Rational Use`, ~`Climate Smart`,
-            CosttoSave$nameCommon, dplyr::if_else(input$checkClimsmart, "Yes", "No")
-          )
-
-          return(SummarytoSave)
-        }) %>%
-          shiny::bindEvent(input$analyse)
-
-
-        output$SummaryTable <- shiny::renderTable({
-          SummaryTabler()
-        }) %>%
-          shiny::bindEvent(input$analyse)
-
-        output$hdr_DetsSummary <- shiny::renderText("General")
         output$hdr_DetsData <- shiny::renderText("Feature Summary")
 
         # Create data tables for download
