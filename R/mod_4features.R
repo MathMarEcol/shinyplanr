@@ -55,18 +55,6 @@ mod_4features_server <- function(id){
 
       # Get the names of the categories in regionalisations
       if (stringr::str_detect(input$checkFeat, "region_"))  {
-        # if (input$checkFeat == "region_ech") {
-        #   region_names <- c(names_echinoid)
-        # }
-        # if (input$checkFeat == "region_pel") {
-        #   region_names <- c(names_pelagic)
-        # }
-        # if (input$checkFeat == "region_ben") {
-        #   region_names <- c(names_benthic_LayerMod)
-        # }
-        # if (input$checkFeat == "region_SOBD") {
-        #   region_names <- c(names_SOBD)
-        # }
 
         common <- Dict %>%
           dplyr::filter(.data$nameVariable %in% region_names) %>%
@@ -103,7 +91,7 @@ mod_4features_server <- function(id){
             dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
             dplyr::select(.data$nameVariable, .data$nameCommon) %>%
             tibble::deframe()
-          titleCost <- paste0("Rational Use: ",titleCost)
+          titleCost <- paste0("Cost Layer: ",titleCost)
         }
 
         gg_cost <- spatialplanr::splnr_plot_cost(df)

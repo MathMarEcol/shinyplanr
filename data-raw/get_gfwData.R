@@ -42,7 +42,11 @@ get_gfwData <- function(region, start_date, end_date, temp_res,
   if (isTRUE(compress)){
     # GFW data will always be "EPSG:4326". No need to have CRS as an option here
 
-    data_df <- data_df %>%
+    # What dataframes have data
+    nr <- map_dbl(data_df, nrow)
+    nr <- nr != 0 # Make logical
+
+    data_df <- data_df[nr] %>%
       purrr::map_dfr(bind_rows) %>%
       dplyr::select("Lon", "Lat", "Apparent Fishing Hours") %>%
       dplyr::group_by(Lon, Lat) %>%

@@ -44,8 +44,12 @@ fget_targets<- function(input, name_check = "sli_"){
 #'
 #' @noRd
 #'
-fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, name_checkLI = "checkLI_", cost_var = input$costid){
 
+fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, name_checkLI = "checkLI_", cost_var = input$costid){
+# fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, compare_id = ""){
+
+
+  # cost_var = input$costid
   # TODO raw_sf is not passed into the function
 
   out_sf <- raw_sf %>%
@@ -116,7 +120,7 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
     p_dat <- p_dat %>%
       dplyr::mutate(DummyVar = 1)
 
-    p1 <- prioritizr::problem(p_dat, "DummyVar", cost_var) %>%
+    p1 <- prioritizr::problem(p_dat, "DummyVar", ) %>%
       prioritizr::add_min_set_objective() %>%
       prioritizr::add_relative_targets(0) %>%
       prioritizr::add_binary_decisions() %>%
@@ -134,11 +138,14 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
     }
 
     if (options$obj_func == "min_set") {
-      p1 <- prioritizr::problem(p_dat, usedFeatures, cost_var) %>%
+
+      p1 <- prioritizr::problem(p_dat, usedFeatures, eval(parse(text=paste0("input$costid",compare_id)))) %>%
         prioritizr::add_min_set_objective() %>%
         prioritizr::add_relative_targets(targets$target) %>%
         prioritizr::add_binary_decisions() %>%
         prioritizr::add_cbc_solver(verbose = TRUE)
+
+      # Do Locked In Regions ----------------------------------------------------
 
       if (options$lockedInArea != 0) {
         LI <- Dict %>%
@@ -149,8 +156,9 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
         LI_sf <- LI %>%  purrr::map(\(x)paste0("raw_sf$", x))
 
         for (area in 1:length(LI)) {
-          if (rlang::eval_tidy(rlang::parse_expr(unlist(LI_check[1])))) {
-            #browser()
+
+          if (rlang::eval_tidy(rlang::parse_expr(LI_check[[1]]))) {
+
             p1 <- p1 %>%
               prioritizr::add_locked_in_constraints(as.logical(rlang::eval_tidy(rlang::parse_expr(LI_sf[[1]]))))
           }

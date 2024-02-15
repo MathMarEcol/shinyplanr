@@ -2,7 +2,7 @@
 
 library(tidyverse)
 
-country <- "Maldives"
+country <- "Vanuatu"
 data_dir <- file.path("data-raw", country)
 
 # TODO Write function to load default options
@@ -13,8 +13,13 @@ data_dir <- file.path("data-raw", country)
 options <- list(
 
   ## General Options
-  nav_title = "Maldives Planning", # Navbar title
-  nav_primary = "#2C3E50", # Hex colour codes: https://htmlcolorcodes.com
+  nav_title = "Pablo's App", # Navbar title
+  nav_primary = "#85929E", # Hex colour codes: https://htmlcolorcodes.com
+  # "#85929E"
+  # "#F8C471"
+  # "#73C6B6"
+  # "#85C1E9"
+  # "#E74C3C"
 
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
@@ -24,13 +29,13 @@ options <- list(
   ## App Setup Options
   mod_1welcome = TRUE, #switch modules on/off
   mod_2scenario = TRUE, #switch modules on/off
-  mod_3compare = TRUE, #switch modules on/off
+  mod_3compare = FALSE, #switch modules on/off
   mod_4features = TRUE, #switch modules on/off
   mod_6help = TRUE, #switch modules on/off
-  mod_7credit = TRUE, #switch modules on/off
+  mod_7credit = FALSE, #switch modules on/off
 
   # TODO Get this working - get conditional panels working for global variables
-  climate_change = 0, #switch climate change on/off
+  climate_change = FALSE, #switch climate change on/off
 
   lockedInArea = 1, #Includes locked in areas
 

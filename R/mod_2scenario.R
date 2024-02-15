@@ -37,15 +37,9 @@ mod_2scenario_ui <- function(id) {
           id = ns("switchConstraints"),
           shiny::h2("3. Constraints"),
           fcustom_checkCategory(check_constraints, labelNum = 3),
-
+          shiny::p("You can also lock-in some pre-defined areas to ensure they are protected. Planning Units outside these areas will also be selected if needed to meet the targets."),
           #shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
         )),
-        # shiny::h2("Locked-In Areas"),
-        # shiny::p("You can also lock-in some pre-defined areas to ensure they are protected. Planning Units outside these areas will also be selected if needed to meet the targets."),
-        # shiny::radioButtons(inputId = ns("checkLockIn"),
-        #                     label = NULL,
-        #                     choices = "",
-        #                     selected = "None"),
         shiny::br(), # Leave space for analysis button at bottom
         shiny::br(), # Leave space for analysis button at bottom
         shiny::fixedPanel(
@@ -239,9 +233,12 @@ mod_2scenario_server <- function(id) {
       {
         # Solution plotting reactive
         plot_data1 <- shiny::reactive({
+
           soln_text <- fSolnText(input, selectedData())
 
-          plot1 <- spatialplanr::splnr_plot_binFeature(df = selectedData(), colInterest = selectedData()$solution_1, plotTitle = "Planning Units") +
+          plot1 <- spatialplanr::splnr_plot_binFeature(df = selectedData(),
+                                                       colInterest = selectedData()$solution_1,
+                                                       plotTitle = "Planning Units") +
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               Bndry = bndry,

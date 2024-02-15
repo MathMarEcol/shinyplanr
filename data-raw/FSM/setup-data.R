@@ -2,12 +2,6 @@ library(tidyverse)
 library(spatialplanr)
 library(oceandatr)
 
-## Check EEZ methods
-# eez1 <- mregions2::mrp_get("eez", cql_filter = "sovereign1 = 'Australia'")
-# eez1a <- eez1[5,]
-# eez2 <- oceandatr::get_area("Australia")
-# eez3 <- oceandatr::get_area("United States")
-
 proj <- "ESRI:54009"
 
 # Get eez to create grid
@@ -15,12 +9,6 @@ eez <- oceandatr::get_area("Micronesia", mregions_column = "sovereign1") %>%
   sf::st_transform(crs = proj) %>%
   sf::st_geometry() %>%
   sf::st_sf()
-
-# TODO is there a better way to do the code below? For the app we need a boundary and the coastline.
-# TODO Chat to JF about get_area which returns a multipolygon.
-# How do they deal with this when creating the Planning grid.
-# It looks like they look at overlap between the centroid and the polygon
-# but it doesn't seem to work for the FSM example. There are PUs on land....
 
 # Separate Boundary and Coastline
 temp <- eez %>%
@@ -70,7 +58,7 @@ dat_sf <- bind_cols(
 
 # Add cost data -----------------------------------------------------------
 
-source("data-raw/FSM/get_gfwData.R")
+source("data-raw/get_gfwData.R")
 gfw_cost <- get_gfwData("Micronesia", "2013-01-01", "2023-12-31", "yearly", "low", compress = TRUE) %>%
   dplyr::mutate(`Apparent Fishing Hours` = if_else(`Apparent Fishing Hours` > 1000, NA, `Apparent Fishing Hours`)) %>%
   sf::st_transform(sf::st_crs(PUs)) %>%

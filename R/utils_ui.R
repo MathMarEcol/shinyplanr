@@ -133,7 +133,6 @@ fcustom_checkCategory <- function(varsIn, labelNum) {
     shinyList[ctg * 2 - 1] <-
       list(shiny::h3(paste0(labelNum, ".", ctg, " ", ctgs[ctg])))
   }
-  # browser()
   return(shinyList)
 }
 

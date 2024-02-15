@@ -2,8 +2,9 @@ library(tidyverse)
 library(spatialplanr)
 library(oceandatr)
 
-country <- "Maldives"
+country <- ""
 proj <- "ESRI:54009"
+res <- 20000 # 20 km x 20 km
 
 # Get eez to create grid
 eez <- oceandatr::get_area(area_name = country, mregions_column = "sovereign1") %>%
@@ -23,7 +24,7 @@ coast <- rnaturalearth::ne_countries(country = country, scale = "medium", return
 PUs <- spatialgridr::get_grid(area_polygon = eez,
                                     projection_crs = proj,
                                     option = "sf_hex",
-                                    resolution = 20000) %>%
+                                    resolution = res) %>%
   dplyr::rename(geometry = x) # Temp fix while oceandatr return x
 
 
