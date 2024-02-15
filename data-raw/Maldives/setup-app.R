@@ -2,7 +2,8 @@
 
 library(tidyverse)
 
-data_dir <- file.path("data-raw", "Maldives")
+country <- "Maldives"
+data_dir <- file.path("data-raw", country)
 
 # TODO Write function to load default options
 # Especially different colours for the plotting etc
@@ -17,7 +18,7 @@ options <- list(
 
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
-  file_data = file.path(data_dir, "Maldives_TestData.rda"),
+  file_data = file.path(data_dir, paste0(country, "_RawData.rda")),
   # file_climate = file.path(data_dir, "Ensemble-ssp585-combined.rds"),
 
   ## App Setup Options

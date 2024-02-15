@@ -2,27 +2,14 @@ library(tidyverse)
 library(spatialplanr)
 library(oceandatr)
 
-## Check EEZ methods
-# eez1 <- mregions2::mrp_get("eez", cql_filter = "sovereign1 = 'Australia'")
-# eez1a <- eez1[5,]
-# eez2 <- oceandatr::get_area("Australia")
-# eez3 <- oceandatr::get_area("United States")
-
+country <- "Maldives"
 proj <- "ESRI:54009"
 
 # Get eez to create grid
-eez <- oceandatr::get_area("Maldives", mregions_column = "sovereign1") %>%
+eez <- oceandatr::get_area(area_name = country, mregions_column = "sovereign1") %>%
   sf::st_transform(crs = proj) %>%
   sf::st_geometry() %>%
   sf::st_sf()
-
-ggplot(data = eez) + geom_sf()
-
-# TODO is there a better way to do the code below? For the app we need a boundary and the coastline.
-# TODO Chat to JF about get_area which returns a multipolygon.
-# How do they deal with this when creating the Planning grid.
-# It looks like they look at overlap between the centroid and the polygon
-# but it doesn't seem to work for the FSM example. There are PUs on land....
 
 # Separate Boundary and Coastline
 bndry <- eez %>%
@@ -31,11 +18,7 @@ bndry <- eez %>%
                   units::set_units("km2") %>%
                   units::drop_units())
 
-# The above doesn't work properly because of the single polygon.
-# TODO I think I need to get the coastlines, separate to the bndry....
-coast <- rnaturalearth::ne_countries(country = "Maldives", scale = "medium", returnclass = "sf")
-
-
+coast <- rnaturalearth::ne_countries(country = country, scale = "medium", returnclass = "sf")
 
 PUs <- spatialgridr::get_grid(area_polygon = eez,
                                     projection_crs = proj,
@@ -68,12 +51,11 @@ dat_sf <- bind_cols(
 
 # Add cost data -----------------------------------------------------------
 
-source("data-raw/Maldives/get_gfwData.R")
-gfw_cost <- get_gfwData("Maldives", "2014-01-01", "2023-12-31", "yearly", "low", compress = TRUE) %>%
+source("data-raw/get_gfwData.R")
+gfw_cost <- get_gfwData(region = country, "2014-01-01", "2023-12-31", "yearly", "low", compress = TRUE) %>%
   dplyr::mutate(`Apparent Fishing Hours` = if_else(`Apparent Fishing Hours` > 1000, NA, `Apparent Fishing Hours`)) %>%
   sf::st_transform(sf::st_crs(PUs)) %>%
   sf::st_interpolate_aw(., PUs, extensive = TRUE, keep_NA = TRUE)
-
 
 
 cost <- PUs %>%
@@ -85,14 +67,11 @@ cost <- PUs %>%
   dplyr::relocate(geometry, .after = tidyselect::last_col())
 
 
-
-
-
 # Locked in areas ---------------------------------------------------------
 
 # TODO These are only point MPAs. Need some polygons to do this right.
 
-lock_in <- "Maldives" %>%
+lock_in <- country %>%
   lapply(wdpar::wdpa_fetch,
          wait = TRUE,
          download_dir = rappdirs::user_data_dir("wdpar")
@@ -117,5 +96,5 @@ rm(cost, lock_in, eez)
 
 
 
-save(dat_sf, bndry, coast, file = file.path("data-raw", "Maldives", "Maldives_TestData.rda"))
+save(dat_sf, bndry, coast, file = file.path("data-raw", country, paste0(country,"_RawData.rda")))
 

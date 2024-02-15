@@ -40,7 +40,7 @@ mod_3compare_ui <- function(id) {
           # Thanks to https://stackoverflow.com/questions_comp/40077388/shiny-splitlayout-and-selectinput-issue
           tags$head(tags$style(HTML(".shiny-split-layout > div {overflow: visible;}"))),
           cellWidths = c("0%", "50%", "50%"), # note the 0% here at position zero...
-          fcustom_cost(id, "costid", Dict),
+          fcustom_cost(id, "costid1", Dict),
           fcustom_cost(id, "costid2", Dict),
         ),
         shinyjs::hidden(div(
@@ -52,6 +52,12 @@ mod_3compare_ui <- function(id) {
             shiny::checkboxInput(ns_comp("check2Climsmart"), "Make Climate-resilient", FALSE)
           )
         )),
+        # shinyjs::hidden(div(
+        #   id = ns("switchConstraints"),
+        #   shiny::h2("3. Constraints"),
+        #   fcustom_checkCategory(check_constraints, labelNum = 3),
+        # )),
+
         shiny::br(), # Leave space for analysis button at bottom
         shiny::br(), # Leave space for analysis button at bottom
         shiny::fixedPanel(
@@ -117,7 +123,7 @@ mod_3compare_ui <- function(id) {
                    shiny::br(),
                    shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_TargetPlot"), height = "1200px")),
           ),
-          tabPanel("Rational Use",
+          tabPanel("Cost",
                    value = 4,
                    shiny::fixedPanel(
                      style = "z-index:100", # To force the button above all plots.=
@@ -130,19 +136,18 @@ mod_3compare_ui <- function(id) {
                    shiny::span(shiny::p(shiny::textOutput(ns_comp("txt_cost")))),
                    shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_cost"), height = "700px")),
           ),
-          tabPanel(
-            "Climate Resilience",
-            value = 7,
-            shiny::fixedPanel(
-              style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns_comp("dlPlot7"), "Download Plot",
-                                    style = "float: right; padding:4px; font-size:120%"
-              ),
-              right = "1%", bottom = "1%", left = "34%"
-            ),
-            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_clim")))),
-            shiny::textOutput(ns_comp("txt_clim")),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_clim"), height = "600px"))
+          tabPanel("Climate Resilience",
+                   value = 7,
+                   shiny::fixedPanel(
+                     style = "z-index:100", # To force the button above all plots.=
+                     shiny::downloadButton(ns_comp("dlPlot7"), "Download Plot",
+                                           style = "float: right; padding:4px; font-size:120%"
+                     ),
+                     right = "1%", bottom = "1%", left = "34%"
+                   ),
+                   shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_clim")))),
+                   shiny::textOutput(ns_comp("txt_clim")),
+                   shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_clim"), height = "600px"))
           ),
           tabPanel("Details",
                    value = 8,
@@ -203,12 +208,12 @@ mod_3compare_server <- function(id) {
 
     # Define Problems
     p1Data <- shiny::reactive({
-      p1 <- fdefine_problem(targetData1(), input, clim_input = input$check1Climsmart)
+      p1 <- fdefine_problem(targetData1(), input, clim_input = input$check1Climsmart, compare_id = "1")
       return(p1)
     })
 
     p2Data <- shiny::reactive({
-      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, cost_var = input$costid2)
+      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, compare_id = "2")
       return(p2)
     })
 
@@ -300,7 +305,7 @@ mod_3compare_server <- function(id) {
               ggtheme = map_theme
             )
 
-          if (input$costid != "Cost_None") {
+          if (input$costid1 != "Cost_None") {
             plot_soln1 <- plot_soln1 +
               ggplot2::annotate(geom = "text", label = soln_text[[2]], x = Inf, y = Inf, hjust = 1.03, vjust = 3.5)
           } else {
@@ -465,7 +470,7 @@ mod_3compare_server <- function(id) {
         costPlotData1 <- shiny::reactive({
           spatialplanr::splnr_plot_costOverlay(selectedData1(),
                                                Cost = NA,
-                                               Cost_name = input$costid,
+                                               Cost_name = input$costid1,
                                                legendTitle = "Cost",
                                                plotTitle = "Solution overlaid with cost"
           ) +
@@ -513,16 +518,12 @@ mod_3compare_server <- function(id) {
 
         # TODO Move this text to the Dictionary and implement call to display here as usual
         output$txt_cost <- shiny::renderText({
-          if (input$costid == "Cost_Total" || input$costid == "Cost_Krill" || input$costid == "Cost_Toothfish") {
+          if (input$costid1 == "Cost_Total") {
             cost_txt <- paste("For the chosen input, the rational use is low in areas with low predicted Antarctic krill
                           and/or toothfish abundances (light orange). The rational use is high in planning units with
                           suitable Antarctic krill/toothfish habitat that would be lost to fishing if a
                           particular planning unit was included in a protected area (dark orange).")
-          } else if (input$costid == "Cost_IceA") {
-            cost_txt <- paste("For the chosen input, the rational use is low where the area is inaccessible to fishing
-                          due to ice coverage (light orange). The rational use is high in planning units with low ice
-                          area, i.e. area is accessible (dark orange).")
-          } else if (input$costid == "Cost_None") {
+          } else if (input$costid1 == "Cost_None") {
             cost_txt <- paste("For the chosen input, there is no rational use. The prioritisation minimizes the area
                           that is selected in the scenario.")
           }
