@@ -20,6 +20,7 @@ options <- list(
   # "#73C6B6"
   # "#85C1E9"
   # "#E74C3C"
+  # "#2C3E50"
 
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),

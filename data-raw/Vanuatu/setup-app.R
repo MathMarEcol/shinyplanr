@@ -14,12 +14,13 @@ options <- list(
 
   ## General Options
   nav_title = "Pablo's App", # Navbar title
-  nav_primary = "#85929E", # Hex colour codes: https://htmlcolorcodes.com
+  nav_primary = "#2C3E50", # Hex colour codes: https://htmlcolorcodes.com
   # "#85929E"
   # "#F8C471"
   # "#73C6B6"
   # "#85C1E9"
   # "#E74C3C"
+  # "#2C3E50"
 
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
