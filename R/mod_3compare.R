@@ -11,6 +11,10 @@ mod_3compare_ui <- function(id) {
   ns_comp <- NS(id)
   Vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
   Vars2 <- fcreate_vars(id = id, Dict = Dict, name_check = "sli2_", categoryOut = TRUE)
+  check_constraints <- fcreate_check(id = id, Dict = Dict%>%dplyr::filter(.data$type == "Constraint"), name_check = "checkLI_", categoryOut = TRUE)
+  check_constraints2 <- fcreate_check(id = id, Dict = Dict%>%dplyr::filter(.data$type == "Constraint"), name_check = "check2LI_", categoryOut = TRUE)
+
+
   shinyjs::useShinyjs()
 
   tagList(
@@ -51,6 +55,16 @@ mod_3compare_ui <- function(id) {
             shiny::checkboxInput(ns_comp("check1Climsmart"), "Make Climate-resilient", FALSE),
             shiny::checkboxInput(ns_comp("check2Climsmart"), "Make Climate-resilient", FALSE)
           )
+        )),
+          shinyjs::hidden(div(
+          id = ns_comp("switchConstraints"),
+          shiny::h2("3. Constraints"),
+          shiny::splitLayout(
+            fcustom_checkCategory(check_constraints, labelNum = 3),
+            fcustom_checkCategory(check_constraints2, labelNum = 3)
+          ),
+
+          #shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
         )),
         shiny::br(), # Leave space for analysis button at bottom
         shiny::br(), # Leave space for analysis button at bottom
@@ -176,6 +190,10 @@ mod_3compare_server <- function(id) {
       shinyjs::show(id = "switchClimSmart")
     }
 
+    if (options$lockedInArea != 0) { # dont make observeEvent because it's a global variable
+      shinyjs::show(id = "switchConstraints")
+    }
+
     observeEvent(input$disconnect, {
       session$close()
     })
@@ -208,7 +226,7 @@ mod_3compare_server <- function(id) {
     })
 
     p2Data <- shiny::reactive({
-      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, cost_var = input$costid2)
+      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, name_checkLI = "check2LI_", cost_var = input$costid2)
       return(p2)
     })
 

@@ -44,7 +44,7 @@ fget_targets<- function(input, name_check = "sli_"){
 #'
 #' @noRd
 #'
-fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, cost_var = input$costid){
+fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, name_checkLI = "checkLI_", cost_var = input$costid){
 
   # TODO raw_sf is not passed into the function
 
@@ -145,12 +145,12 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
           dplyr::filter(categoryID == "LockedInArea") %>%
           dplyr::pull(nameVariable)
 
-        LI_check <- LI %>%  purrr::map(\(x)paste0("input$", paste0("checkLI_", x)))
+        LI_check <- LI %>%  purrr::map(\(x)paste0("input$", paste0(name_checkLI, x)))
         LI_sf <- LI %>%  purrr::map(\(x)paste0("raw_sf$", x))
 
         for (area in 1:length(LI)) {
           if (rlang::eval_tidy(rlang::parse_expr(unlist(LI_check[1])))) {
-            browser()
+            #browser()
             p1 <- p1 %>%
               prioritizr::add_locked_in_constraints(as.logical(rlang::eval_tidy(rlang::parse_expr(LI_sf[[1]]))))
           }
