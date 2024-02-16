@@ -632,13 +632,13 @@ mod_3compare_server <- function(id) {
             climsmart = input$check1Climsmart, climsmartApproach = options$climate_change,
             targetsDF = targets
           ) %>% # TODO Move this mutate to spatialplanr to account for zeros
-            dplyr::mutate(incidental = dplyr::if_else(target == 0, TRUE, .data$incidental))
+            dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
         } else {
           targetPlotData1 <- spatialplanr::splnr_get_featureRep(
             soln = selectedData1(), pDat = p1Data(),
             climsmart = input$check1Climsmart
           ) %>%
-            dplyr::mutate(incidental = dplyr::if_else(target == 0, TRUE, .data$incidental))
+            dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
         }
 
         if (input$check2Climsmart == TRUE) {
@@ -649,14 +649,14 @@ mod_3compare_server <- function(id) {
             climsmart = input$check2Climsmart, climsmartApproach = options$climate_change,
             targetsDF = targets
           ) %>%
-            dplyr::mutate(incidental = dplyr::if_else(target == 0, TRUE, .data$incidental))
+            dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
 
         } else {
           targetPlotData2 <- spatialplanr::splnr_get_featureRep(
             soln = selectedData2(), pDat = p2Data(),
             climsmart = input$check2Climsmart
           ) %>%
-            dplyr::mutate(incidental = dplyr::if_else(target == 0, TRUE, .data$incidental))
+            dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
         }
 
         # Create named vector to do the replacement
@@ -729,7 +729,7 @@ mod_3compare_server <- function(id) {
            BBCC"
 
         ggr_DataPlot <- patchwork::wrap_plots(
-          gridExtra::tableGrob(SummaryTabler(), rows = NULL, theme = gridExtra::ttheme_default(base_size = 9)),
+          # gridExtra::tableGrob(SummaryTabler(), rows = NULL, theme = gridExtra::ttheme_default(base_size = 9)),
           gridExtra::tableGrob(dat[[1]], rows = NULL, theme = gridExtra::ttheme_default(base_size = 7)),
           gridExtra::tableGrob(dat[[2]], rows = NULL, theme = gridExtra::ttheme_default(base_size = 7)),
           design = design)

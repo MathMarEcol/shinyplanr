@@ -398,7 +398,9 @@ mod_2scenario_server <- function(id) {
         output$txt_cost <- shiny::renderText({
 
           # Extract cost info from Dictionary for justification
-          cost_txt <- Dict %>% dplyr::filter(nameVariable == input$costid) %>% dplyr::pull(justification)
+          cost_txt <- Dict %>%
+            dplyr::filter(.data$nameVariable == input$costid) %>%
+            dplyr::pull(.data$justification)
 
           paste0("To illustrate how the chosen cost influences the spatial plan, this plot shows the
              spatial plan (= scenario) overlaid with the cost of including a planning unit in a
@@ -539,7 +541,7 @@ mod_2scenario_server <- function(id) {
            BBCC"
 
           ggr_DataPlot <- patchwork::wrap_plots(
-            gridExtra::tableGrob(SummaryTabler(), rows = NULL, theme = gridExtra::ttheme_default(base_size = 12)),
+            # gridExtra::tableGrob(SummaryTabler(), rows = NULL, theme = gridExtra::ttheme_default(base_size = 12)),
             gridExtra::tableGrob(dat[[1]], rows = NULL, theme = gridExtra::ttheme_default(base_size = 8)),
             gridExtra::tableGrob(dat[[2]], rows = NULL, theme = gridExtra::ttheme_default(base_size = 8)),
             design = design

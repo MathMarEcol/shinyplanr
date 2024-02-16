@@ -6,9 +6,9 @@
 fget_category <- function(Dict){
 
   category <- Dict %>%
-    dplyr::filter(!type %in% c("Cost", "Justification")) %>%
-    dplyr::select(nameVariable, category) %>%
-    dplyr::rename(feature = nameVariable)
+    dplyr::filter(!.data$type %in% c("Cost", "Justification")) %>%
+    dplyr::select("nameVariable", "category") %>%
+    dplyr::rename(feature = .data$nameVariable)
   # TODO I want to remove this last command and have the app deal with `nanmeVariable`
 
   return(category)
@@ -24,9 +24,9 @@ fget_category <- function(Dict){
 #'
 fget_targets<- function(input, name_check = "sli_"){
 
-  ft <- Dict %>%#vars[stringr::str_detect(vars, "Cost_", negate = TRUE)] %>%
-    dplyr::filter(type != "Constraint", type != "Cost") %>%
-    dplyr::pull(nameVariable)
+  ft <- Dict %>%
+    dplyr::filter(.data$type != "Constraint", .data$type != "Cost") %>%
+    dplyr::pull(.data$nameVariable)
 
   targets <- ft %>%
     purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0(name_check, x))))) %>%
@@ -34,7 +34,7 @@ fget_targets<- function(input, name_check = "sli_"){
     tidyr::unnest(cols = .data$value) %>%
     dplyr::rename(feature = "name", target = "value") %>%
     dplyr::mutate(feature = ft) %>%
-    dplyr::mutate(target = target / 100) # requires number between 0-1
+    dplyr::mutate(target = .data$target / 100) # requires number between 0-1
 
   return(targets)
 }
@@ -45,11 +45,8 @@ fget_targets<- function(input, name_check = "sli_"){
 #' @noRd
 #'
 
-# fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, name_checkLI = "checkLI_", cost_var = input$costid){
 fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, compare_id = ""){
 
-
-  # cost_var = input$costid
   # TODO raw_sf is not passed into the function
 
   out_sf <- raw_sf %>%
@@ -150,8 +147,8 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
       if (options$lockedInArea != 0) {
 
         LI <- Dict %>%
-          dplyr::filter(categoryID == "LockedInArea") %>%
-          dplyr::pull(nameVariable)
+          dplyr::filter(.data$categoryID == "LockedInArea") %>%
+          dplyr::pull(.data$nameVariable)
 
         LI_check <- paste0("input$check",compare_id, "LI_", LI)
         LI_sf <- paste0("raw_sf$", LI)
