@@ -46,6 +46,7 @@ mod_4features_server <- function(id){
   shiny::moduleServer( id, function(input, output, session){
     ns <- session$ns
 
+    #TODO region_names is not passes in as an argument
 
     #TODO Get features plotting regardless of name. One way could be to
     # test the category (or similar) in the Dict. Otherwise I could test

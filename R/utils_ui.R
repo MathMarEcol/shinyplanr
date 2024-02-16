@@ -102,7 +102,7 @@ fcustom_sliderCategory <- function(varsIn, labelNum) {
 
   for (ctg in 1:length(ctgs)) {
     feats <- varsIn %>%
-      dplyr::filter(category == ctgs[ctg]) %>%
+      dplyr::filter(.data$category == ctgs[ctg]) %>%
       dplyr::select(-"category")
 
     shinyList[ctg * 2] <- # times as many entries as you want to have for one category per list: here: title and sliders (=2); for example with gap between =3
@@ -125,7 +125,7 @@ fcustom_checkCategory <- function(varsIn, labelNum) {
 
   for (ctg in 1:length(ctgs)) {
     feats <- varsIn %>%
-      dplyr::filter(category == ctgs[ctg]) %>%
+      dplyr::filter(.data$category == ctgs[ctg]) %>%
       dplyr::select(-"category")
 
     shinyList[ctg * 2] <- # times as many entries as you want to have for one category per list: here: title and sliders (=2); for example with gap between =3
@@ -142,7 +142,7 @@ fcustom_checkCategory <- function(varsIn, labelNum) {
 #'
 fcustom_cost <- function(id, id_in, Dict) {
   choice <- Dict %>%
-    dplyr::filter(categoryID == "Cost") %>%
+    dplyr::filter(.data$categoryID == "Cost") %>%
     dplyr::select(.data$nameCommon, .data$nameVariable) %>%
     tibble::deframe()
 
@@ -162,7 +162,7 @@ fcustom_cost <- function(id, id_in, Dict) {
 #'
 create_fancy_dropdown <- function(id, Dict, id_in) {
   featureList <- Dict %>%
-    dplyr::group_by(category) %>%
+    dplyr::group_by(.data$category) %>%
     dplyr::select(.data$nameCommon, .data$nameVariable, .data$category) %>%
     dplyr::group_split() %>%
     purrr::set_names(purrr::map_chr(., ~ .x$category[1])) %>%
