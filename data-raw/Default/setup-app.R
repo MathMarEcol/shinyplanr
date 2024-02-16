@@ -36,7 +36,8 @@ options <- list(
   mod_7credit = TRUE, #switch modules on/off
 
   # TODO Get this working - get conditional panels working for global variables
-  climate_change = FALSE, #switch climate change on/off
+  climate_change = 1, #switch climate change on/off; 0 = not clim-smart; 1 = CPA; 2 = Feature; 3 = Percentile
+  # Warning: still requires some changes in the app: direction, percentile etc. should this be in here? those are input options to the functions
 
   lockedInArea = 1, #Includes locked in areas
 
@@ -47,10 +48,30 @@ options <- list(
   ## Geographic Options
   cCRS = "ESRI:54009"
 
-  # Limits = c(xmin = 0, xmax = 30, ymin = -70.5, ymax = -60),
-  # Shape = "Hexagon", # Shape of PUs
-  # PU_size = 100 # km2
 )
+
+
+#append list with climate-smart values
+if ( options$climate_change == 1) {
+
+  options$refugiaTarget = 1 #default: 1
+  options$percentile = 5 #default: 5
+  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+
+} else if (options$climate_change == 2) {
+
+  options$refugiaTarget = 0.3 #default: 0.3
+  options$percentile = 35 #default: 35
+  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+
+} else if (options$climate_change == 3) {
+
+  options$refugiaTarget = NA #not needed for percentile
+  options$percentile = 35 #default: 35
+  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+
+}
+
 
 
 # Copy logo to required directory
