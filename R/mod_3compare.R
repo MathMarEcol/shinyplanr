@@ -529,20 +529,23 @@ mod_3compare_server <- function(id) {
           shiny::bindEvent(input$analyse)
 
 
+
         # TODO Move this text to the Dictionary and implement call to display here as usual
         output$txt_cost <- shiny::renderText({
-          if (input$costid1 == "Cost_Total") {
-            cost_txt <- paste("For the chosen input, the rational use is low in areas with low predicted Antarctic krill
-                          and/or toothfish abundances (light orange). The rational use is high in planning units with
-                          suitable Antarctic krill/toothfish habitat that would be lost to fishing if a
-                          particular planning unit was included in a protected area (dark orange).")
-          } else if (input$costid1 == "Cost_None") {
-            cost_txt <- paste("For the chosen input, there is no rational use. The prioritisation minimizes the area
-                          that is selected in the scenario.")
-          }
-          paste0("To illustrate how the chosen rational use influences the spatial plan, this plot shows the
-             spatial plan (= scenario) overlaid with the rational use of including a planning unit in a
-             reserve. ", cost_txt)
+
+          # Extract cost info from Dictionary for justification
+          cost_txt1 <- Dict %>%
+            dplyr::filter(.data$nameVariable == input$costid1)
+
+          cost_txt2 <- Dict %>%
+            dplyr::filter(.data$nameVariable == input$costid1)
+
+          paste0("To illustrate how the chosen cost influences the spatial plan, this plot shows the
+             spatial plan (= scenario) overlaid with the cost of including a planning unit in a
+             reserve. The cost used on the left is ", cost_txt1$nameCommon, " and ",
+                 stringr::str_remove(cost_txt1$justification, "This cost"),". The cost on the right is ",
+                cost_txt1$nameCommon, " and ", stringr::str_remove(cost_txt1$justification, "This cost"),".")
+
         }) %>%
           shiny::bindEvent(input$analyse)
 
@@ -552,7 +555,6 @@ mod_3compare_server <- function(id) {
     ) # end observeEvent 4
 
     ## Climate Resilience Plot -------------------------------------------------
-
 
     observeEvent(
       {
