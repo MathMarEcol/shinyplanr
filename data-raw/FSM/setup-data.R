@@ -106,6 +106,7 @@ dat_sf <- bind_cols(dat_sf,
 rm(cost, lock_in, eez)
 
 
-
-save(dat_sf, bndry, coast, file = file.path("data-raw", "FSM", "FSM_TestData.rda"))
+readr::write_rds(bndry, file = file.path("data-raw", "FSM", "FSM_Bndry.rds"))
+readr::write_rds(coast, file = file.path("data-raw", "FSM", "FSM_Coast.rds"))
+readr::write_rds(dat_sf, file = file.path("data-raw", "FSM", "FSM_Dat.rds"))
 
