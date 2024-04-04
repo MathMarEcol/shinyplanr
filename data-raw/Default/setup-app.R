@@ -1,4 +1,4 @@
-## code to prepare the app goes here
+## Code to prepare the app goes here
 
 library(tidyverse)
 
@@ -7,7 +7,6 @@ data_dir <- file.path("data-raw", country)
 
 # TODO Write function to load default options
 # Especially different colours for the plotting etc
-
 
 # APP PARAMETERS --------------------------------------------------
 options <- list(
@@ -52,23 +51,23 @@ options <- list(
 
 
 #append list with climate-smart values
-if ( options$climate_change == 1) {
+if (options$climate_change == 1) {
 
-  options$refugiaTarget = 1 #default: 1
-  options$percentile = 5 #default: 5
-  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+  options$refugiaTarget = 1 # default: 1
+  options$percentile = 5 # default: 5
+  options$direction = 1 # depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
 
 } else if (options$climate_change == 2) {
 
-  options$refugiaTarget = 0.3 #default: 0.3
-  options$percentile = 35 #default: 35
-  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+  options$refugiaTarget = 0.3 # default: 0.3
+  options$percentile = 35 # default: 35
+  options$direction = 1 # depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
 
 } else if (options$climate_change == 3) {
 
-  options$refugiaTarget = NA #not needed for percentile
-  options$percentile = 35 #default: 35
-  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+  options$refugiaTarget = NA # not needed for percentile
+  options$percentile = 35 # default: 35
+  options$direction = 1 # depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
 
 }
 
@@ -125,17 +124,9 @@ overlay <- coast
 # MODULE 1 - WELCOME ------------------------------------------------------
 tx_1welcome <- readr::read_file(file.path(data_dir, "html_1welcome.txt"))
 
-# return_list <- read_textboxes(FILENAME)
-
-
-
 # MODULE 2 - SCENARIO ------------------------------------------------------
 
-
-
 # MODULE 3 - COMPARISON ------------------------------------------------------
-
-
 
 # MODULE 6 - HELP ------------------------------------------------------
 tx_6faq <- readr::read_file(file.path(data_dir, "html_6faq.txt"))
@@ -143,11 +134,8 @@ tx_6changelog <- readr::read_file(file.path(data_dir, "html_6changelog.txt"))
 tx_6technical <- readr::read_file(file.path(data_dir, "html_6technical.txt"))
 tx_6references <- readr::read_file(file.path(data_dir, "html_6references.txt"))
 
-
 # MODULE 7 - CREDIT ------------------------------------------------------
 tx_7credit <- readr::read_file(file.path(data_dir, "html_7credit.txt"))
-
-
 
 # HEX STICKER -------------------------------------------------------------
 # Create app-specific Hex sticker if wanted. Otherwise the generic shinyplanr one will be used
