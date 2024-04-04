@@ -7,10 +7,8 @@ fcreate_vars <- function(id, Dict = Dict, name_check = "check", categoryOut = FA
   vars <- Dict %>%
     dplyr::filter(.data$type == "Feature") %>%
     dplyr::select(-c("justification", "wsClass", "includeApp", "includeJust", "type")) %>%
-    dplyr::mutate(
-      id = id,
-      id_in = paste(name_check, .data$nameVariable, sep = "")
-    )
+    dplyr::mutate(id = id,
+                  id_in = paste(name_check, .data$nameVariable, sep = ""))
 
   if (categoryOut == TRUE) {
     vars <- vars %>%
@@ -33,10 +31,8 @@ fcreate_check <- function(id, Dict = Dict, idCategory = "LockedInArea", name_che
   vars <- Dict %>%
     dplyr::filter(.data$categoryID == idCategory) %>%
     dplyr::select(-c("justification", "wsClass", "includeApp", "includeJust", "type", "targetMin", "targetMax", "targetInitial")) %>%
-    dplyr::mutate(
-      id = id,
-      id_in = paste(name_check, .data$nameVariable, sep = "")
-    )
+    dplyr::mutate(id = id,
+                  id_in = paste(name_check, .data$nameVariable, sep = ""))
 
   if (categoryOut == TRUE) {
     vars <- vars %>%
@@ -152,7 +148,6 @@ fcustom_cost <- function(id, id_in, Dict) {
                      multiple = FALSE
   )
 }
-
 
 
 
