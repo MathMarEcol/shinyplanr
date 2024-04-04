@@ -538,13 +538,13 @@ mod_3compare_server <- function(id) {
             dplyr::filter(.data$nameVariable == input$costid1)
 
           cost_txt2 <- Dict %>%
-            dplyr::filter(.data$nameVariable == input$costid1)
+            dplyr::filter(.data$nameVariable == input$costid2)
 
           paste0("To illustrate how the chosen cost influences the spatial plan, this plot shows the
              spatial plan (= scenario) overlaid with the cost of including a planning unit in a
              reserve. The cost used on the left is ", cost_txt1$nameCommon, " and ",
                  stringr::str_remove(cost_txt1$justification, "This cost"),". The cost on the right is ",
-                cost_txt1$nameCommon, " and ", stringr::str_remove(cost_txt1$justification, "This cost"),".")
+                cost_txt2$nameCommon, " and ", stringr::str_remove(cost_txt2$justification, "This cost"),".")
 
         }) %>%
           shiny::bindEvent(input$analyse)
