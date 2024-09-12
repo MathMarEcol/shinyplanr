@@ -90,7 +90,7 @@ ggplot() +
 # This block works
 PUs <- sf::st_make_grid(Bndry,
                         square = FALSE,
-                        cellsize = c(2, 2),
+                        cellsize = c(4, 4),
                         what = "polygons") %>%
   sf::st_sf() %>%
   sf::st_intersection(Bndry) %>%
@@ -106,8 +106,8 @@ ggplot() +
   geom_sf(data = landmass, fill = NA)
 
 
-PUs <- PUs %>%
-  dplyr::mutate(Prob = runif(dim(PUs)[1]))
+# PUs <- PUs %>%
+#   dplyr::mutate(Prob = runif(dim(PUs)[1]))
 
 
 # read the png file from device
@@ -118,27 +118,102 @@ img <- grid::rasterGrob(png::readPNG(file.path("data-raw", "shinyplanr", "shiny_
 # Possible colours...
 # https://www.pinterest.com.au/pin/sunset-color-scheme-image-search-results-in-2023--224194887692504381/
 
+
+
+#
+# (gg <- ggplot2::ggplot() +
+#     ggplot2::geom_sf(data = PUs, colour = "#fdf7c2", linewidth = 0.05, show.legend = FALSE, ggplot2::aes(fill = Prob)) +
+#     ggplot2::scale_fill_gradient(
+#       low = "#9ac4e1", # "#84dfd3"
+#       high = "#3b81bd"
+#     ) +
+#     ggplot2::geom_sf(data = landmass, colour = "grey40", fill = "grey20", alpha = 1, linewidth = 0.05, show.legend = FALSE) +
+#     ggplot2::coord_sf(xlim = sf::st_bbox(PUs)$xlim, ylim = sf::st_bbox(PUs)$ylim) +
+#     ggplot2::theme_void() +
+#   ggplot2::annotation_custom(img, xmin = 150, xmax = 212, ymin = -35, ymax = 15)
+# )
+#
+#
+# hexSticker::sticker(gg,
+#                     package = "planr",
+#                     p_x = 1.38,
+#                     p_y = 0.98,
+#                     p_color = "black",
+#                     p_family = "Aller_Rg",
+#                     p_fontface = "bold",
+#                     p_size = 80,
+#                     s_x = 1,
+#                     s_y = 1,
+#                     s_width = 2.2,
+#                     s_height = 2.2,
+#                     # h_fill = "#9FE2BF",
+#                     h_color = "grey90", # "grey40",
+#                     dpi = 1000,
+#                     asp = 1,
+#                     filename = file.path("man", "figures", "logo.png")
+# )
+
+
+
+# read the png file from device
+img <- grid::rasterGrob(png::readPNG(file.path("data-raw", "shinyplanr", "shiny_white.png"), native = TRUE))
+
+
+MPA <- rbind(PUs[262,] %>% sf::st_buffer(dist = 1200000),
+             PUs[375,] %>% sf::st_buffer(dist = 1100000),
+             PUs[590,] %>% sf::st_buffer(dist = 1400000)
+             ) %>%
+  sf::st_shift_longitude() %>%
+  sf::st_make_valid() %>%
+  sf::st_shift_longitude() %>%
+  st_filter(PUs %>% sf::st_make_valid() %>%
+              sf::st_shift_longitude(),
+            .,
+            .predicate = st_within)
+
+
+ggplot2::ggplot() +
+  ggplot2::geom_sf(data = PUs, linewidth = 0.05, show.legend = TRUE, aes(fill = row_number(PUs))) +
+  ggplot2::geom_sf(data = MPA, colour = "red", fill = "red", linewidth = 0.05, show.legend = FALSE)
+
+
+
+MPA2 <- MPA %>%
+  sf::st_union() %>%
+  sf::st_shift_longitude()
+
+
+
+
+ggplot2::ggplot() +
+  ggplot2::geom_sf(data = PUs, linewidth = 0.05, show.legend = TRUE, aes(fill = row_number(PUs))) +
+  ggplot2::geom_sf(data = MPA, colour = "red", fill = "red", alpha = 0.5, linewidth = 0.05, show.legend = FALSE) +
+  ggplot2::geom_sf(data = MPA2, colour = "green", fill = NA, alpha = 0.5, linewidth = 0.5, show.legend = FALSE)
+
+
+
+img <- grid::rasterGrob(png::readPNG(file.path("data-raw", "shinyplanr", "shiny_white.png"), native = TRUE))
+pntr <- grid::rasterGrob(png::readPNG(file.path("data-raw", "shinyplanr", "AdobeStock_338133466_crop_rotate.png"), native = TRUE))
+
+
+
 (gg <- ggplot2::ggplot() +
-    ggplot2::geom_sf(data = PUs, colour = "#fdf7c2", linewidth = 0.05, show.legend = FALSE, ggplot2::aes(fill = Prob)) +
-    ggplot2::scale_fill_gradient(
-      low = "#9ac4e1", # "#84dfd3"
-      high = "#3b81bd"
-    ) +
-    ggplot2::geom_sf(data = landmass, colour = "grey40", fill = "grey20", alpha = 1, linewidth = 0.05, show.legend = FALSE) +
+    ggplot2::geom_sf(data = PUs, colour = "#4F4F51", fill = "#84A9BF", linewidth = 0.1, show.legend = FALSE) +
+    ggplot2::geom_sf(data = landmass, colour = "grey70", fill = "#4F4F51", alpha = 1, linewidth = 0.05, show.legend = FALSE) +
+    ggplot2::geom_sf(data = MPA, colour = "white", fill = "#46718C", alpha = 0.8, linewidth = 0.1, show.legend = FALSE) +
+    ggplot2::geom_sf(data = MPA2, colour = "black", fill = NA, linewidth = 0.5, show.legend = FALSE) +
     ggplot2::coord_sf(xlim = sf::st_bbox(PUs)$xlim, ylim = sf::st_bbox(PUs)$ylim) +
     ggplot2::theme_void() +
-  ggplot2::annotation_custom(img, xmin = 150, xmax = 212, ymin = -35, ymax = 15)
+    ggplot2::annotation_custom(img, xmin = 150, xmax = 212, ymin = -35, ymax = 15) +
+    ggplot2::annotation_custom(pntr, xmin = 205, xmax = 230, ymin = 13, ymax = 38)
 )
-
-
-
 
 
 hexSticker::sticker(gg,
                     package = "planr",
                     p_x = 1.38,
                     p_y = 0.98,
-                    p_color = "black",
+                    p_color = "white",
                     p_family = "Aller_Rg",
                     p_fontface = "bold",
                     p_size = 80,
@@ -147,11 +222,13 @@ hexSticker::sticker(gg,
                     s_width = 2.2,
                     s_height = 2.2,
                     # h_fill = "#9FE2BF",
-                    h_color = "grey90", # "grey40",
+                    h_color = "black", # "grey40",
                     dpi = 1000,
                     asp = 1,
                     filename = file.path("man", "figures", "logo.png")
 )
+
+
 
 # Create favicons for the site
 pkgdown::build_favicons(pkg = ".", overwrite = TRUE)
