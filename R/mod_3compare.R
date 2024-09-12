@@ -664,17 +664,17 @@ mod_3compare_server <- function(id) {
         # Create named vector to do the replacement
         rpl <- Dict %>%
           dplyr::filter(.data$nameVariable %in% unique(c(targetPlotData1$feature, targetPlotData2$feature))) %>%
-          dplyr::select(.data$nameVariable, .data$nameCommon) %>%
+          dplyr::select("nameVariable", "nameCommon") %>%
           tibble::deframe()
 
         # TODO Add category to spatialplanr::splnr_get_featureRep and remove from splnr_plot_featureRep
         FeaturestoSave1 <- targetPlotData1 %>%
-          dplyr::left_join(Dict %>% dplyr::select(.data$nameVariable, .data$category), by = c("feature" = "nameVariable")) %>%
+          dplyr::left_join(Dict %>% dplyr::select("nameVariable", "category"), by = c("feature" = "nameVariable")) %>%
           dplyr::mutate(
             value = as.integer(round(.data$relative_held * 100)),
             target = as.integer(round(.data$target * 100))
           ) %>%
-          dplyr::select(.data$category, .data$feature, .data$target, .data$value, .data$incidental) %>%
+          dplyr::select("category", "feature", "target", "value", "incidental") %>%
           dplyr::rename(
             Feature = .data$feature,
             `Protection 1 (%)` = .data$value,
@@ -686,12 +686,12 @@ mod_3compare_server <- function(id) {
           dplyr::mutate(Feature = stringr::str_replace_all(.data$Feature, rpl))
 
         FeaturestoSave2 <- targetPlotData2 %>%
-          dplyr::left_join(Dict %>% dplyr::select(.data$nameVariable, .data$category), by = c("feature" = "nameVariable")) %>%
+          dplyr::left_join(Dict %>% dplyr::select("nameVariable", "category"), by = c("feature" = "nameVariable")) %>%
           dplyr::mutate(
             value = as.integer(round(.data$relative_held * 100)),
             target = as.integer(round(.data$target * 100))
           ) %>%
-          dplyr::select(.data$category, .data$feature, .data$target, .data$value, .data$incidental) %>%
+          dplyr::select("category", "feature", "target", "value", "incidental") %>%
           dplyr::rename(
             Feature = .data$feature,
             `Protection 2 (%)` = .data$value,

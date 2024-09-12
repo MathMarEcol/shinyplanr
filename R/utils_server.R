@@ -26,7 +26,7 @@ fget_targets<- function(input, name_check = "sli_"){
 
   ft <- Dict %>%
     dplyr::filter(.data$type != "Constraint", .data$type != "Cost") %>%
-    dplyr::pull(.data$nameVariable)
+    dplyr::pull("nameVariable")
 
   targets <- ft %>%
     purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0(name_check, x))))) %>%
@@ -148,7 +148,7 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
 
         LI <- Dict %>%
           dplyr::filter(.data$categoryID == "LockedInArea") %>%
-          dplyr::pull(.data$nameVariable)
+          dplyr::pull("nameVariable")
 
         LI_check <- paste0("input$check",compare_id, "LI_", LI)
         LI_sf <- paste0("raw_sf$", LI)
@@ -184,7 +184,7 @@ fupdate_checkbox <- function(session, id_in, Dict, selected = NA){ #works unless
       dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check")) #%>%
   }
   choice <- choice %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+    dplyr::select("NameCommon", "NameVariable") %>%
     tibble::deframe()
 
   shiny::updateCheckboxGroupInput(session = session,
@@ -207,7 +207,7 @@ fupdate_checkboxReset <- function(session, id_in, Dict, selected = NA){ #works u
       dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check")) #%>%
   }
   choice <- choice %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+    dplyr::select("NameCommon", "NameVariable") %>%
     tibble::deframe()
 
   # selected <- ifelse(selected == NA, unlist(choice), selected)

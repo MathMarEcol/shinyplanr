@@ -52,7 +52,7 @@ fcreate_check <- function(id, Dict = Dict, idCategory = "LockedInArea", name_che
 #'
 fcustom_checkboxGroup <- function(id, id_in, Dict, titl) {
   Dict <- Dict %>%
-    dplyr::select(.data$nameCommon, .data$nameVariable) %>%
+    dplyr::select("nameCommon", "nameVariable") %>%
     tibble::deframe()
 
   shiny::checkboxGroupInput(shiny::NS(namespace = id, id = id_in),
@@ -139,7 +139,7 @@ fcustom_checkCategory <- function(varsIn, labelNum) {
 fcustom_cost <- function(id, id_in, Dict) {
   choice <- Dict %>%
     dplyr::filter(.data$categoryID == "Cost") %>%
-    dplyr::select(.data$nameCommon, .data$nameVariable) %>%
+    dplyr::select("nameCommon", "nameVariable") %>%
     tibble::deframe()
 
   shiny::selectInput(shiny::NS(namespace = id, id = id_in),
@@ -158,10 +158,10 @@ fcustom_cost <- function(id, id_in, Dict) {
 create_fancy_dropdown <- function(id, Dict, id_in) {
   featureList <- Dict %>%
     dplyr::group_by(.data$category) %>%
-    dplyr::select(.data$nameCommon, .data$nameVariable, .data$category) %>%
+    dplyr::select("nameCommon", "nameVariable", "category") %>%
     dplyr::group_split() %>%
     purrr::set_names(purrr::map_chr(., ~ .x$category[1])) %>%
-    purrr::map(~ (.x %>% dplyr::select(.data$nameCommon, .data$nameVariable))) %>%
+    purrr::map(~ (.x %>% dplyr::select("nameCommon", "nameVariable"))) %>%
     purrr::map(tibble::deframe)
 
   shiny::selectInput(shiny::NS(namespace = id, id = id_in),

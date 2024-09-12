@@ -59,7 +59,7 @@ mod_4features_server <- function(id){
 
         common <- Dict %>%
           dplyr::filter(.data$nameVariable %in% region_names) %>%
-          dplyr::select(.data$nameCommon, .data$nameVariable) %>%
+          dplyr::select("nameCommon", "nameVariable") %>%
           tibble::deframe()
 
         # Get the columns for regionalisation and pivot longer
@@ -68,7 +68,7 @@ mod_4features_server <- function(id){
           dplyr::rename(common) %>%
           tidyr::pivot_longer(cols = -.data$geometry, names_to = "region", values_to = "values") %>%
           dplyr::filter(.data$values == 1) %>%
-          dplyr::select(-.data$values) %>%
+          dplyr::select(-"values") %>%
           dplyr::mutate(region = as.factor(.data$region)) %>%
           sf::st_as_sf()
 
@@ -81,7 +81,7 @@ mod_4features_server <- function(id){
 
         df <- raw_sf %>%
           sf::st_as_sf() %>%
-          dplyr::select(.data$geometry,
+          dplyr::select("geometry",
                         input$checkFeat) %>%
           dplyr::rename(Cost = input$checkFeat)
 
@@ -90,7 +90,7 @@ mod_4features_server <- function(id){
         } else {
           titleCost <- Dict %>%
             dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
-            dplyr::select(.data$nameVariable, .data$nameCommon) %>%
+            dplyr::select("nameVariable", "nameCommon") %>%
             tibble::deframe()
           titleCost <- paste0("Cost Layer: ",titleCost)
         }
@@ -102,7 +102,7 @@ mod_4features_server <- function(id){
       } else {
         df <- raw_sf %>%
           sf::st_as_sf() %>%
-          dplyr::select(.data$geometry,
+          dplyr::select("geometry",
                         input$checkFeat) %>%
           dplyr::rename(pred_bin = input$checkFeat)
 
@@ -132,7 +132,7 @@ mod_4features_server <- function(id){
     output$LayerTable <- shiny::renderTable(
       Dict %>%
         dplyr::filter(.data$includeJust == TRUE) %>%
-        dplyr::select(.data$category, .data$nameCommon, .data$justification) %>%
+        dplyr::select("category", "nameCommon", "justification") %>%
         dplyr::arrange(.data$category, .data$nameCommon)
     )
 

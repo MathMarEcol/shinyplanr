@@ -400,7 +400,7 @@ mod_2scenario_server <- function(id) {
           # Extract cost info from Dictionary for justification
           cost_txt <- Dict %>%
             dplyr::filter(.data$nameVariable == input$costid) %>%
-            dplyr::pull(.data$justification)
+            dplyr::pull("justification")
 
           paste0("To illustrate how the chosen cost influences the spatial plan, this plot shows the
              spatial plan (= scenario) overlaid with the cost of including a planning unit in a
@@ -496,17 +496,17 @@ mod_2scenario_server <- function(id) {
           # Create named vector to do the replacement
           rpl <- Dict %>%
             dplyr::filter(.data$nameVariable %in% targetPlotData$feature) %>%
-            dplyr::select(.data$nameVariable, .data$nameCommon) %>%
+            dplyr::select("nameVariable", "nameCommon") %>%
             tibble::deframe()
 
           # TODO Add category to spatialplanr::splnr_get_featureRep and remove from splnr_plot_featureRep
           FeaturestoSave <- targetPlotData %>%
-            dplyr::left_join(Dict %>% dplyr::select(.data$nameVariable, .data$category), by = c("feature" = "nameVariable")) %>%
+            dplyr::left_join(Dict %>% dplyr::select("nameVariable", "category"), by = c("feature" = "nameVariable")) %>%
             dplyr::mutate(
               value = as.integer(round(.data$relative_held * 100)),
               target = as.integer(round(.data$target * 100))
             ) %>%
-            dplyr::select(.data$category, .data$feature, .data$target, .data$value, .data$incidental) %>%
+            dplyr::select("category", "feature", "target", "value", "incidental") %>%
             dplyr::rename(
               Feature = .data$feature,
               `Protection (%)` = .data$value,
