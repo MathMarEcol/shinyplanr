@@ -74,6 +74,7 @@ mod_4features_server <- function(id){
 
         RegionPlot <- create_regionPlot(df)
         return(RegionPlot)
+
       } else if (input$checkFeat == "climdat") {
         Bin_plot <- create_climDataPlot(climate_sf)
         return(Bin_plot)
@@ -82,8 +83,7 @@ mod_4features_server <- function(id){
         df <- raw_sf %>%
           sf::st_as_sf() %>%
           dplyr::select("geometry",
-                        input$checkFeat) %>%
-          dplyr::rename(Cost = input$checkFeat)
+                        input$checkFeat)
 
         if (input$checkFeat  == "Cost_None"){ #to avoid No Cost Cost
           titleCost <- " "
@@ -95,9 +95,16 @@ mod_4features_server <- function(id){
           titleCost <- paste0("Cost Layer: ",titleCost)
         }
 
-        gg_cost <- spatialplanr::splnr_plot_cost(df)
+        gg_cost <- spatialplanr::splnr_plot(df = df, col_names = input$checkFeat,
+                                            paletteName = "YlGnBu", legend_title = titleCost) +
+          spatialplanr::splnr_gg_add(
+            Bndry = bndry,
+            overlay = overlay,
+            cropOverlay = df,
+            ggtheme = map_theme
+          )
 
-          return(gg_cost)
+        return(gg_cost)
 
       } else {
         df <- raw_sf %>%
@@ -107,7 +114,7 @@ mod_4features_server <- function(id){
           dplyr::rename(pred_bin = input$checkFeat)
 
 
-        ## TODO Decide how to plot based on the data type - Featurres, Bioregional,
+        ## TODO Decide how to plot based on the data type - Features, Bioregional,
         # Maybe Dictionary column called "Binary, Continuous"?
         # Then also by feature or cost or climate.....
 
