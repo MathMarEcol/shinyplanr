@@ -229,7 +229,3 @@ hexSticker::sticker(gg,
 )
 
 
-
-# Create favicons for the site
-pkgdown::build_favicons(pkg = ".", overwrite = TRUE)
-
