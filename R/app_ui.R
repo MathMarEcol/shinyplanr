@@ -27,7 +27,6 @@ app_ui <- function(request) {
                             "h6-font-size" = "1rem",
                             "navbar-padding-bottom" = "100px",
                             "enable-rounded" = TRUE), #https://rstudio.github.io/bslib/articles/bslib.html#custom
-    shinyalert::useShinyalert(force=TRUE),
     selected = "Welcome",
     shiny::tabPanel("Welcome",
                     shiny::fluidPage(
