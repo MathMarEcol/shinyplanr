@@ -309,7 +309,8 @@ mod_3compare_server <- function(id) {
         plot_soln1 <- shiny::reactive({
           soln_text <- fSolnText(input, selectedData1())
 
-          plot_soln1 <- spatialplanr::splnr_plot_binFeature(df = selectedData1(), colInterest = selectedData1()$solution_1, plotTitle = "Planning Units") +
+          plot_soln1 <- spatialplanr::splnr_plot_solution(soln = selectedData1(),
+                                                          plotTitle = "Planning Units") +
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               Bndry = bndry,
@@ -330,7 +331,8 @@ mod_3compare_server <- function(id) {
         plot_soln2 <- shiny::reactive({
           soln_text <- fSolnText(input, selectedData2())
 
-          plot_soln2 <- spatialplanr::splnr_plot_binFeature(df = selectedData2(), colInterest = selectedData2()$solution_1, plotTitle = "Planning Units") +
+          plot_soln2 <- spatialplanr::splnr_plot_solution(soln = selectedData2(),
+                                                          plotTitle = "Planning Units") +
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               Bndry = bndry,
@@ -544,7 +546,7 @@ mod_3compare_server <- function(id) {
              spatial plan (= scenario) overlaid with the cost of including a planning unit in a
              reserve. The cost used on the left is ", cost_txt1$nameCommon, " and ",
                  stringr::str_remove(cost_txt1$justification, "This cost"),". The cost on the right is ",
-                cost_txt2$nameCommon, " and ", stringr::str_remove(cost_txt2$justification, "This cost"),".")
+                 cost_txt2$nameCommon, " and ", stringr::str_remove(cost_txt2$justification, "This cost"),".")
 
         }) %>%
           shiny::bindEvent(input$analyse)

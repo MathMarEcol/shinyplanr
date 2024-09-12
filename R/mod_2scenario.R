@@ -224,7 +224,6 @@ mod_2scenario_server <- function(id) {
 
     ## Binary Solution Plot ----------------------------------------------------
 
-
     observeEvent(
       {
         input$tabs == 1
@@ -235,9 +234,8 @@ mod_2scenario_server <- function(id) {
 
           soln_text <- fSolnText(input, selectedData())
 
-          plot1 <- spatialplanr::splnr_plot_binFeature(df = selectedData(),
-                                                       colInterest = selectedData()$solution_1,
-                                                       plotTitle = "Planning Units") +
+          plot1 <- spatialplanr::splnr_plot_solution(soln = selectedData(),
+                                                     plotTitle = "Planning Units") +
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               Bndry = bndry,
