@@ -48,7 +48,15 @@ mod_4features_server <- function(id){
   shiny::moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-    #TODO region_names is not passes in as an argument
+
+    if (input$checkFeat  == "Cost_None"){ #to avoid No Cost Cost
+      pl_title <- " "
+    } else {
+
+      pl_title <- Dict %>%
+        dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
+        dplyr::pull("nameCommon")
+    }
 
     #TODO Get features plotting regardless of name. One way could be to
     # test the category (or similar) in the Dict. Otherwise I could test
@@ -56,20 +64,13 @@ mod_4features_server <- function(id){
 
     plotFeature <- shiny::reactive({
 
-      # Get the names of the categories in regionalisations
-      if (stringr::str_detect(input$checkFeat, "region_"))  {
 
-        RegionPlot <- spatialplanr::splnr_plot(raw_sf %>% sf::st_as_sf(),
-                                 col_names = input$checkFeat,
-                                 legend_title = Dict %>%
-                                   dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
-                                   dplyr::pull(var = "nameCommon"))
 
-        return(RegionPlot)
 
-      } else if (input$checkFeat == "climdat") {
+     if (input$checkFeat == "climdat") {
 
         Bin_plot <- create_climDataPlot(climate_sf)
+
         return(Bin_plot)
 
       } else if (startsWith(input$checkFeat, "Cost_")) {
@@ -79,18 +80,9 @@ mod_4features_server <- function(id){
           dplyr::select("geometry",
                         input$checkFeat)
 
-        if (input$checkFeat  == "Cost_None"){ #to avoid No Cost Cost
-          titleCost <- " "
-        } else {
-          titleCost <- Dict %>%
-            dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
-            dplyr::select("nameVariable", "nameCommon") %>%
-            tibble::deframe()
-          titleCost <- paste0("Cost Layer: ",titleCost)
-        }
-
         gg_cost <- spatialplanr::splnr_plot(df = df, col_names = input$checkFeat,
-                                            paletteName = "YlGnBu", legend_title = titleCost) +
+                                            paletteName = "YlGnBu",
+                                            legend_title = paste0("Cost Layer: ", pl_title)) +
           spatialplanr::splnr_gg_add(
             Bndry = bndry,
             overlay = overlay,
@@ -101,23 +93,10 @@ mod_4features_server <- function(id){
         return(gg_cost)
 
       } else {
-        df <- raw_sf %>%
-          sf::st_as_sf() %>%
-          dplyr::select("geometry",
-                        input$checkFeat) %>%
-          dplyr::rename(pred_bin = input$checkFeat)
 
-
-        ## TODO Decide how to plot based on the data type - Features, Bioregional,
-        # Maybe Dictionary column called "Binary, Continuous"?
-        # Then also by feature or cost or climate.....
-
-        df <-  df %>%
-          dplyr::mutate(pred_bin = dplyr::if_else(.data$pred_bin == 1, "Suitable", "Not Suitable"),
-                        pred_bin = factor(.data$pred_bin, levels = c("Suitable", "Not Suitable")))
-
-        Bin_plot <- create_binPlot(df, df$pred_bin, title = "Planning Units",
-                                   values = c("Suitable" = "#3182bd", "Not Suitable" = "#c6dbef"))
+        Bin_plot <- spatialplanr::splnr_plot(raw_sf %>% sf::st_as_sf(),
+                                               col_names = input$checkFeat,
+                                               legend_title = pl_title)
 
         return(Bin_plot)
       }
