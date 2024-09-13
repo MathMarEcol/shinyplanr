@@ -65,9 +65,10 @@ mod_4features_server <- function(id) {
 
     plotFeature <- shiny::reactive({
       if (input$checkFeat == "climdat") {
-        Bin_plot <- create_climDataPlot(climate_sf)
+        gg <- create_climDataPlot(climate_sf)
 
-        return(Bin_plot)
+        return(gg)
+
       } else if (startsWith(input$checkFeat, "Cost_")) {
         df <- raw_sf %>%
           sf::st_as_sf() %>%
@@ -76,7 +77,7 @@ mod_4features_server <- function(id) {
             input$checkFeat
           )
 
-        gg_cost <- spatialplanr::splnr_plot(
+        gg <- spatialplanr::splnr_plot(
           df = df, col_names = input$checkFeat,
           paletteName = "YlGnBu",
           legend_title = paste0("Cost Layer: ", pl_title)
@@ -88,14 +89,14 @@ mod_4features_server <- function(id) {
             ggtheme = map_theme
           )
 
-        return(gg_cost)
+        return(gg)
       } else {
-        Bin_plot <- spatialplanr::splnr_plot(raw_sf %>% sf::st_as_sf(),
+        gg <- spatialplanr::splnr_plot(raw_sf %>% sf::st_as_sf(),
           col_names = input$checkFeat,
           legend_title = pl_title
         )
 
-        return(Bin_plot)
+        return(gg)
       }
     }) %>% shiny::bindCache(input$checkFeat)
 
@@ -106,12 +107,14 @@ mod_4features_server <- function(id) {
 
 
     # Feature justification table
-    output$LayerTable <- shiny::renderTable(
+    output$LayerTable <- shiny::renderTable({
+
       Dict %>%
         dplyr::filter(.data$includeJust == TRUE) %>%
         dplyr::select("category", "nameCommon", "justification") %>%
-        dplyr::arrange(.data$category, .data$nameCommon)
-    )
+        dplyr::rename(Category = "category", Name = "nameCommon", Justification = "justification") %>%
+        dplyr::arrange(.data$Category, .data$Name)
+    })
 
     # Text justification for the spatial plot
     output$txt_just <- shiny::renderText(
