@@ -305,7 +305,8 @@ mod_3compare_server <- function(id) {
       {
         # Solution plotting reactive
         plot_soln1 <- shiny::reactive({
-          soln_text <- fSolnText(input, selectedData1())
+
+          soln_text <- fSolnText(input, selectedData1(), input$costid1)
 
           plot_soln1 <- spatialplanr::splnr_plot_solution(
             soln = selectedData1(),
@@ -329,7 +330,7 @@ mod_3compare_server <- function(id) {
         })
 
         plot_soln2 <- shiny::reactive({
-          soln_text <- fSolnText(input, selectedData2())
+          soln_text <- fSolnText(input, selectedData2(), input$costid2)
 
           plot_soln2 <- spatialplanr::splnr_plot_solution(
             soln = selectedData2(),

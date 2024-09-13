@@ -59,10 +59,6 @@ mod_4features_server <- function(id) {
         dplyr::pull("nameCommon")
     }
 
-    # TODO Get features plotting regardless of name. One way could be to
-    # test the category (or similar) in the Dict. Otherwise I could test
-    # the data type in the _sf file
-
     plotFeature <- shiny::reactive({
       if (input$checkFeat == "climdat") {
         gg <- create_climDataPlot(climate_sf)
