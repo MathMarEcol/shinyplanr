@@ -8,33 +8,37 @@
 #'
 #' @importFrom shiny NS tagList
 
-mod_4features_ui <- function(id){
+mod_4features_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
-    tabsetPanel(id = "tabs4",# type = "pills",
-                tabPanel("Layer Maps", value = 1,
-                         shiny::sidebarLayout(
-                           shiny::sidebarPanel(
-                             shiny::p("Choose a feature and click 'Show Layer'."),
-                             shiny::h2("1. Select Layer"),
-                             create_fancy_dropdown(id, Dict, "checkFeat")),
+    tabsetPanel(
+      id = "tabs4", # type = "pills",
+      tabPanel("Layer Maps",
+        value = 1,
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            shiny::p("Choose a feature and click 'Show Layer'."),
+            shiny::h2("1. Select Layer"),
+            create_fancy_dropdown(id, Dict, "checkFeat")
+          ),
 
-                           # Show a plot of the generated distribution
-                           shiny::mainPanel(
-                             shiny::p(""), # Add space
-                             shiny::htmlOutput(ns("txt_just")),
-                             shiny::p(""), # Add space
-                             shiny::plotOutput(ns("gg_feat"), height = "700px") %>%
-                               shinycssloaders::withSpinner(), #%>%
-                             shiny::uiOutput(ns("web_link"))
-                           )
-                         )
-                ),
-                tabPanel("Layer Justification", value = 2,
-                         shiny::fluidPage(
-                           shiny::tableOutput(ns("LayerTable")),
-                         )),
-
+          # Show a plot of the generated distribution
+          shiny::mainPanel(
+            shiny::p(""), # Add space
+            shiny::htmlOutput(ns("txt_just")),
+            shiny::p(""), # Add space
+            shiny::plotOutput(ns("gg_feat"), height = "700px") %>%
+              shinycssloaders::withSpinner(), # %>%
+            shiny::uiOutput(ns("web_link"))
+          )
+        )
+      ),
+      tabPanel("Layer Justification",
+        value = 2,
+        shiny::fluidPage(
+          shiny::tableOutput(ns("LayerTable")),
+        )
+      ),
     )
   )
 }
@@ -42,47 +46,41 @@ mod_4features_ui <- function(id){
 #' 4features Server Functions
 #'
 #' @noRd
-mod_4features_server <- function(id){
-
-
-  shiny::moduleServer( id, function(input, output, session){
+mod_4features_server <- function(id) {
+  shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
 
-    if (input$checkFeat  == "Cost_None"){ #to avoid No Cost Cost
+    if (input$checkFeat == "Cost_None") { # to avoid No Cost Cost
       pl_title <- " "
     } else {
-
       pl_title <- Dict %>%
         dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
         dplyr::pull("nameCommon")
     }
 
-    #TODO Get features plotting regardless of name. One way could be to
+    # TODO Get features plotting regardless of name. One way could be to
     # test the category (or similar) in the Dict. Otherwise I could test
     # the data type in the _sf file
 
     plotFeature <- shiny::reactive({
-
-
-
-
-     if (input$checkFeat == "climdat") {
-
+      if (input$checkFeat == "climdat") {
         Bin_plot <- create_climDataPlot(climate_sf)
 
         return(Bin_plot)
-
       } else if (startsWith(input$checkFeat, "Cost_")) {
-
         df <- raw_sf %>%
           sf::st_as_sf() %>%
-          dplyr::select("geometry",
-                        input$checkFeat)
+          dplyr::select(
+            "geometry",
+            input$checkFeat
+          )
 
-        gg_cost <- spatialplanr::splnr_plot(df = df, col_names = input$checkFeat,
-                                            paletteName = "YlGnBu",
-                                            legend_title = paste0("Cost Layer: ", pl_title)) +
+        gg_cost <- spatialplanr::splnr_plot(
+          df = df, col_names = input$checkFeat,
+          paletteName = "YlGnBu",
+          legend_title = paste0("Cost Layer: ", pl_title)
+        ) +
           spatialplanr::splnr_gg_add(
             Bndry = bndry,
             overlay = overlay,
@@ -91,12 +89,11 @@ mod_4features_server <- function(id){
           )
 
         return(gg_cost)
-
       } else {
-
         Bin_plot <- spatialplanr::splnr_plot(raw_sf %>% sf::st_as_sf(),
-                                               col_names = input$checkFeat,
-                                               legend_title = pl_title)
+          col_names = input$checkFeat,
+          legend_title = pl_title
+        )
 
         return(Bin_plot)
       }
@@ -122,7 +119,6 @@ mod_4features_server <- function(id){
         dplyr::filter(.data$nameVariable == input$checkFeat) %>%
         dplyr::pull(.data$justification)
     )
-
   })
 }
 

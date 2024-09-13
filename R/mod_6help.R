@@ -7,28 +7,36 @@
 #' @noRd
 #'
 
-mod_6help_ui <- function(id){
+mod_6help_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
-    tabsetPanel(id = "tabs5",# type = "pills",
-                tabPanel("Frequently Asked Questions", value = 1,
-                         shiny::fluidPage(
-                           shiny::HTML(tx_6faq))
-                ),
-                tabPanel("Technical Information", value = 2,
-                         shiny::fluidPage(
-                           shiny::HTML(tx_6technical))
-                ),
-                tabPanel("References", value = 4,
-                         shiny::fluidPage(
-                           shiny::HTML(tx_6references))
-                ),
-                tabPanel("Changelog", value = 5,
-                         shiny::fluidPage(
-                           shiny::h1("Application Changelog"),
-                           shiny::div(shiny::HTML(tx_6changelog)),
-                         ),
-                )
+    tabsetPanel(
+      id = "tabs5", # type = "pills",
+      tabPanel("Frequently Asked Questions",
+        value = 1,
+        shiny::fluidPage(
+          shiny::HTML(tx_6faq)
+        )
+      ),
+      tabPanel("Technical Information",
+        value = 2,
+        shiny::fluidPage(
+          shiny::HTML(tx_6technical)
+        )
+      ),
+      tabPanel("References",
+        value = 4,
+        shiny::fluidPage(
+          shiny::HTML(tx_6references)
+        )
+      ),
+      tabPanel("Changelog",
+        value = 5,
+        shiny::fluidPage(
+          shiny::h1("Application Changelog"),
+          shiny::div(shiny::HTML(tx_6changelog)),
+        ),
+      )
     )
   )
 }
@@ -36,10 +44,9 @@ mod_6help_ui <- function(id){
 #' 6help Server Functions
 #'
 #' @noRd
-mod_6help_server <- function(id){
-  shiny::moduleServer( id, function(input, output, session){
+mod_6help_server <- function(id) {
+  shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
   })
 }
 

@@ -11,8 +11,8 @@ mod_3compare_ui <- function(id) {
   ns_comp <- NS(id)
   Vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
   Vars2 <- fcreate_vars(id = id, Dict = Dict, name_check = "sli2_", categoryOut = TRUE)
-  check_constraints <- fcreate_check(id = id, Dict = Dict%>%dplyr::filter(.data$type == "Constraint"), name_check = "checkLI_", categoryOut = TRUE)
-  check_constraints2 <- fcreate_check(id = id, Dict = Dict%>%dplyr::filter(.data$type == "Constraint"), name_check = "check2LI_", categoryOut = TRUE)
+  check_constraints <- fcreate_check(id = id, Dict = Dict %>% dplyr::filter(.data$type == "Constraint"), name_check = "checkLI_", categoryOut = TRUE)
+  check_constraints2 <- fcreate_check(id = id, Dict = Dict %>% dplyr::filter(.data$type == "Constraint"), name_check = "check2LI_", categoryOut = TRUE)
 
 
   shinyjs::useShinyjs()
@@ -56,7 +56,6 @@ mod_3compare_ui <- function(id) {
             shiny::checkboxInput(ns_comp("check2Climsmart"), "Make Climate-resilient", FALSE)
           )
         )),
-
         shinyjs::hidden(div(
           id = ns_comp("switchConstraints"),
           shiny::h2("3. Constraints"),
@@ -65,15 +64,15 @@ mod_3compare_ui <- function(id) {
             fcustom_checkCategory(check_constraints2, labelNum = 3)
           ),
 
-          #shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
+          # shiny::checkboxInput(ns("checkClimsmart"), "Make Climate-resilient", FALSE)
         )),
         shiny::br(), # Leave space for analysis button at bottom
         shiny::br(), # Leave space for analysis button at bottom
         shiny::fixedPanel(
           style = "z-index:100", # To force the button above all plots.
           shiny::actionButton(ns_comp("analyse"), "Run Analysis", shiny::icon("paper-plane"),
-                              width = "100%", class = "btn btn-primary",
-                              style = "display: block; float: left; padding:4px; font-size:150%;"
+            width = "100%", class = "btn btn-primary",
+            style = "display: block; float: left; padding:4px; font-size:150%;"
           ),
           right = "71%", bottom = "1%", left = "5%"
         ),
@@ -92,86 +91,86 @@ mod_3compare_ui <- function(id) {
         tabsetPanel(
           id = ns_comp("tabs"), # type = "pills",
           tabPanel("Comparison",
-                   value = 1,
-                   shiny::fixedPanel(
-                     style = "z-index:100", # To force the button above all plots.=
-                     shiny::downloadButton(ns_comp("dlPlot1"), "Download Plot",
-                                           style = "float: right; padding:4px; font-size:120%"
-                     ),
-                     right = "1%", bottom = "1%", left = "34%"
-                   ),
-                   shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_comp")))),
-                   shiny::textOutput(ns_comp("txt_comp")),
-                   shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_comp"), height = "600px"))
+            value = 1,
+            shiny::fixedPanel(
+              style = "z-index:100", # To force the button above all plots.=
+              shiny::downloadButton(ns_comp("dlPlot1"), "Download Plot",
+                style = "float: right; padding:4px; font-size:120%"
+              ),
+              right = "1%", bottom = "1%", left = "34%"
+            ),
+            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_comp")))),
+            shiny::textOutput(ns_comp("txt_comp")),
+            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_comp"), height = "600px"))
           ),
           tabPanel("Scenario",
-                   value = 2,
-                   shiny::fixedPanel(
-                     style = "z-index:100", # To force the button above all plots.=
-                     shiny::downloadButton(ns_comp("dlPlot2"), "Download Plot",
-                                           style = "float: right; padding:4px; font-size:120%"
-                     ),
-                     right = "1%", bottom = "1%", left = "34%"
-                   ),
-                   shiny::fluidRow(
-                     shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_soln")))),
-                     shiny::span(shiny::p(shiny::textOutput(ns_comp("txt_soln")))),
-                     shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_soln"), height = "700px"))
-                   ),
+            value = 2,
+            shiny::fixedPanel(
+              style = "z-index:100", # To force the button above all plots.=
+              shiny::downloadButton(ns_comp("dlPlot2"), "Download Plot",
+                style = "float: right; padding:4px; font-size:120%"
+              ),
+              right = "1%", bottom = "1%", left = "34%"
+            ),
+            shiny::fluidRow(
+              shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_soln")))),
+              shiny::span(shiny::p(shiny::textOutput(ns_comp("txt_soln")))),
+              shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_soln"), height = "700px"))
+            ),
           ),
           tabPanel("Targets",
-                   value = 3,
-                   shiny::fixedPanel(
-                     style = "z-index:100", # To force the button above all plots.=
-                     shiny::downloadButton(ns_comp("dlPlot3"), "Download Plot",
-                                           style = "float: right; padding:4px; font-size:120%"
-                     ),
-                     right = "1%", bottom = "1%", left = "34%"
-                   ),
-                   shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_target")))),
-                   shiny::br(),
-                   shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_TargetPlot"), height = "1200px")),
+            value = 3,
+            shiny::fixedPanel(
+              style = "z-index:100", # To force the button above all plots.=
+              shiny::downloadButton(ns_comp("dlPlot3"), "Download Plot",
+                style = "float: right; padding:4px; font-size:120%"
+              ),
+              right = "1%", bottom = "1%", left = "34%"
+            ),
+            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_target")))),
+            shiny::br(),
+            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_TargetPlot"), height = "1200px")),
           ),
           tabPanel("Cost",
-                   value = 4,
-                   shiny::fixedPanel(
-                     style = "z-index:100", # To force the button above all plots.=
-                     shiny::downloadButton(ns_comp("dlPlot4"), "Download Plot",
-                                           style = "float: right; padding:4px; font-size:120%"
-                     ),
-                     right = "1%", bottom = "1%", left = "34%"
-                   ),
-                   shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_cost")))),
-                   shiny::span(shiny::p(shiny::textOutput(ns_comp("txt_cost")))),
-                   shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_cost"), height = "700px")),
+            value = 4,
+            shiny::fixedPanel(
+              style = "z-index:100", # To force the button above all plots.=
+              shiny::downloadButton(ns_comp("dlPlot4"), "Download Plot",
+                style = "float: right; padding:4px; font-size:120%"
+              ),
+              right = "1%", bottom = "1%", left = "34%"
+            ),
+            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_cost")))),
+            shiny::span(shiny::p(shiny::textOutput(ns_comp("txt_cost")))),
+            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_cost"), height = "700px")),
           ),
           tabPanel("Climate Resilience",
-                   value = 7,
-                   shiny::fixedPanel(
-                     style = "z-index:100", # To force the button above all plots.=
-                     shiny::downloadButton(ns_comp("dlPlot7"), "Download Plot",
-                                           style = "float: right; padding:4px; font-size:120%"
-                     ),
-                     right = "1%", bottom = "1%", left = "34%"
-                   ),
-                   shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_clim")))),
-                   shiny::textOutput(ns_comp("txt_clim")),
-                   shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_clim"), height = "600px"))
+            value = 7,
+            shiny::fixedPanel(
+              style = "z-index:100", # To force the button above all plots.=
+              shiny::downloadButton(ns_comp("dlPlot7"), "Download Plot",
+                style = "float: right; padding:4px; font-size:120%"
+              ),
+              right = "1%", bottom = "1%", left = "34%"
+            ),
+            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_clim")))),
+            shiny::textOutput(ns_comp("txt_clim")),
+            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_clim"), height = "600px"))
           ),
           tabPanel("Details",
-                   value = 8,
-                   shiny::fixedPanel(
-                     style = "z-index:100", # To force the button above all plots.=
-                     shiny::downloadButton(ns_comp("dlPlot8"), "Download Table",
-                                           style = "float: right; padding:4px; font-size:120%"
-                     ),
-                     right = "1%", bottom = "1%", left = "34%"
-                   ),
-                   shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_DetsSummary")))),
-                   shiny::br(),
-                   shiny::tableOutput(ns_comp("SummaryTable")),
-                   shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_DetsData")))),
-                   shiny::tableOutput(ns_comp("DataTable")),
+            value = 8,
+            shiny::fixedPanel(
+              style = "z-index:100", # To force the button above all plots.=
+              shiny::downloadButton(ns_comp("dlPlot8"), "Download Table",
+                style = "float: right; padding:4px; font-size:120%"
+              ),
+              right = "1%", bottom = "1%", left = "34%"
+            ),
+            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_DetsSummary")))),
+            shiny::br(),
+            shiny::tableOutput(ns_comp("SummaryTable")),
+            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_DetsData")))),
+            shiny::tableOutput(ns_comp("DataTable")),
           ),
         )
       )
@@ -255,7 +254,6 @@ mod_3compare_server <- function(id) {
         input$tabsComp == 1
       },
       {
-
         ggr_comp <- shiny::reactive({
           area1 <- selectedData1() %>%
             dplyr::filter(.data$solution_1 == 1) %>%
@@ -309,8 +307,10 @@ mod_3compare_server <- function(id) {
         plot_soln1 <- shiny::reactive({
           soln_text <- fSolnText(input, selectedData1())
 
-          plot_soln1 <- spatialplanr::splnr_plot_solution(soln = selectedData1(),
-                                                          plotTitle = "Planning Units") +
+          plot_soln1 <- spatialplanr::splnr_plot_solution(
+            soln = selectedData1(),
+            plotTitle = "Planning Units"
+          ) +
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               Bndry = bndry,
@@ -331,8 +331,10 @@ mod_3compare_server <- function(id) {
         plot_soln2 <- shiny::reactive({
           soln_text <- fSolnText(input, selectedData2())
 
-          plot_soln2 <- spatialplanr::splnr_plot_solution(soln = selectedData2(),
-                                                          plotTitle = "Planning Units") +
+          plot_soln2 <- spatialplanr::splnr_plot_solution(
+            soln = selectedData2(),
+            plotTitle = "Planning Units"
+          ) +
             ggplot2::annotate(geom = "text", label = soln_text[[1]], x = Inf, y = Inf, hjust = 1.05, vjust = 1.5) +
             spatialplanr::splnr_gg_add(
               Bndry = bndry,
@@ -352,8 +354,8 @@ mod_3compare_server <- function(id) {
 
         output$gg_soln <- shiny::renderPlot({
           ggr_soln <- patchwork::wrap_plots(plot_soln1() + ggplot2::ggtitle("Input 1"),
-                                            plot_soln2() + ggplot2::ggtitle("Input 2"),
-                                            nrow = 1, guides = "collect"
+            plot_soln2() + ggplot2::ggtitle("Input 2"),
+            nrow = 1, guides = "collect"
           ) &
             ggplot2::theme(legend.position = "bottom", legend.direction = "horizontal")
           return(ggr_soln)
@@ -409,11 +411,11 @@ mod_3compare_server <- function(id) {
           }
 
           gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData,
-                                                           nr = 2,
-                                                           showTarget = TRUE,
-                                                           category = fget_category(Dict = Dict),
-                                                           renameFeatures = TRUE,
-                                                           namesToReplace = Dict
+            nr = 2,
+            showTarget = TRUE,
+            category = fget_category(Dict = Dict),
+            renameFeatures = TRUE,
+            namesToReplace = Dict
           )
 
           return(gg_Target)
@@ -437,11 +439,11 @@ mod_3compare_server <- function(id) {
           }
 
           gg_Target <- spatialplanr::splnr_plot_featureRep(targetPlotData,
-                                                           nr = 2,
-                                                           showTarget = TRUE,
-                                                           category = fget_category(Dict = Dict),
-                                                           renameFeatures = TRUE,
-                                                           namesToReplace = Dict
+            nr = 2,
+            showTarget = TRUE,
+            category = fget_category(Dict = Dict),
+            renameFeatures = TRUE,
+            namesToReplace = Dict
           )
 
           return(gg_Target)
@@ -450,8 +452,8 @@ mod_3compare_server <- function(id) {
 
         output$gg_TargetPlot <- shiny::renderPlot({
           gg_Target <- patchwork::wrap_plots(gg_Target1() + ggplot2::ggtitle("Input 1"),
-                                             gg_Target2() + ggplot2::ggtitle("Input 2"),
-                                             nrow = 1, guides = "collect"
+            gg_Target2() + ggplot2::ggtitle("Input 2"),
+            nrow = 1, guides = "collect"
           ) &
             ggplot2::theme(legend.position = "bottom", legend.direction = "horizontal")
           return(gg_Target)
@@ -484,10 +486,10 @@ mod_3compare_server <- function(id) {
       {
         costPlotData1 <- shiny::reactive({
           spatialplanr::splnr_plot_costOverlay(selectedData1(),
-                                               Cost = NA,
-                                               Cost_name = input$costid1,
-                                               legendTitle = "Cost",
-                                               plotTitle = "Solution overlaid with cost"
+            Cost = NA,
+            Cost_name = input$costid1,
+            legendTitle = "Cost",
+            plotTitle = "Solution overlaid with cost"
           ) +
             spatialplanr::splnr_gg_add(
               Bndry = bndry,
@@ -500,10 +502,10 @@ mod_3compare_server <- function(id) {
 
         costPlotData2 <- shiny::reactive({
           spatialplanr::splnr_plot_costOverlay(selectedData2(),
-                                               Cost = NA,
-                                               Cost_name = input$costid2,
-                                               legendTitle = "Cost",
-                                               plotTitle = "Solution overlaid with cost"
+            Cost = NA,
+            Cost_name = input$costid2,
+            legendTitle = "Cost",
+            plotTitle = "Solution overlaid with cost"
           ) +
             spatialplanr::splnr_gg_add(
               Bndry = bndry,
@@ -517,8 +519,8 @@ mod_3compare_server <- function(id) {
 
         output$gg_cost <- shiny::renderPlot({
           costPlotData <- patchwork::wrap_plots(costPlotData1() + ggplot2::ggtitle("Input 1"),
-                                                costPlotData2() + ggplot2::ggtitle("Input 2"),
-                                                nrow = 1, guides = "collect"
+            costPlotData2() + ggplot2::ggtitle("Input 2"),
+            nrow = 1, guides = "collect"
           ) &
             ggplot2::theme(legend.position = "bottom", legend.direction = "horizontal")
           return(costPlotData)
@@ -534,7 +536,6 @@ mod_3compare_server <- function(id) {
 
         # TODO Move this text to the Dictionary and implement call to display here as usual
         output$txt_cost <- shiny::renderText({
-
           # Extract cost info from Dictionary for justification
           cost_txt1 <- Dict %>%
             dplyr::filter(.data$nameVariable == input$costid1)
@@ -542,12 +543,13 @@ mod_3compare_server <- function(id) {
           cost_txt2 <- Dict %>%
             dplyr::filter(.data$nameVariable == input$costid2)
 
-          paste0("To illustrate how the chosen cost influences the spatial plan, this plot shows the
+          paste0(
+            "To illustrate how the chosen cost influences the spatial plan, this plot shows the
              spatial plan (= scenario) overlaid with the cost of including a planning unit in a
              reserve. The cost used on the left is ", cost_txt1$nameCommon, " and ",
-                 stringr::str_remove(cost_txt1$justification, "This cost"),". The cost on the right is ",
-                 cost_txt2$nameCommon, " and ", stringr::str_remove(cost_txt2$justification, "This cost"),".")
-
+            stringr::str_remove(cost_txt1$justification, "This cost"), ". The cost on the right is ",
+            cost_txt2$nameCommon, " and ", stringr::str_remove(cost_txt2$justification, "This cost"), "."
+          )
         }) %>%
           shiny::bindEvent(input$analyse)
 
@@ -624,131 +626,129 @@ mod_3compare_server <- function(id) {
 
 
 
-    observeEvent({input$tabs == 8}, {
-      # for saving data/ data next to plot
-      DataTabler <- shiny::reactive({
+    observeEvent(
+      {
+        input$tabs == 8
+      },
+      {
+        # for saving data/ data next to plot
+        DataTabler <- shiny::reactive({
+          if (input$check1Climsmart == TRUE) {
+            targets <- targetData1()
 
-        if (input$check1Climsmart == TRUE) {
-          targets <- targetData1()
+            targetPlotData1 <- spatialplanr::splnr_get_featureRep(
+              soln = selectedData1(), pDat = p1Data(),
+              climsmart = input$check1Climsmart, climsmartApproach = options$climate_change,
+              targetsDF = targets
+            ) %>% # TODO Move this mutate to spatialplanr to account for zeros
+              dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
+          } else {
+            targetPlotData1 <- spatialplanr::splnr_get_featureRep(
+              soln = selectedData1(), pDat = p1Data(),
+              climsmart = input$check1Climsmart
+            ) %>%
+              dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
+          }
 
-          targetPlotData1 <- spatialplanr::splnr_get_featureRep(
-            soln = selectedData1(), pDat = p1Data(),
-            climsmart = input$check1Climsmart, climsmartApproach = options$climate_change,
-            targetsDF = targets
-          ) %>% # TODO Move this mutate to spatialplanr to account for zeros
-            dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
-        } else {
-          targetPlotData1 <- spatialplanr::splnr_get_featureRep(
-            soln = selectedData1(), pDat = p1Data(),
-            climsmart = input$check1Climsmart
-          ) %>%
-            dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
-        }
+          if (input$check2Climsmart == TRUE) {
+            targets <- targetData2()
 
-        if (input$check2Climsmart == TRUE) {
-          targets <- targetData2()
+            targetPlotData2 <- spatialplanr::splnr_get_featureRep(
+              soln = selectedData2(), pDat = p2Data(),
+              climsmart = input$check2Climsmart, climsmartApproach = options$climate_change,
+              targetsDF = targets
+            ) %>%
+              dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
+          } else {
+            targetPlotData2 <- spatialplanr::splnr_get_featureRep(
+              soln = selectedData2(), pDat = p2Data(),
+              climsmart = input$check2Climsmart
+            ) %>%
+              dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
+          }
 
-          targetPlotData2 <- spatialplanr::splnr_get_featureRep(
-            soln = selectedData2(), pDat = p2Data(),
-            climsmart = input$check2Climsmart, climsmartApproach = options$climate_change,
-            targetsDF = targets
-          ) %>%
-            dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
+          # Create named vector to do the replacement
+          rpl <- Dict %>%
+            dplyr::filter(.data$nameVariable %in% unique(c(targetPlotData1$feature, targetPlotData2$feature))) %>%
+            dplyr::select("nameVariable", "nameCommon") %>%
+            tibble::deframe()
 
-        } else {
-          targetPlotData2 <- spatialplanr::splnr_get_featureRep(
-            soln = selectedData2(), pDat = p2Data(),
-            climsmart = input$check2Climsmart
-          ) %>%
-            dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
-        }
+          # TODO Add category to spatialplanr::splnr_get_featureRep and remove from splnr_plot_featureRep
+          FeaturestoSave1 <- targetPlotData1 %>%
+            dplyr::left_join(Dict %>% dplyr::select("nameVariable", "category"), by = c("feature" = "nameVariable")) %>%
+            dplyr::mutate(
+              value = as.integer(round(.data$relative_held * 100)),
+              target = as.integer(round(.data$target * 100))
+            ) %>%
+            dplyr::select("category", "feature", "target", "value", "incidental") %>%
+            dplyr::rename(
+              Feature = .data$feature,
+              `Protection 1 (%)` = .data$value,
+              `Target 1 (%)` = .data$target,
+              `Incidental 1` = .data$incidental,
+              Category = .data$category
+            ) %>%
+            dplyr::arrange(.data$Category, .data$Feature) %>%
+            dplyr::mutate(Feature = stringr::str_replace_all(.data$Feature, rpl))
 
-        # Create named vector to do the replacement
-        rpl <- Dict %>%
-          dplyr::filter(.data$nameVariable %in% unique(c(targetPlotData1$feature, targetPlotData2$feature))) %>%
-          dplyr::select("nameVariable", "nameCommon") %>%
-          tibble::deframe()
-
-        # TODO Add category to spatialplanr::splnr_get_featureRep and remove from splnr_plot_featureRep
-        FeaturestoSave1 <- targetPlotData1 %>%
-          dplyr::left_join(Dict %>% dplyr::select("nameVariable", "category"), by = c("feature" = "nameVariable")) %>%
-          dplyr::mutate(
-            value = as.integer(round(.data$relative_held * 100)),
-            target = as.integer(round(.data$target * 100))
-          ) %>%
-          dplyr::select("category", "feature", "target", "value", "incidental") %>%
-          dplyr::rename(
-            Feature = .data$feature,
-            `Protection 1 (%)` = .data$value,
-            `Target 1 (%)` = .data$target,
-            `Incidental 1` = .data$incidental,
-            Category = .data$category
-          ) %>%
-          dplyr::arrange(.data$Category, .data$Feature) %>%
-          dplyr::mutate(Feature = stringr::str_replace_all(.data$Feature, rpl))
-
-        FeaturestoSave2 <- targetPlotData2 %>%
-          dplyr::left_join(Dict %>% dplyr::select("nameVariable", "category"), by = c("feature" = "nameVariable")) %>%
-          dplyr::mutate(
-            value = as.integer(round(.data$relative_held * 100)),
-            target = as.integer(round(.data$target * 100))
-          ) %>%
-          dplyr::select("category", "feature", "target", "value", "incidental") %>%
-          dplyr::rename(
-            Feature = .data$feature,
-            `Protection 2 (%)` = .data$value,
-            `Target 2 (%)` = .data$target,
-            `Incidental 2` = .data$incidental,
-            Category = .data$category
-          ) %>%
-          dplyr::arrange(.data$Category, .data$Feature) %>%
-          dplyr::mutate(Feature = stringr::str_replace_all(.data$Feature, rpl))
+          FeaturestoSave2 <- targetPlotData2 %>%
+            dplyr::left_join(Dict %>% dplyr::select("nameVariable", "category"), by = c("feature" = "nameVariable")) %>%
+            dplyr::mutate(
+              value = as.integer(round(.data$relative_held * 100)),
+              target = as.integer(round(.data$target * 100))
+            ) %>%
+            dplyr::select("category", "feature", "target", "value", "incidental") %>%
+            dplyr::rename(
+              Feature = .data$feature,
+              `Protection 2 (%)` = .data$value,
+              `Target 2 (%)` = .data$target,
+              `Incidental 2` = .data$incidental,
+              Category = .data$category
+            ) %>%
+            dplyr::arrange(.data$Category, .data$Feature) %>%
+            dplyr::mutate(Feature = stringr::str_replace_all(.data$Feature, rpl))
 
 
-        # TODO - Change to full join for compare
-        FeaturestoSave <- dplyr::full_join(FeaturestoSave1, FeaturestoSave2, by = c("Category", "Feature"))
+          # TODO - Change to full join for compare
+          FeaturestoSave <- dplyr::full_join(FeaturestoSave1, FeaturestoSave2, by = c("Category", "Feature"))
 
-        return(FeaturestoSave)
-      }) %>%
-        shiny::bindEvent(input$analyse)
+          return(FeaturestoSave)
+        }) %>%
+          shiny::bindEvent(input$analyse)
 
-      output$DataTable <- shiny::renderTable({
-        DataTabler()
-      }) %>%
-        shiny::bindEvent(input$analyse)
+        output$DataTable <- shiny::renderTable({
+          DataTabler()
+        }) %>%
+          shiny::bindEvent(input$analyse)
 
-      output$hdr_DetsData <- shiny::renderText("Feature Summary")
+        output$hdr_DetsData <- shiny::renderText("Feature Summary")
 
-      # Create data tables for download
-      ggr_DataPlot <- shiny::reactive({
+        # Create data tables for download
+        ggr_DataPlot <- shiny::reactive({
+          dat <- DataTabler() %>%
+            dplyr::mutate(Class = as.factor(.data$Class)) %>%
+            dplyr::group_by(.data$Class) %>%
+            dplyr::group_split()
 
-        dat <- DataTabler() %>%
-          dplyr::mutate(Class = as.factor(.data$Class)) %>%
-          dplyr::group_by(.data$Class) %>%
-          dplyr::group_split()
-
-        design <- "BBAA
+          design <- "BBAA
            BBCC
            BBCC
            BBCC"
 
-        ggr_DataPlot <- patchwork::wrap_plots(
-          # gridExtra::tableGrob(SummaryTabler(), rows = NULL, theme = gridExtra::ttheme_default(base_size = 9)),
-          gridExtra::tableGrob(dat[[1]], rows = NULL, theme = gridExtra::ttheme_default(base_size = 7)),
-          gridExtra::tableGrob(dat[[2]], rows = NULL, theme = gridExtra::ttheme_default(base_size = 7)),
-          design = design)
+          ggr_DataPlot <- patchwork::wrap_plots(
+            # gridExtra::tableGrob(SummaryTabler(), rows = NULL, theme = gridExtra::ttheme_default(base_size = 9)),
+            gridExtra::tableGrob(dat[[1]], rows = NULL, theme = gridExtra::ttheme_default(base_size = 7)),
+            gridExtra::tableGrob(dat[[2]], rows = NULL, theme = gridExtra::ttheme_default(base_size = 7)),
+            design = design
+          )
 
-        return(ggr_DataPlot)
-      }) %>%
-        shiny::bindEvent(input$analyse)
+          return(ggr_DataPlot)
+        }) %>%
+          shiny::bindEvent(input$analyse)
 
-      output$dlPlot8 <- fDownloadPlotServer(input, gg_id = ggr_DataPlot(), gg_prefix = "DataSummary", time_date = analysisTime(), width = 16, height = 10) # Download figure
-
-    }) # End observe event 8
-
-
-
-
+        output$dlPlot8 <- fDownloadPlotServer(input, gg_id = ggr_DataPlot(), gg_prefix = "DataSummary", time_date = analysisTime(), width = 16, height = 10) # Download figure
+      }
+    ) # End observe event 8
   })
 }
 

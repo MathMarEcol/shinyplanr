@@ -7,12 +7,11 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_7credit_ui <- function(id){
+mod_7credit_ui <- function(id) {
   ns <- NS(id)
   shiny::fluidPage(
     titlePanel("Development"),
     shiny::div(shiny::HTML(tx_7credit)),
-
     shiny::h2("Acknowledgements"),
     shiny::h6("This Web App is possible thanks to the following packages"),
     shiny::fluidPage(
@@ -55,10 +54,9 @@ mod_7credit_ui <- function(id){
 #' 7credit Server Functions
 #'
 #' @noRd
-mod_7credit_server <- function(id){
-  moduleServer( id, function(input, output, session){
+mod_7credit_server <- function(id) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
   })
 }
 
