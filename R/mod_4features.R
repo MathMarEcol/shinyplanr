@@ -43,6 +43,8 @@ mod_4features_ui <- function(id){
 #'
 #' @noRd
 mod_4features_server <- function(id){
+
+
   shiny::moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -57,27 +59,19 @@ mod_4features_server <- function(id){
       # Get the names of the categories in regionalisations
       if (stringr::str_detect(input$checkFeat, "region_"))  {
 
-        common <- Dict %>%
-          dplyr::filter(.data$nameVariable %in% region_names) %>%
-          dplyr::select("nameCommon", "nameVariable") %>%
-          tibble::deframe()
+        RegionPlot <- spatialplanr::splnr_plot(raw_sf %>% sf::st_as_sf(),
+                                 col_names = input$checkFeat,
+                                 legend_title = Dict %>%
+                                   dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
+                                   dplyr::pull(var = "nameCommon"))
 
-        # Get the columns for regionalisation and pivot longer
-        df <- raw_sf %>%
-          dplyr::select(tidyselect::all_of(region_names), .data$geometry) %>%
-          dplyr::rename(common) %>%
-          tidyr::pivot_longer(cols = -.data$geometry, names_to = "region", values_to = "values") %>%
-          dplyr::filter(.data$values == 1) %>%
-          dplyr::select(-"values") %>%
-          dplyr::mutate(region = as.factor(.data$region)) %>%
-          sf::st_as_sf()
-
-        RegionPlot <- create_regionPlot(df)
         return(RegionPlot)
 
       } else if (input$checkFeat == "climdat") {
+
         Bin_plot <- create_climDataPlot(climate_sf)
         return(Bin_plot)
+
       } else if (startsWith(input$checkFeat, "Cost_")) {
 
         df <- raw_sf %>%
