@@ -9,7 +9,7 @@
 
 mod_6help_ui <- function(id) {
   ns <- shiny::NS(id)
-  shiny::tagList(
+  # shiny::tagList(
     tabsetPanel(
       id = "tabs5", # type = "pills",
       tabPanel("Frequently Asked Questions",
@@ -30,15 +30,15 @@ mod_6help_ui <- function(id) {
           shiny::HTML(tx_6references)
         )
       ),
-      tabPanel("Changelog",
-        value = 5,
-        shiny::fluidPage(
-          shiny::h1("Application Changelog"),
-          shiny::div(shiny::HTML(tx_6changelog)),
-        ),
-      )
+      # tabPanel("Changelog",
+      #   value = 5,
+      #   shiny::fluidPage(
+      #     shiny::h1("Application Changelog"),
+      #     shiny::div(shiny::HTML(tx_6changelog)),
+      #   ),
+      # )
     )
-  )
+  # ) # tagList
 }
 
 #' 6help Server Functions

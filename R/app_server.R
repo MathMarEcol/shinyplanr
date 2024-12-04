@@ -7,6 +7,21 @@
 app_server <- function(input, output, session) {
   # Your application server logic
 
+  observeEvent(input$sidebar_button,{
+    shinyjs::toggle(selector = ".tab-pane.active div:has(> [role='complementary'])")
+
+    js_maintab <- paste0('$(".tab-pane.active div[role=',"'main'",']")')
+
+    shinyjs::runjs(paste0('
+          width_percent = parseFloat(',js_maintab,'.css("width")) / parseFloat(',js_maintab,'.parent().css("width"));
+          if (width_percent == 1){
+            ',js_maintab,'.css("width","");
+          } else {
+            ',js_maintab,'.css("width","100%");
+          }
+          '))
+  })
+
 
   shiny::observe({
     if (options$mod_1welcome == FALSE) {

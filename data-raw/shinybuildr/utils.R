@@ -1,6 +1,5 @@
 
 fget_percentile <- function(climate){
-  browser()
   if (climate == 1) {
     percentile = 5 # default: 5
   } else if (climate == 2) {

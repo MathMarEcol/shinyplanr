@@ -24,7 +24,7 @@ options <- list(
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
   file_data = file.path(data_dir, paste0(country, "_RawData.rda")),
-  # file_climate = file.path(data_dir, "Ensemble-ssp585-combined.rds"),
+  file_climate = file.path(data_dir, "climate_data", "tos_ensemble_ssp245.rds"),
 
   ## App Setup Options
   mod_1welcome = TRUE, #switch modules on/off
@@ -35,6 +35,7 @@ options <- list(
   mod_7credit = TRUE, #switch modules on/off
 
   # TODO Get this working - get conditional panels working for global variables
+
   climate_change = 1, #switch climate change on/off; 0 = not clim-smart; 1 = CPA; 2 = Feature; 3 = Percentile
   # Warning: still requires some changes in the app: direction, percentile etc. should this be in here? those are input options to the functions
 
@@ -106,9 +107,9 @@ if (length(vars) != dim(raw_sf)[2]-1){
 
 
 # # Include the climate data if needed.
-# climate_sf <- readRDS(options$file_climate) %>%
-#   dplyr::select(-velocityRescaled, -exposureRescaled) %>%
-#   dplyr::rename(metric = gMean)
+climate_sf <- readRDS(options$file_climate) %>%
+  dplyr::select(-velocityRescaled, -exposureRescaled) %>%
+  dplyr::rename(metric = gMean)
 climate_sf <- NULL
 
 # Plotting Overlays -------------------------------------------------------

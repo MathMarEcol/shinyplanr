@@ -9,9 +9,9 @@
 #' @importFrom shiny NS tagList
 mod_1welcome_ui <- function(id) {
   ns <- NS(id)
-  tagList(
-    shiny::div(shiny::HTML(tx_1welcome)),
-  )
+  # tagList(
+    shiny::div(shiny::HTML(tx_1welcome))
+  # ) # tagList
 }
 
 #' 1welcome Server Functions

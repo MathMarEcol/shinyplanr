@@ -10,7 +10,7 @@
 
 mod_4features_ui <- function(id) {
   ns <- shiny::NS(id)
-  shiny::tagList(
+  # shiny::tagList(
     tabsetPanel(
       id = "tabs4", # type = "pills",
       tabPanel("Layer Maps",
@@ -40,7 +40,7 @@ mod_4features_ui <- function(id) {
         )
       ),
     )
-  )
+  # ) # tagList
 }
 
 #' 4features Server Functions
@@ -49,6 +49,9 @@ mod_4features_ui <- function(id) {
 mod_4features_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+  # TODO Extract the chosen name from the Dict file and get the category. Otherwise
+  # there will be a problem if, for example, cost doesn't start with Cost_ etc
 
 
     if (input$checkFeat == "Cost_None") { # to avoid No Cost Cost
@@ -60,8 +63,15 @@ mod_4features_server <- function(id) {
     }
 
     plotFeature <- shiny::reactive({
+
       if (input$checkFeat == "climdat") {
-        gg <- create_climDataPlot(climate_sf)
+        gg <- create_climDataPlot(climate_sf) +
+          spatialplanr::splnr_gg_add(
+            Bndry = bndry,
+            overlay = overlay,
+            cropOverlay = df,
+            ggtheme = map_theme
+          )
 
         return(gg)
 
@@ -87,10 +97,17 @@ mod_4features_server <- function(id) {
 
         return(gg)
       } else {
+
         gg <- spatialplanr::splnr_plot(raw_sf %>% sf::st_as_sf(),
           col_names = input$checkFeat,
           legend_title = pl_title
-        )
+        ) +
+          spatialplanr::splnr_gg_add(
+            Bndry = bndry,
+            overlay = overlay,
+            cropOverlay = df,
+            ggtheme = map_theme
+          )
 
         return(gg)
       }

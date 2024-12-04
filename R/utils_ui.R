@@ -153,11 +153,32 @@ fcustom_cost <- function(id, id_in, Dict) {
 
 
 
+#' Custom Drop Down for Cost (Rational Use)
+#'
+#' @noRd
+#'
+fcustom_climate <- function(id, id_in, Dict) {
+  choice <- Dict %>%
+    dplyr::filter(.data$categoryID == "Climate") %>%
+    dplyr::select("nameCommon", "nameVariable") %>%
+    dplyr::add_row(nameCommon = "Don't consider", .before = 1) %>%
+    tibble::deframe()
+
+  shiny::selectInput(shiny::NS(namespace = id, id = id_in),
+                     label = shiny::h3(" "),
+                     choices = choice,
+                     multiple = FALSE
+  )
+}
+
+
+
 #' Fancy dropdown menu with categories
 #'
 #' @noRd
 #'
 create_fancy_dropdown <- function(id, Dict, id_in) {
+  . <- NULL
   featureList <- Dict %>%
     dplyr::group_by(.data$category) %>%
     dplyr::select("nameCommon", "nameVariable", "category") %>%

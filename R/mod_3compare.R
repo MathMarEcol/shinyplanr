@@ -8,16 +8,15 @@
 #'
 #' @importFrom shiny NS tagList
 mod_3compare_ui <- function(id) {
-  ns_comp <- NS(id)
+  ns <- NS(id)
   Vars <- fcreate_vars(id = id, Dict = Dict, name_check = "sli_", categoryOut = TRUE)
   Vars2 <- fcreate_vars(id = id, Dict = Dict, name_check = "sli2_", categoryOut = TRUE)
   check_constraints <- fcreate_check(id = id, Dict = Dict %>% dplyr::filter(.data$type == "Constraint"), name_check = "checkLI_", categoryOut = TRUE)
   check_constraints2 <- fcreate_check(id = id, Dict = Dict %>% dplyr::filter(.data$type == "Constraint"), name_check = "check2LI_", categoryOut = TRUE)
 
-
   shinyjs::useShinyjs()
 
-  tagList(
+  # tagList(
     shiny::sidebarLayout(
       shiny::sidebarPanel(
         width = 4,
@@ -28,8 +27,8 @@ mod_3compare_ui <- function(id) {
           shiny::h2("Input 1", style = "width: 100%; text-align:center; display: block"),
           shiny::h2("Input 2", style = "width: 100%; text-align:center; display: block"),
         ),
-        shiny::h2("1. Select Features and Targets"),
-        # shiny::actionButton(ns_comp("deselectVars"), "Reset All Features",
+        shiny::h2("1. Select Targets"),
+        # shiny::actionButton(ns("deselectVars"), "Reset All Features",
         #                     width = "100%", class = "btn btn-outline-primary",
         #                     style = "display: block; margin-left: auto; margin-right: auto; padding:4px; font-size:120%"
         # ),
@@ -40,24 +39,27 @@ mod_3compare_ui <- function(id) {
         #   purrr::pmap(Vars, fcustom_slider),
         shiny::h2("2. Select Rational Use"),
         shiny::splitLayout(
-          # This was needed to account for cost not expanding ins_compide splitlayout
-          # Thanks to https://stackoverflow.com/questions_comp/40077388/shiny-splitlayout-and-selectinput-issue
+          # This was needed to account for cost not expanding inside splitlayout
+          # Thanks to https://stackoverflow.com/questions/40077388/shiny-splitlayout-and-selectinput-issue
           tags$head(tags$style(HTML(".shiny-split-layout > div {overflow: visible;}"))),
           cellWidths = c("0%", "50%", "50%"), # note the 0% here at position zero...
           fcustom_cost(id, "costid1", Dict),
           fcustom_cost(id, "costid2", Dict),
         ),
+
+
         shinyjs::hidden(div(
-          id = ns_comp("switchClimSmart"),
+          id = ns("switchClimSmart"),
           shiny::h2("3. Climate-resilient"),
           shiny::p("Should the spatial plan be made climate-resilient?"),
           shiny::splitLayout(
-            shiny::checkboxInput(ns_comp("check1Climsmart"), "Make Climate-resilient", FALSE),
-            shiny::checkboxInput(ns_comp("check2Climsmart"), "Make Climate-resilient", FALSE)
+            fcustom_climate(id, "climateid1", Dict),
+            fcustom_climate(id, "climateid2", Dict),
           )
         )),
+
         shinyjs::hidden(div(
-          id = ns_comp("switchConstraints"),
+          id = ns("switchConstraints"),
           shiny::h2("3. Constraints"),
           shiny::splitLayout(
             fcustom_checkCategory(check_constraints, labelNum = 3),
@@ -70,7 +72,7 @@ mod_3compare_ui <- function(id) {
         shiny::br(), # Leave space for analysis button at bottom
         shiny::fixedPanel(
           style = "z-index:100", # To force the button above all plots.
-          shiny::actionButton(ns_comp("analyse"), "Run Analysis", shiny::icon("paper-plane"),
+          shiny::actionButton(ns("analyse"), "Run Analysis", shiny::icon("paper-plane"),
             width = "100%", class = "btn btn-primary",
             style = "display: block; float: left; padding:4px; font-size:150%;"
           ),
@@ -89,93 +91,93 @@ mod_3compare_ui <- function(id) {
         ),
         shinyjs::useShinyjs(),
         tabsetPanel(
-          id = ns_comp("tabs"), # type = "pills",
+          id = ns("tabs"), # type = "pills",
           tabPanel("Comparison",
             value = 1,
             shiny::fixedPanel(
               style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns_comp("dlPlot1"), "Download Plot",
+              shiny::downloadButton(ns("dlPlot1"), "Download Plot",
                 style = "float: right; padding:4px; font-size:120%"
               ),
               right = "1%", bottom = "1%", left = "34%"
             ),
-            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_comp")))),
-            shiny::textOutput(ns_comp("txt_comp")),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_comp"), height = "600px"))
+            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_comp")))),
+            shiny::textOutput(ns("txt_comp")),
+            shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_comp"), height = "600px"))
           ),
           tabPanel("Scenario",
             value = 2,
             shiny::fixedPanel(
               style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns_comp("dlPlot2"), "Download Plot",
+              shiny::downloadButton(ns("dlPlot2"), "Download Plot",
                 style = "float: right; padding:4px; font-size:120%"
               ),
               right = "1%", bottom = "1%", left = "34%"
             ),
             shiny::fluidRow(
-              shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_soln")))),
-              shiny::span(shiny::p(shiny::textOutput(ns_comp("txt_soln")))),
-              shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_soln"), height = "700px"))
+              shiny::span(shiny::h2(shiny::textOutput(ns("hdr_soln")))),
+              shiny::span(shiny::p(shiny::textOutput(ns("txt_soln")))),
+              shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_soln"), height = "700px"))
             ),
           ),
           tabPanel("Targets",
             value = 3,
             shiny::fixedPanel(
               style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns_comp("dlPlot3"), "Download Plot",
+              shiny::downloadButton(ns("dlPlot3"), "Download Plot",
                 style = "float: right; padding:4px; font-size:120%"
               ),
               right = "1%", bottom = "1%", left = "34%"
             ),
-            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_target")))),
+            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_target")))),
             shiny::br(),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_TargetPlot"), height = "1200px")),
+            shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_TargetPlot"), height = "1200px")),
           ),
           tabPanel("Cost",
             value = 4,
             shiny::fixedPanel(
               style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns_comp("dlPlot4"), "Download Plot",
+              shiny::downloadButton(ns("dlPlot4"), "Download Plot",
                 style = "float: right; padding:4px; font-size:120%"
               ),
               right = "1%", bottom = "1%", left = "34%"
             ),
-            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_cost")))),
-            shiny::span(shiny::p(shiny::textOutput(ns_comp("txt_cost")))),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_cost"), height = "700px")),
+            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_cost")))),
+            shiny::span(shiny::p(shiny::textOutput(ns("txt_cost")))),
+            shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_cost"), height = "700px")),
           ),
           tabPanel("Climate Resilience",
             value = 7,
             shiny::fixedPanel(
               style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns_comp("dlPlot7"), "Download Plot",
+              shiny::downloadButton(ns("dlPlot7"), "Download Plot",
                 style = "float: right; padding:4px; font-size:120%"
               ),
               right = "1%", bottom = "1%", left = "34%"
             ),
-            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_clim")))),
-            shiny::textOutput(ns_comp("txt_clim")),
-            shinycssloaders::withSpinner(shiny::plotOutput(ns_comp("gg_clim"), height = "600px"))
+            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_clim")))),
+            shiny::textOutput(ns("txt_clim")),
+            shinycssloaders::withSpinner(shiny::plotOutput(ns("gg_clim"), height = "600px"))
           ),
           tabPanel("Details",
             value = 8,
             shiny::fixedPanel(
               style = "z-index:100", # To force the button above all plots.=
-              shiny::downloadButton(ns_comp("dlPlot8"), "Download Table",
+              shiny::downloadButton(ns("dlPlot8"), "Download Table",
                 style = "float: right; padding:4px; font-size:120%"
               ),
               right = "1%", bottom = "1%", left = "34%"
             ),
-            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_DetsSummary")))),
+            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_DetsSummary")))),
             shiny::br(),
-            shiny::tableOutput(ns_comp("SummaryTable")),
-            shiny::span(shiny::h2(shiny::textOutput(ns_comp("hdr_DetsData")))),
-            shiny::tableOutput(ns_comp("DataTable")),
+            shiny::tableOutput(ns("SummaryTable")),
+            shiny::span(shiny::h2(shiny::textOutput(ns("hdr_DetsData")))),
+            shiny::tableOutput(ns("DataTable")),
           ),
         )
       )
     )
-  )
+  # ) # tagList
 }
 
 #' 3compare Server Functions
@@ -183,7 +185,7 @@ mod_3compare_ui <- function(id) {
 #' @noRd
 mod_3compare_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    ns_comp <- session$ns_comp
+    ns <- session$ns
 
     if (options$climate_change != 0) { # dont make observeEvent because it's a global variable
       shinyjs::show(id = "switchClimSmart")
@@ -220,12 +222,12 @@ mod_3compare_server <- function(id) {
 
     # Define Problems
     p1Data <- shiny::reactive({
-      p1 <- fdefine_problem(targetData1(), input, clim_input = input$check1Climsmart, compare_id = "1")
+      p1 <- fdefine_problem(targetData1(), input, clim_input = input$climateid1, compare_id = "1")
       return(p1)
     })
 
     p2Data <- shiny::reactive({
-      p2 <- fdefine_problem(targetData2(), input, clim_input = input$check2Climsmart, compare_id = "2")
+      p2 <- fdefine_problem(targetData2(), input, clim_input = input$climateid2, compare_id = "2")
       return(p2)
     })
 
@@ -397,17 +399,20 @@ mod_3compare_server <- function(id) {
       },
       {
         gg_Target1 <- shiny::reactive({
-          if (input$check1Climsmart == TRUE) {
+          if (input$climateid1 != "NA") {
             targets <- targetData1()
             targetPlotData <- spatialplanr::splnr_get_featureRep(
-              soln = selectedData1(), pDat = p1Data(),
-              climsmart = input$check1Climsmart, climsmartApproach = options$climate_change,
-              targetsDF = targets
+              soln = selectedData1(),
+              pDat = p1Data(),
+              climsmart = TRUE,
+              climsmartApproach = options$climate_change,
+              targets = targets
             )
           } else {
             targetPlotData <- spatialplanr::splnr_get_featureRep(
-              soln = selectedData1(), pDat = p1Data(),
-              climsmart = input$check1Climsmart
+              soln = selectedData1(),
+              pDat = p1Data(),
+              climsmart = FALSE
             )
           }
 
@@ -423,19 +428,20 @@ mod_3compare_server <- function(id) {
         }) %>% shiny::bindEvent(input$analyse)
 
         gg_Target2 <- shiny::reactive({
-          if (input$check2Climsmart == TRUE) {
+          if (input$climateid2 != "NA") {
             targets <- targetData2()
             targetPlotData <- spatialplanr::splnr_get_featureRep(
               soln = selectedData2(),
               pDat = p2Data(),
-              climsmart = input$check2Climsmart,
+              climsmart = TRUE,
               climsmartApproach = options$climate_change,
-              targetsDF = targets
+              targets = targets
             )
           } else {
             targetPlotData <- spatialplanr::splnr_get_featureRep(
-              soln = selectedData2(), pDat = p2Data(),
-              climsmart = input$check2Climsmart
+              soln = selectedData2(),
+              pDat = p2Data(),
+              climsmart = FALSE
             )
           }
 
@@ -463,7 +469,8 @@ mod_3compare_server <- function(id) {
 
         output$hdr_target <- shiny::renderText({
           "Targets"
-        })
+        }) %>%
+          shiny::bindEvent(input$analyse)
 
         output$txt_target <- shiny::renderText({
           "Given the scenario for the spatial planning problem formulated with
@@ -592,21 +599,21 @@ mod_3compare_server <- function(id) {
           shiny::bindEvent(input$analyse)
 
         output$gg_clim <- shiny::renderPlot({
-          if (input$check1Climsmart == TRUE | input$check2Climsmart == TRUE) { # could also only generate one plot when only one of them is climate smart. Or always generate these plots when climate smart option is wanted in general.
+          if (input$climateid1 != "NA" | input$climateid2 != "NA") { # could also only generate one plot when only one of them is climate smart. Or always generate these plots when climate smart option is wanted in general.
             ggr_clim()
           }
         }) %>%
           shiny::bindEvent(input$analyse)
 
         output$hdr_clim <- shiny::renderText({
-          if (input$check1Climsmart == TRUE | input$check2Climsmart == TRUE) {
+          if (input$climateid1 != "NA" | input$climateid2 != "NA") {
             paste("Climate Resilience")
           }
         }) %>%
           shiny::bindEvent(input$analyse)
 
         output$txt_clim <- shiny::renderText({
-          if (input$check1Climsmart == TRUE | input$check2Climsmart == TRUE) {
+          if (input$climateid1 != "NA" | input$climateid2 != "NA") {
             paste("Kernel density estimates for the climate-resilience metric. The metric comprises two components,
           both based on projected temperature in 2100 from a suite of Earth System Models under a high emission scenario:
           1. Exposure to climate change (amount of warming); 2. Climate velocity (the pace of isotherm movement).
@@ -634,36 +641,42 @@ mod_3compare_server <- function(id) {
       {
         # for saving data/ data next to plot
         DataTabler <- shiny::reactive({
-          if (input$check1Climsmart == TRUE) {
+          if (input$climateid1 != "NA") {
             targets <- targetData1()
 
             targetPlotData1 <- spatialplanr::splnr_get_featureRep(
-              soln = selectedData1(), pDat = p1Data(),
-              climsmart = input$check1Climsmart, climsmartApproach = options$climate_change,
-              targetsDF = targets
+              soln = selectedData1(),
+              pDat = p1Data(),
+              climsmart = TRUE,
+              climsmartApproach = options$climate_change,
+              targets = targets
             ) %>% # TODO Move this mutate to spatialplanr to account for zeros
               dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
           } else {
             targetPlotData1 <- spatialplanr::splnr_get_featureRep(
-              soln = selectedData1(), pDat = p1Data(),
-              climsmart = input$check1Climsmart
+              soln = selectedData1(),
+              pDat = p1Data(),
+              climsmart = FALSE
             ) %>%
               dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
           }
 
-          if (input$check2Climsmart == TRUE) {
+          if (input$climateid2 == TRUE) {
             targets <- targetData2()
 
             targetPlotData2 <- spatialplanr::splnr_get_featureRep(
-              soln = selectedData2(), pDat = p2Data(),
-              climsmart = input$check2Climsmart, climsmartApproach = options$climate_change,
-              targetsDF = targets
+              soln = selectedData2(),
+              pDat = p2Data(),
+              climsmart = TRUE,
+              climsmartApproach = options$climate_change,
+              targets = targets
             ) %>%
               dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
           } else {
             targetPlotData2 <- spatialplanr::splnr_get_featureRep(
-              soln = selectedData2(), pDat = p2Data(),
-              climsmart = input$check2Climsmart
+              soln = selectedData2(),
+              pDat = p2Data(),
+              climsmart = FALSE
             ) %>%
               dplyr::mutate(incidental = dplyr::if_else(.data$target == 0, TRUE, .data$incidental))
           }
@@ -722,7 +735,8 @@ mod_3compare_server <- function(id) {
         }) %>%
           shiny::bindEvent(input$analyse)
 
-        output$hdr_DetsData <- shiny::renderText("Feature Summary")
+        output$hdr_DetsData <- shiny::renderText("Feature Summary") %>%
+          shiny::bindEvent(input$analyse)
 
         # Create data tables for download
         ggr_DataPlot <- shiny::reactive({

@@ -6,7 +6,7 @@
 #'
 #' @noRd
 #'
-#' @importFrom shiny NS tagList
+#' @importFrom shiny NS
 mod_7credit_ui <- function(id) {
   ns <- NS(id)
   shiny::fluidPage(

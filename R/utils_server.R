@@ -4,7 +4,7 @@
 #'
 fget_category <- function(Dict) {
   category <- Dict %>%
-    dplyr::filter(!.data$type %in% c("Cost", "Justification")) %>%
+    dplyr::filter(!.data$type %in% c("Cost", "Justification", "Climate")) %>%
     dplyr::select("nameVariable", "category") %>%
     dplyr::rename(feature = .data$nameVariable)
   # TODO I want to remove this last command and have the app deal with `nanmeVariable`
@@ -21,8 +21,9 @@ fget_category <- function(Dict) {
 #' @noRd
 #'
 fget_targets <- function(input, name_check = "sli_") {
+
   ft <- Dict %>%
-    dplyr::filter(.data$type != "Constraint", .data$type != "Cost") %>%
+    dplyr::filter(.data$type != "Constraint", .data$type != "Cost", .data$type != "Climate") %>%
     dplyr::pull("nameVariable")
 
   targets <- ft %>%
@@ -43,7 +44,8 @@ fget_targets <- function(input, name_check = "sli_") {
 #'
 
 fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, compare_id = "") {
-  # TODO raw_sf is not passed into the function
+
+  # TODO raw_sf, climate_sf, options  is not passed into the function
 
   out_sf <- raw_sf %>%
     dplyr::select(
@@ -53,61 +55,82 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
     ) %>%
     sf::st_as_sf()
 
-  if (clim_input == FALSE) {
+  if (clim_input == "NA") {
     p_dat <- out_sf
-  } else if (clim_input == TRUE) {
-    featuresDF <- out_sf %>%
+  } else {
+    features <- out_sf %>%
       dplyr::select(
         .data$geometry,
         tidyselect::all_of(targets$feature)
-      ) %>%
-      dplyr::mutate(cellID = 1:nrow(.))
+      )
+
+    # TODO Rewrite this to allow other names of climate columns
+    # Rename column based on user selection
+
+    if (isTruthy(input$climateid)){
+      climate_sf <- raw_sf %>%
+        sf::st_as_sf() %>%
+        dplyr::select("metric" = input$climateid)
+    } else if (compare_id == "1" & input$climateid1 != "NA") {
+      climate_sf <- raw_sf %>%
+        sf::st_as_sf() %>%
+        dplyr::select("metric" = input$climateid1)
+    } else if (compare_id == "2" & input$climateid2 != "NA") {
+      climate_sf <- raw_sf %>%
+        sf::st_as_sf() %>%
+        dplyr::select("metric" = input$climateid2)
+    }
+
 
     if (options$climate_change == 1) { # CPA approach
 
       CS_Approach <- spatialplanr::splnr_climate_priorityAreaApproach(
-        featuresDF = featuresDF, percentile = options$percentile,
-        metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
+        features = features,
+        metric = climate_sf,
+        percentile = options$percentile,
+        targets = targets,
+        direction = options$direction,
+        refugiaTarget = options$refugiaTarget
       )
     } else if (options$climate_change == 2) { # feature approach
 
       CS_Approach <- spatialplanr::splnr_climate_featureApproach(
-        featuresDF = featuresDF, percentile = options$percentile,
-        metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
+        features = features,
+        metric = climate_sf,
+        percentile = options$percentile,
+        targets = targets,
+        direction = options$direction,
+        refugiaTarget = options$refugiaTarget
       )
     } else if (options$climate_change == 3) { # percentile approach
 
       CS_Approach <- spatialplanr::splnr_climate_percentileApproach(
-        featuresDF = featuresDF, percentile = options$percentile,
-        metricDF = climate_sf, targetsDF = targets, direction = options$direction
+        features = features,
+        metric = climate_sf,
+        percentile = options$percentile,
+        targets = targets,
+        direction = options$direction
       )
     }
 
     targets <- CS_Approach$Targets
 
+    # browser()
+
     p_dat <- CS_Approach$Features %>%
-      dplyr::left_join(
-        out_sf %>%
-          sf::st_drop_geometry() %>%
-          dplyr::mutate(cellID = 1:nrow(.)) %>%
-          dplyr::select(
-            "cellID",
-            tidyselect::starts_with("Cost_")
-          ),
-        by = "cellID"
-      ) %>%
-      dplyr::left_join(climate_sf %>%
-        sf::st_drop_geometry(), by = "cellID")
-  } else {
-    print("Something odd is going on here. Check climate-smart tick box.")
+      sf::st_join(out_sf %>% dplyr::select(tidyselect::starts_with("Cost_")),
+                  join = sf::st_equals) %>%
+      sf::st_join(climate_sf, join = sf::st_equals)
+    # } else {
+    # print("Something odd is going on here. Check climate-smart tick box.")
   }
 
   f_no <- fCheckFeatureNo(p_dat) # Check number of features
 
   if (f_no == 1) {
     shinyalert::shinyalert("Error", "No features have been selected. You can't run a spatial prioritization without any features.",
-      type = "error",
-      callbackR = shinyjs::runjs("window.scrollTo(0, 0)")
+                           type = "error",
+                           callbackR = shinyjs::runjs("window.scrollTo(0, 0)")
     )
 
     p_dat <- p_dat %>%
@@ -123,7 +146,7 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
     if (clim_input == TRUE) {
       usedFeatures <- p_dat %>%
         sf::st_drop_geometry() %>%
-        dplyr::select(-tidyselect::starts_with("Cost_"), -.data$cellID, -.data$metric) %>%
+        dplyr::select(-tidyselect::starts_with("Cost_"), -.data$metric) %>%
         names()
     } else {
       usedFeatures <- targets$feature
@@ -259,7 +282,7 @@ fDeselectVars <- function(session, input, output, id = 1) {
 #'
 fCheckFeatureNo <- function(dat) {
   f_no <- dat %>%
-    dplyr::select(-tidyselect::starts_with("Cost_"), -tidyselect::any_of(c("metric", "cellID"))) %>%
+    dplyr::select(-tidyselect::starts_with("Cost_"), -tidyselect::any_of("metric")) %>%
     ncol()
 
   return(f_no)
@@ -283,8 +306,8 @@ fDownloadPlotServer <- function(input, gg_id, gg_prefix, time_date, width = 19, 
     },
     content = function(file) {
       ggplot2::ggsave(file,
-        plot = gg_id,
-        device = "png", width = width, height = height, units = "in", dpi = 300
+                      plot = gg_id,
+                      device = "png", width = width, height = height, units = "in", dpi = 300
       )
       # When the downloadHandler function runs, increment rv$download_flag
       rv$download_flag <- rv$download_flag + 1
@@ -292,11 +315,11 @@ fDownloadPlotServer <- function(input, gg_id, gg_prefix, time_date, width = 19, 
       if (rv$download_flag > 0 & gg_prefix == "Solution") { # trigger event whenever the value of rv$download_flag changes
         # shinyjs::alert("File downloaded!")
         shinyalert::shinyalert("<h3><strong>Further Information!</strong></h3>", "<h4>Don't forget to also download the data table (Details Tab) to store information about the inputs you provided to this analysis.</h4>",
-          type = "info",
-          closeOnEsc = TRUE,
-          closeOnClickOutside = TRUE,
-          html = TRUE,
-          callbackR = shinyjs::runjs("window.scrollTo(0, 0)")
+                               type = "info",
+                               closeOnEsc = TRUE,
+                               closeOnClickOutside = TRUE,
+                               html = TRUE,
+                               callbackR = shinyjs::runjs("window.scrollTo(0, 0)")
         )
         shinyjs::runjs("window.scrollTo(0, 0)")
       }
