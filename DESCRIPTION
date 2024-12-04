@@ -1,6 +1,6 @@
 Package: shinyplanr
 Title: Spatial Planning in Shiny
-Version: 0.0.5
+Version: 0.1.0
 Authors@R: c(
     person(
       given = 'Jason D.', 
@@ -23,23 +23,20 @@ Imports:
     config (>= 0.3.1),
     dplyr,
     ggplot2, 
-    ggridges, 
     gridExtra,
     golem (>= 0.4.1),
     magrittr,
     patchwork,
     prioritizr,
     purrr,
-    RColorBrewer,
     rlang,
-    scales,
     sf,
     shiny (>= 1.7.4),
     shinyalert,
     shinycssloaders,
     shinydisconnect, 
     shinyjs, 
-    spatialplanr (>= 0.6.0),
+    spatialplanr (>= 0.6.8),
     stringr,
     tibble,
     tidyr, 
@@ -53,6 +50,6 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5)

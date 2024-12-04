@@ -1,12 +1,10 @@
-
 #' Return category df from Dict
 #'
 #' @noRd
 #'
-fget_category <- function(Dict){
-
+fget_category <- function(Dict) {
   category <- Dict %>%
-    dplyr::filter(!.data$type %in% c("Cost", "Justification")) %>%
+    dplyr::filter(!.data$type %in% c("Cost", "Justification", "Climate")) %>%
     dplyr::select("nameVariable", "category") %>%
     dplyr::rename(feature = .data$nameVariable)
   # TODO I want to remove this last command and have the app deal with `nanmeVariable`
@@ -22,11 +20,11 @@ fget_category <- function(Dict){
 #'
 #' @noRd
 #'
-fget_targets<- function(input, name_check = "sli_"){
+fget_targets <- function(input, name_check = "sli_") {
 
   ft <- Dict %>%
-    dplyr::filter(.data$type != "Constraint", .data$type != "Cost") %>%
-    dplyr::pull(.data$nameVariable)
+    dplyr::filter(.data$type != "Constraint", .data$type != "Cost", .data$type != "Climate") %>%
+    dplyr::pull("nameVariable")
 
   targets <- ft %>%
     purrr::map(\(x) rlang::eval_tidy(rlang::parse_expr(paste0("input$", paste0(name_check, x))))) %>%
@@ -45,9 +43,9 @@ fget_targets<- function(input, name_check = "sli_"){
 #' @noRd
 #'
 
-fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, compare_id = ""){
+fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FALSE, compare_id = "") {
 
-  # TODO raw_sf is not passed into the function
+  # TODO raw_sf, climate_sf, options  is not passed into the function
 
   out_sf <- raw_sf %>%
     dplyr::select(
@@ -57,53 +55,74 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
     ) %>%
     sf::st_as_sf()
 
-  if (clim_input == FALSE) {
+  if (clim_input == "NA") {
     p_dat <- out_sf
-  } else if (clim_input == TRUE) {
-    featuresDF <- out_sf %>%
+  } else {
+    features <- out_sf %>%
       dplyr::select(
         .data$geometry,
         tidyselect::all_of(targets$feature)
-      ) %>%
-      dplyr::mutate(cellID = 1:nrow(.))
+      )
+
+    # TODO Rewrite this to allow other names of climate columns
+    # Rename column based on user selection
+
+    if (isTruthy(input$climateid)){
+      climate_sf <- raw_sf %>%
+        sf::st_as_sf() %>%
+        dplyr::select("metric" = input$climateid)
+    } else if (compare_id == "1" & input$climateid1 != "NA") {
+      climate_sf <- raw_sf %>%
+        sf::st_as_sf() %>%
+        dplyr::select("metric" = input$climateid1)
+    } else if (compare_id == "2" & input$climateid2 != "NA") {
+      climate_sf <- raw_sf %>%
+        sf::st_as_sf() %>%
+        dplyr::select("metric" = input$climateid2)
+    }
+
 
     if (options$climate_change == 1) { # CPA approach
 
       CS_Approach <- spatialplanr::splnr_climate_priorityAreaApproach(
-        featuresDF = featuresDF, percentile = options$percentile,
-        metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
+        features = features,
+        metric = climate_sf,
+        percentile = options$percentile,
+        targets = targets,
+        direction = options$direction,
+        refugiaTarget = options$refugiaTarget
       )
     } else if (options$climate_change == 2) { # feature approach
 
       CS_Approach <- spatialplanr::splnr_climate_featureApproach(
-        featuresDF = featuresDF, percentile = options$percentile,
-        metricDF = climate_sf, targetsDF = targets, direction = options$direction, refugiaTarget = options$refugiaTarget
+        features = features,
+        metric = climate_sf,
+        percentile = options$percentile,
+        targets = targets,
+        direction = options$direction,
+        refugiaTarget = options$refugiaTarget
       )
     } else if (options$climate_change == 3) { # percentile approach
 
       CS_Approach <- spatialplanr::splnr_climate_percentileApproach(
-        featuresDF = featuresDF, percentile = options$percentile,
-        metricDF = climate_sf, targetsDF = targets, direction = options$direction
+        features = features,
+        metric = climate_sf,
+        percentile = options$percentile,
+        targets = targets,
+        direction = options$direction
       )
     }
 
     targets <- CS_Approach$Targets
 
+    # browser()
+
     p_dat <- CS_Approach$Features %>%
-      dplyr::left_join(
-        out_sf %>%
-          sf::st_drop_geometry() %>%
-          dplyr::mutate(cellID = 1:nrow(.)) %>%
-          dplyr::select(
-            "cellID",
-            tidyselect::starts_with("Cost_")
-          ),
-        by = "cellID"
-      ) %>%
-      dplyr::left_join(climate_sf %>%
-                         sf::st_drop_geometry(), by = "cellID")
-  } else {
-    print("Something odd is going on here. Check climate-smart tick box.")
+      sf::st_join(out_sf %>% dplyr::select(tidyselect::starts_with("Cost_")),
+                  join = sf::st_equals) %>%
+      sf::st_join(climate_sf, join = sf::st_equals)
+    # } else {
+    # print("Something odd is going on here. Check climate-smart tick box.")
   }
 
   f_no <- fCheckFeatureNo(p_dat) # Check number of features
@@ -122,21 +141,19 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
       prioritizr::add_relative_targets(0) %>%
       prioritizr::add_binary_decisions() %>%
       prioritizr::add_cbc_solver(verbose = TRUE)
-
   } else {
     ## Get names of the features
     if (clim_input == TRUE) {
       usedFeatures <- p_dat %>%
         sf::st_drop_geometry() %>%
-        dplyr::select(-tidyselect::starts_with("Cost_"), -.data$cellID, -.data$metric) %>%
+        dplyr::select(-tidyselect::starts_with("Cost_"), -.data$metric) %>%
         names()
     } else {
       usedFeatures <- targets$feature
     }
 
     if (options$obj_func == "min_set") {
-
-      p1 <- prioritizr::problem(p_dat, usedFeatures, eval(parse(text=paste0("input$costid",compare_id)))) %>%
+      p1 <- prioritizr::problem(p_dat, usedFeatures, eval(parse(text = paste0("input$costid", compare_id)))) %>%
         prioritizr::add_min_set_objective() %>%
         prioritizr::add_relative_targets(targets$target) %>%
         prioritizr::add_binary_decisions() %>%
@@ -145,12 +162,11 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
       # Do Locked In Regions ----------------------------------------------------
 
       if (options$lockedInArea != 0) {
-
         LI <- Dict %>%
           dplyr::filter(.data$categoryID == "LockedInArea") %>%
-          dplyr::pull(.data$nameVariable)
+          dplyr::pull("nameVariable")
 
-        LI_check <- paste0("input$check",compare_id, "LI_", LI)
+        LI_check <- paste0("input$check", compare_id, "LI_", LI)
         LI_sf <- paste0("raw_sf$", LI)
 
         for (area in 1:length(LI)) { # TODO Why is area here? It is not used anywhere.... Is a placeholder needed?
@@ -174,59 +190,61 @@ fdefine_problem <- function(targets, input, name_check = "sli_", clim_input = FA
 #'
 #' @noRd
 #'
-fupdate_checkbox <- function(session, id_in, Dict, selected = NA){ #works unless everything is not selected
+fupdate_checkbox <- function(session, id_in, Dict, selected = NA) { # works unless everything is not selected
 
-  if (stringr::str_detect(id_in, "check2") == TRUE){
+  if (stringr::str_detect(id_in, "check2") == TRUE) {
     choice <- Dict %>%
-      dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check2")) #%>%
-  } else if (stringr::str_detect(id_in, "check") == TRUE){
+      dplyr::filter(.data$Category == stringr::str_remove(id_in, "check2")) # %>%
+  } else if (stringr::str_detect(id_in, "check") == TRUE) {
     choice <- Dict %>%
-      dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check")) #%>%
+      dplyr::filter(.data$Category == stringr::str_remove(id_in, "check")) # %>%
   }
   choice <- choice %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+    dplyr::select("NameCommon", "NameVariable") %>%
     tibble::deframe()
 
-  shiny::updateCheckboxGroupInput(session = session,
-                                  inputId = id_in,
-                                  choices = choice,
-                                  selected = selected)
+  shiny::updateCheckboxGroupInput(
+    session = session,
+    inputId = id_in,
+    choices = choice,
+    selected = selected
+  )
 }
 
 #' Title
 #'
 #' @noRd
 #'
-fupdate_checkboxReset <- function(session, id_in, Dict, selected = NA){ #works unless everything is not selected
+fupdate_checkboxReset <- function(session, id_in, Dict, selected = NA) { # works unless everything is not selected
 
-  if (stringr::str_detect(id_in, "check2") == TRUE){
+  if (stringr::str_detect(id_in, "check2") == TRUE) {
     choice <- Dict %>%
-      dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check2")) #%>%
-  } else if (stringr::str_detect(id_in, "check") == TRUE){
+      dplyr::filter(.data$Category == stringr::str_remove(id_in, "check2")) # %>%
+  } else if (stringr::str_detect(id_in, "check") == TRUE) {
     choice <- Dict %>%
-      dplyr::filter(.data$Category  == stringr::str_remove(id_in, "check")) #%>%
+      dplyr::filter(.data$Category == stringr::str_remove(id_in, "check")) # %>%
   }
   choice <- choice %>%
-    dplyr::select(.data$NameCommon, .data$NameVariable) %>%
+    dplyr::select("NameCommon", "NameVariable") %>%
     tibble::deframe()
 
   # selected <- ifelse(selected == NA, unlist(choice), selected)
-  if (is.na(selected)){
-    shiny::updateCheckboxGroupInput(session = session, inputId = id_in,
-                                    choices = choice,
-                                    selected = unlist(choice))
+  if (is.na(selected)) {
+    shiny::updateCheckboxGroupInput(
+      session = session, inputId = id_in,
+      choices = choice,
+      selected = unlist(choice)
+    )
   }
-
 }
 
 #' Reset all inputs to default
 #'
 #' @noRd
 #'
-fDeselectVars <- function(session, input, output, id = 1){
-
+fDeselectVars <- function(session, input, output, id = 1) {
   # Add 2 to check ID if using Input2 in the Compare module
-  if (id == 2){
+  if (id == 2) {
     lng <- length(c(input$check2TopPred, input$check2Krill, input$check2Fish, input$check2impBenthic, input$check2Drifter))
     chk <- "2"
   } else {
@@ -234,20 +252,20 @@ fDeselectVars <- function(session, input, output, id = 1){
     chk <- ""
   }
 
-  if (lng < 14){ # More deselected than not
-    fupdate_checkboxReset(session, paste0("check",chk,"TopPred"), Dict, selected = NA)
-    fupdate_checkboxReset(session, paste0("check",chk,"Krill"), Dict, selected = NA)
-    fupdate_checkboxReset(session, paste0("check",chk,"Fish"), Dict, selected = NA)
-    fupdate_checkboxReset(session, paste0("check",chk,"impBenthic"), Dict, selected = NA)
-    fupdate_checkboxReset(session, paste0("check",chk,"Ice"), Dict, selected = NA)
-    fupdate_checkboxReset(session, paste0("check",chk,"Drifter"), Dict, selected = NA)
+  if (lng < 14) { # More deselected than not
+    fupdate_checkboxReset(session, paste0("check", chk, "TopPred"), Dict, selected = NA)
+    fupdate_checkboxReset(session, paste0("check", chk, "Krill"), Dict, selected = NA)
+    fupdate_checkboxReset(session, paste0("check", chk, "Fish"), Dict, selected = NA)
+    fupdate_checkboxReset(session, paste0("check", chk, "impBenthic"), Dict, selected = NA)
+    fupdate_checkboxReset(session, paste0("check", chk, "Ice"), Dict, selected = NA)
+    fupdate_checkboxReset(session, paste0("check", chk, "Drifter"), Dict, selected = NA)
   } else {
-    fupdate_checkbox(session, paste0("check",chk,"TopPred"), Dict, selected = character(0))
-    fupdate_checkbox(session, paste0("check",chk,"Krill"), Dict, selected = character(0))
-    fupdate_checkbox(session, paste0("check",chk,"Fish"), Dict, selected = character(0))
-    fupdate_checkbox(session, paste0("check",chk,"impBenthic"), Dict, selected = character(0))
-    fupdate_checkbox(session, paste0("check",chk,"Ice"), Dict, selected = character(0))
-    fupdate_checkbox(session, paste0("check",chk,"Drifter"), Dict, selected = character(0))
+    fupdate_checkbox(session, paste0("check", chk, "TopPred"), Dict, selected = character(0))
+    fupdate_checkbox(session, paste0("check", chk, "Krill"), Dict, selected = character(0))
+    fupdate_checkbox(session, paste0("check", chk, "Fish"), Dict, selected = character(0))
+    fupdate_checkbox(session, paste0("check", chk, "impBenthic"), Dict, selected = character(0))
+    fupdate_checkbox(session, paste0("check", chk, "Ice"), Dict, selected = character(0))
+    fupdate_checkbox(session, paste0("check", chk, "Drifter"), Dict, selected = character(0))
   }
   rm(lng, chk)
 }
@@ -262,10 +280,9 @@ fDeselectVars <- function(session, input, output, id = 1){
 #'
 #' @noRd
 #'
-fCheckFeatureNo <- function(dat){
-
+fCheckFeatureNo <- function(dat) {
   f_no <- dat %>%
-    dplyr::select(-tidyselect::starts_with("Cost_"), -tidyselect::any_of(c("metric", "cellID"))) %>%
+    dplyr::select(-tidyselect::starts_with("Cost_"), -tidyselect::any_of("metric")) %>%
     ncol()
 
   return(f_no)
@@ -284,31 +301,34 @@ fDownloadPlotServer <- function(input, gg_id, gg_prefix, time_date, width = 19, 
   rv <- reactiveValues(download_flag = 0)
 
   dlPlot <- shiny::downloadHandler(
-
     filename = function() {
-      paste("WSMPA2_",gg_prefix,"_", time_date, ".png", sep="")
+      paste("WSMPA2_", gg_prefix, "_", time_date, ".png", sep = "")
     },
-    content = function(file){
-      ggplot2::ggsave(file, plot = gg_id,
-                      device = "png", width = width, height = height, units = "in", dpi = 300)
+    content = function(file) {
+      ggplot2::ggsave(file,
+                      plot = gg_id,
+                      device = "png", width = width, height = height, units = "in", dpi = 300
+      )
       # When the downloadHandler function runs, increment rv$download_flag
       rv$download_flag <- rv$download_flag + 1
 
-      if(rv$download_flag > 0 & gg_prefix == "Solution"){  # trigger event whenever the value of rv$download_flag changes
+      if (rv$download_flag > 0 & gg_prefix == "Solution") { # trigger event whenever the value of rv$download_flag changes
         # shinyjs::alert("File downloaded!")
         shinyalert::shinyalert("<h3><strong>Further Information!</strong></h3>", "<h4>Don't forget to also download the data table (Details Tab) to store information about the inputs you provided to this analysis.</h4>",
                                type = "info",
                                closeOnEsc = TRUE,
                                closeOnClickOutside = TRUE,
                                html = TRUE,
-                               callbackR = shinyjs::runjs("window.scrollTo(0, 0)"))
+                               callbackR = shinyjs::runjs("window.scrollTo(0, 0)")
+        )
         shinyjs::runjs("window.scrollTo(0, 0)")
       }
-    })
+    }
+  )
   # }
 
   # JDE - Code ready to start puting csv export if needed.
-  #else {
+  # else {
   #   dlPlot <- shiny::downloadHandler(
   #     filename = function() {
   #       paste("WSMPA2_",gg_prefix,"_", format(Sys.time(), "%Y%m%d%H%M%S"), ".csv", sep="")
@@ -320,6 +340,3 @@ fDownloadPlotServer <- function(input, gg_id, gg_prefix, time_date, width = 19, 
   #     })
   # }
 }
-
-
-

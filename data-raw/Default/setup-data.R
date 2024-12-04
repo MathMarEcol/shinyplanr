@@ -1,5 +1,6 @@
 library(tidyverse)
 library(spatialplanr)
+library(spatialgridr)
 library(oceandatr)
 
 country <- ""
@@ -22,10 +23,9 @@ bndry <- eez %>%
 coast <- rnaturalearth::ne_countries(country = country, scale = "medium", returnclass = "sf")
 
 PUs <- spatialgridr::get_grid(area_polygon = eez,
-                                    projection_crs = proj,
-                                    option = "sf_hex",
-                                    resolution = res) %>%
-  dplyr::rename(geometry = x) # Temp fix while oceandatr return x
+                              projection_crs = proj,
+                              option = "sf_hex",
+                              resolution = res)
 
 
 # Check data
@@ -42,18 +42,16 @@ dat_sf <- bind_cols(
   oceandatr::get_geomorphology(spatial_grid = PUs) %>% sf::st_drop_geometry(),
   oceandatr::get_knolls(spatial_grid = PUs) %>% sf::st_drop_geometry(),
   oceandatr::get_seamounts_buffered(spatial_grid = PUs, buffer = 30000) %>% sf::st_drop_geometry(),
-  oceandatr::get_coral_habitat(spatial_grid = PUs) %>% sf::st_drop_geometry(),
-  oceandatr::get_enviro_regions(spatial_grid = PUs, max_num_clusters = 5)
+  oceandatr::get_enviro_regions(spatial_grid = PUs, max_num_clusters = 5, show_plots = FALSE) %>% sf::st_drop_geometry(),
+  oceandatr::get_coral_habitat(spatial_grid = PUs)
 ) %>%
-  dplyr::mutate(across(everything(), ~replace_na(.x, 0))) %>%  # Replace NA/NaN with 0
-  dplyr::rename(geometry = x) # Temp fix while oceandatr return x
-
+  dplyr::mutate(across(everything(), ~replace_na(.x, 0))) # Replace NA/NaN with 0
 
 
 # Add cost data -----------------------------------------------------------
 
 source("data-raw/get_gfwData.R")
-gfw_cost <- get_gfwData(region = country, "2014-01-01", "2023-12-31", "yearly", "low", compress = TRUE) %>%
+gfw_cost <- get_gfwData(region = country, "2014-01-01", "2023-12-31", "yearly", spat_res = "low", compress = TRUE) %>%
   dplyr::mutate(`Apparent Fishing Hours` = if_else(`Apparent Fishing Hours` > 1000, NA, `Apparent Fishing Hours`)) %>%
   sf::st_transform(sf::st_crs(PUs)) %>%
   sf::st_interpolate_aw(., PUs, extensive = TRUE, keep_NA = TRUE)
@@ -64,6 +62,7 @@ cost <- PUs %>%
   dplyr::rename(Cost_Distance = coastDistance_km) %>%
   dplyr::mutate(Cost_None = 0.1,
                 Cost_Random = runif(dim(.)[1]),
+                Cost_Distance = 1/Cost_Distance,
                 Cost_FishingHrs = tidyr::replace_na(gfw_cost$Apparent.Fishing.Hours, 0.00001)) %>%
   dplyr::relocate(geometry, .after = tidyselect::last_col())
 
@@ -75,15 +74,14 @@ cost <- PUs %>%
 lock_in <- country %>%
   lapply(wdpar::wdpa_fetch,
          wait = TRUE,
+         # force = TRUE,
          download_dir = rappdirs::user_data_dir("wdpar")
   ) %>%
   dplyr::bind_rows() %>%
   dplyr::filter(.data$MARINE > 0) %>%
   sf::st_transform(crs = proj) %>%
   dplyr::select(geometry) %>%
-  spatialgridr::get_data_in_grid(spatial_grid = PUs, dat = ., name = "MPAs")
-
-ggplot(lock_in, aes(fill = MPAs)) + geom_sf()
+  spatialgridr::get_data_in_grid(spatial_grid = PUs, dat = ., name = "MPAs", apply_cutoff = FALSE)
 
 
 # Save raw data -----------------------------------------------------------

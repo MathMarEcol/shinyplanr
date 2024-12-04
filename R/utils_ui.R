@@ -3,7 +3,6 @@
 #' @noRd
 #'
 fcreate_vars <- function(id, Dict = Dict, name_check = "check", categoryOut = FALSE) {
-
   vars <- Dict %>%
     dplyr::filter(.data$type == "Feature") %>%
     dplyr::select(-c("justification", "wsClass", "includeApp", "includeJust", "type")) %>%
@@ -29,7 +28,6 @@ fcreate_vars <- function(id, Dict = Dict, name_check = "check", categoryOut = FA
 #' @noRd
 #'
 fcreate_check <- function(id, Dict = Dict, idCategory = "LockedInArea", name_check = "check", categoryOut = FALSE) {
-
   vars <- Dict %>%
     dplyr::filter(.data$categoryID == idCategory) %>%
     dplyr::select(-c("justification", "wsClass", "includeApp", "includeJust", "type", "targetMin", "targetMax", "targetInitial")) %>%
@@ -56,13 +54,13 @@ fcreate_check <- function(id, Dict = Dict, idCategory = "LockedInArea", name_che
 #'
 fcustom_checkboxGroup <- function(id, id_in, Dict, titl) {
   Dict <- Dict %>%
-    dplyr::select(.data$nameCommon, .data$nameVariable) %>%
+    dplyr::select("nameCommon", "nameVariable") %>%
     tibble::deframe()
 
   shiny::checkboxGroupInput(shiny::NS(namespace = id, id = id_in),
-                            shiny::h5(titl),
-                            choices = Dict,
-                            selected = unlist(Dict)
+    shiny::h5(titl),
+    choices = Dict,
+    selected = unlist(Dict)
   )
 }
 
@@ -72,8 +70,8 @@ fcustom_checkboxGroup <- function(id, id_in, Dict, titl) {
 #'
 fcustom_checkbox <- function(id, id_in, nameCommon) {
   shiny::checkboxInput(shiny::NS(namespace = id, id = id_in),
-                       label = nameCommon,
-                            FALSE
+    label = nameCommon,
+    FALSE
   )
 }
 
@@ -143,7 +141,27 @@ fcustom_checkCategory <- function(varsIn, labelNum) {
 fcustom_cost <- function(id, id_in, Dict) {
   choice <- Dict %>%
     dplyr::filter(.data$categoryID == "Cost") %>%
-    dplyr::select(.data$nameCommon, .data$nameVariable) %>%
+    dplyr::select("nameCommon", "nameVariable") %>%
+    tibble::deframe()
+
+  shiny::selectInput(shiny::NS(namespace = id, id = id_in),
+    label = shiny::h3(" "),
+    choices = choice,
+    multiple = FALSE
+  )
+}
+
+
+
+#' Custom Drop Down for Cost (Rational Use)
+#'
+#' @noRd
+#'
+fcustom_climate <- function(id, id_in, Dict) {
+  choice <- Dict %>%
+    dplyr::filter(.data$categoryID == "Climate") %>%
+    dplyr::select("nameCommon", "nameVariable") %>%
+    dplyr::add_row(nameCommon = "Don't consider", .before = 1) %>%
     tibble::deframe()
 
   shiny::selectInput(shiny::NS(namespace = id, id = id_in),
@@ -155,24 +173,24 @@ fcustom_cost <- function(id, id_in, Dict) {
 
 
 
-
 #' Fancy dropdown menu with categories
 #'
 #' @noRd
 #'
 create_fancy_dropdown <- function(id, Dict, id_in) {
+  . <- NULL
   featureList <- Dict %>%
     dplyr::group_by(.data$category) %>%
-    dplyr::select(.data$nameCommon, .data$nameVariable, .data$category) %>%
+    dplyr::select("nameCommon", "nameVariable", "category") %>%
     dplyr::group_split() %>%
     purrr::set_names(purrr::map_chr(., ~ .x$category[1])) %>%
-    purrr::map(~ (.x %>% dplyr::select(.data$nameCommon, .data$nameVariable))) %>%
+    purrr::map(~ (.x %>% dplyr::select("nameCommon", "nameVariable"))) %>%
     purrr::map(tibble::deframe)
 
   shiny::selectInput(shiny::NS(namespace = id, id = id_in),
-                     shiny::h4(" "),
-                     choices = featureList,
-                     # selected = "ANFS_breeding",
-                     multiple = FALSE
+    shiny::h4(" "),
+    choices = featureList,
+    # selected = "ANFS_breeding",
+    multiple = FALSE
   )
 }

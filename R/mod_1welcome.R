@@ -7,20 +7,19 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_1welcome_ui <- function(id){
+mod_1welcome_ui <- function(id) {
   ns <- NS(id)
-  tagList(
-    shiny::div(shiny::HTML(tx_1welcome)),
-  )
+  # tagList(
+    shiny::div(shiny::HTML(tx_1welcome))
+  # ) # tagList
 }
 
 #' 1welcome Server Functions
 #'
 #' @noRd
-mod_1welcome_server <- function(id){
-  moduleServer( id, function(input, output, session){
+mod_1welcome_server <- function(id) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
   })
 }
 

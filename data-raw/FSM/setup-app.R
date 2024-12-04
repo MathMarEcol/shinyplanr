@@ -1,6 +1,8 @@
 ## code to prepare the app goes here
 
 library(tidyverse)
+library(sf)
+library(terra)
 
 data_dir <- file.path("data-raw", "FSM")
 
@@ -18,7 +20,7 @@ options <- list(
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
   file_data = file.path(data_dir, "FSM_TestData.rda"),
-  # file_climate = file.path(data_dir, "Ensemble-ssp585-combined.rds"),
+  file_climate = file.path(data_dir, "climate_data", "tos_ensemble_ssp245.rds"),
 
   ## App Setup Options
   mod_1welcome = TRUE, #switch modules on/off
@@ -28,10 +30,15 @@ options <- list(
   mod_6help = TRUE, #switch modules on/off
   mod_7credit = TRUE, #switch modules on/off
 
-  # TODO Get this working - get conditional panels working for global variables
-  climate_change = FALSE, #switch climate change on/off
+  climate_change = 1, #switch climate change on/off; 0 = not clim-smart; 1 = CPA; 2 = Feature; 3 = Percentile
+  # Warning: still requires some changes in the app: direction, percentile etc. should this be in here? those are input options to the functions
 
-  lockedInArea = 1, #Includes locked in areas
+  percentile = 5,
+  direction = 1,
+  refugiaTarget = 1,
+
+
+  lockedInArea = 1, # Includes locked in areas
 
   ## Which objective function module are we using
   obj_func = "min_set", # Minimum set objective
@@ -79,10 +86,11 @@ if (length(vars) != dim(raw_sf)[2]-1){
 
 
 # # Include the climate data if needed.
-# climate_sf <- readRDS(options$file_climate) %>%
-#   dplyr::select(-velocityRescaled, -exposureRescaled) %>%
-#   dplyr::rename(metric = gMean)
-climate_sf <- NULL
+climate_sf <- readRDS(options$file_climate) %>%
+  dplyr::select(slpTrends) %>%
+  dplyr::rename(metric = slpTrends) %>%
+  sf::st_transform(options$cCRS) %>%
+  sf::st_interpolate_aw(dat_sf %>% sf::st_as_sf(), extensive = FALSE, na.rm = TRUE, keep_NA = TRUE)
 
 # Plotting Overlays -------------------------------------------------------
 

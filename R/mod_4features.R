@@ -8,117 +8,108 @@
 #'
 #' @importFrom shiny NS tagList
 
-mod_4features_ui <- function(id){
+mod_4features_ui <- function(id) {
   ns <- shiny::NS(id)
-  shiny::tagList(
-    tabsetPanel(id = "tabs4",# type = "pills",
-                tabPanel("Layer Maps", value = 1,
-                         shiny::sidebarLayout(
-                           shiny::sidebarPanel(
-                             shiny::p("Choose a feature and click 'Show Layer'."),
-                             shiny::h2("1. Select Layer"),
-                             create_fancy_dropdown(id, Dict, "checkFeat")),
+  # shiny::tagList(
+    tabsetPanel(
+      id = "tabs4", # type = "pills",
+      tabPanel("Layer Maps",
+        value = 1,
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            shiny::p("Choose a feature and click 'Show Layer'."),
+            shiny::h2("1. Select Layer"),
+            create_fancy_dropdown(id, Dict, "checkFeat")
+          ),
 
-                           # Show a plot of the generated distribution
-                           shiny::mainPanel(
-                             shiny::p(""), # Add space
-                             shiny::htmlOutput(ns("txt_just")),
-                             shiny::p(""), # Add space
-                             shiny::plotOutput(ns("gg_feat"), height = "700px") %>%
-                               shinycssloaders::withSpinner(), #%>%
-                             shiny::uiOutput(ns("web_link"))
-                           )
-                         )
-                ),
-                tabPanel("Layer Justification", value = 2,
-                         shiny::fluidPage(
-                           shiny::tableOutput(ns("LayerTable")),
-                         )),
-
+          # Show a plot of the generated distribution
+          shiny::mainPanel(
+            shiny::p(""), # Add space
+            shiny::htmlOutput(ns("txt_just")),
+            shiny::p(""), # Add space
+            shiny::plotOutput(ns("gg_feat"), height = "700px") %>%
+              shinycssloaders::withSpinner(), # %>%
+            shiny::uiOutput(ns("web_link"))
+          )
+        )
+      ),
+      tabPanel("Layer Justification",
+        value = 2,
+        shiny::fluidPage(
+          shiny::tableOutput(ns("LayerTable")),
+        )
+      ),
     )
-  )
+  # ) # tagList
 }
 
 #' 4features Server Functions
 #'
 #' @noRd
-mod_4features_server <- function(id){
-  shiny::moduleServer( id, function(input, output, session){
+mod_4features_server <- function(id) {
+  shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    #TODO region_names is not passes in as an argument
+  # TODO Extract the chosen name from the Dict file and get the category. Otherwise
+  # there will be a problem if, for example, cost doesn't start with Cost_ etc
 
-    #TODO Get features plotting regardless of name. One way could be to
-    # test the category (or similar) in the Dict. Otherwise I could test
-    # the data type in the _sf file
+
+    if (input$checkFeat == "Cost_None") { # to avoid No Cost Cost
+      pl_title <- " "
+    } else {
+      pl_title <- Dict %>%
+        dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
+        dplyr::pull("nameCommon")
+    }
 
     plotFeature <- shiny::reactive({
 
-      # Get the names of the categories in regionalisations
-      if (stringr::str_detect(input$checkFeat, "region_"))  {
+      if (input$checkFeat == "climdat") {
+        gg <- create_climDataPlot(climate_sf) +
+          spatialplanr::splnr_gg_add(
+            Bndry = bndry,
+            overlay = overlay,
+            cropOverlay = df,
+            ggtheme = map_theme
+          )
 
-        common <- Dict %>%
-          dplyr::filter(.data$nameVariable %in% region_names) %>%
-          dplyr::select(.data$nameCommon, .data$nameVariable) %>%
-          tibble::deframe()
+        return(gg)
 
-        # Get the columns for regionalisation and pivot longer
-        df <- raw_sf %>%
-          dplyr::select(tidyselect::all_of(region_names), .data$geometry) %>%
-          dplyr::rename(common) %>%
-          tidyr::pivot_longer(cols = -.data$geometry, names_to = "region", values_to = "values") %>%
-          dplyr::filter(.data$values == 1) %>%
-          dplyr::select(-.data$values) %>%
-          dplyr::mutate(region = as.factor(.data$region)) %>%
-          sf::st_as_sf()
-
-        RegionPlot <- create_regionPlot(df)
-        return(RegionPlot)
-      } else if (input$checkFeat == "climdat") {
-        Bin_plot <- create_climDataPlot(climate_sf)
-        return(Bin_plot)
       } else if (startsWith(input$checkFeat, "Cost_")) {
-
         df <- raw_sf %>%
           sf::st_as_sf() %>%
-          dplyr::select(.data$geometry,
-                        input$checkFeat) %>%
-          dplyr::rename(Cost = input$checkFeat)
+          dplyr::select(
+            "geometry",
+            input$checkFeat
+          )
 
-        if (input$checkFeat  == "Cost_None"){ #to avoid No Cost Cost
-          titleCost <- " "
-        } else {
-          titleCost <- Dict %>%
-            dplyr::filter(.data$nameVariable %in% input$checkFeat) %>%
-            dplyr::select(.data$nameVariable, .data$nameCommon) %>%
-            tibble::deframe()
-          titleCost <- paste0("Cost Layer: ",titleCost)
-        }
+        gg <- spatialplanr::splnr_plot(
+          df = df, col_names = input$checkFeat,
+          paletteName = "YlGnBu",
+          legend_title = paste0("Cost Layer: ", pl_title)
+        ) +
+          spatialplanr::splnr_gg_add(
+            Bndry = bndry,
+            overlay = overlay,
+            cropOverlay = df,
+            ggtheme = map_theme
+          )
 
-        gg_cost <- spatialplanr::splnr_plot_cost(df)
-
-          return(gg_cost)
-
+        return(gg)
       } else {
-        df <- raw_sf %>%
-          sf::st_as_sf() %>%
-          dplyr::select(.data$geometry,
-                        input$checkFeat) %>%
-          dplyr::rename(pred_bin = input$checkFeat)
 
+        gg <- spatialplanr::splnr_plot(raw_sf %>% sf::st_as_sf(),
+          col_names = input$checkFeat,
+          legend_title = pl_title
+        ) +
+          spatialplanr::splnr_gg_add(
+            Bndry = bndry,
+            overlay = overlay,
+            cropOverlay = df,
+            ggtheme = map_theme
+          )
 
-        ## TODO Decide how to plot based on the data type - Featurres, Bioregional,
-        # Maybe Dictionary column called "Binary, Continuous"?
-        # Then also by feature or cost or climate.....
-
-        df <-  df %>%
-          dplyr::mutate(pred_bin = dplyr::if_else(.data$pred_bin == 1, "Suitable", "Not Suitable"),
-                        pred_bin = factor(.data$pred_bin, levels = c("Suitable", "Not Suitable")))
-
-        Bin_plot <- create_binPlot(df, df$pred_bin, title = "Planning Units",
-                                   values = c("Suitable" = "#3182bd", "Not Suitable" = "#c6dbef"))
-
-        return(Bin_plot)
+        return(gg)
       }
     }) %>% shiny::bindCache(input$checkFeat)
 
@@ -129,12 +120,14 @@ mod_4features_server <- function(id){
 
 
     # Feature justification table
-    output$LayerTable <- shiny::renderTable(
+    output$LayerTable <- shiny::renderTable({
+
       Dict %>%
         dplyr::filter(.data$includeJust == TRUE) %>%
-        dplyr::select(.data$category, .data$nameCommon, .data$justification) %>%
-        dplyr::arrange(.data$category, .data$nameCommon)
-    )
+        dplyr::select("category", "nameCommon", "justification") %>%
+        dplyr::rename(Category = "category", Name = "nameCommon", Justification = "justification") %>%
+        dplyr::arrange(.data$Category, .data$Name)
+    })
 
     # Text justification for the spatial plot
     output$txt_just <- shiny::renderText(
@@ -142,7 +135,6 @@ mod_4features_server <- function(id){
         dplyr::filter(.data$nameVariable == input$checkFeat) %>%
         dplyr::pull(.data$justification)
     )
-
   })
 }
 

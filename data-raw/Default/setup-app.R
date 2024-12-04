@@ -1,4 +1,4 @@
-## code to prepare the app goes here
+## Code to prepare the app goes here
 
 library(tidyverse)
 
@@ -7,7 +7,6 @@ data_dir <- file.path("data-raw", country)
 
 # TODO Write function to load default options
 # Especially different colours for the plotting etc
-
 
 # APP PARAMETERS --------------------------------------------------
 options <- list(
@@ -25,7 +24,7 @@ options <- list(
   ## File locations
   file_logo = file.path(data_dir, "logos", "WaittSquareLogo_invert.png"),
   file_data = file.path(data_dir, paste0(country, "_RawData.rda")),
-  # file_climate = file.path(data_dir, "Ensemble-ssp585-combined.rds"),
+  file_climate = file.path(data_dir, "climate_data", "tos_ensemble_ssp245.rds"),
 
   ## App Setup Options
   mod_1welcome = TRUE, #switch modules on/off
@@ -36,6 +35,7 @@ options <- list(
   mod_7credit = TRUE, #switch modules on/off
 
   # TODO Get this working - get conditional panels working for global variables
+
   climate_change = 1, #switch climate change on/off; 0 = not clim-smart; 1 = CPA; 2 = Feature; 3 = Percentile
   # Warning: still requires some changes in the app: direction, percentile etc. should this be in here? those are input options to the functions
 
@@ -52,23 +52,23 @@ options <- list(
 
 
 #append list with climate-smart values
-if ( options$climate_change == 1) {
+if (options$climate_change == 1) {
 
-  options$refugiaTarget = 1 #default: 1
-  options$percentile = 5 #default: 5
-  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+  options$refugiaTarget = 1 # default: 1
+  options$percentile = 5 # default: 5
+  options$direction = 1 # depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
 
 } else if (options$climate_change == 2) {
 
-  options$refugiaTarget = 0.3 #default: 0.3
-  options$percentile = 35 #default: 35
-  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+  options$refugiaTarget = 0.3 # default: 0.3
+  options$percentile = 35 # default: 35
+  options$direction = 1 # depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
 
 } else if (options$climate_change == 3) {
 
-  options$refugiaTarget = NA #not needed for percentile
-  options$percentile = 35 #default: 35
-  options$direction = 1 #depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
+  options$refugiaTarget = NA # not needed for percentile
+  options$percentile = 35 # default: 35
+  options$direction = 1 # depend on where more climate-smart areas are. 1: clim-smart at high numbers; -1: clim-smart in lower values
 
 }
 
@@ -107,9 +107,9 @@ if (length(vars) != dim(raw_sf)[2]-1){
 
 
 # # Include the climate data if needed.
-# climate_sf <- readRDS(options$file_climate) %>%
-#   dplyr::select(-velocityRescaled, -exposureRescaled) %>%
-#   dplyr::rename(metric = gMean)
+climate_sf <- readRDS(options$file_climate) %>%
+  dplyr::select(-velocityRescaled, -exposureRescaled) %>%
+  dplyr::rename(metric = gMean)
 climate_sf <- NULL
 
 # Plotting Overlays -------------------------------------------------------
@@ -125,17 +125,9 @@ overlay <- coast
 # MODULE 1 - WELCOME ------------------------------------------------------
 tx_1welcome <- readr::read_file(file.path(data_dir, "html_1welcome.txt"))
 
-# return_list <- read_textboxes(FILENAME)
-
-
-
 # MODULE 2 - SCENARIO ------------------------------------------------------
 
-
-
 # MODULE 3 - COMPARISON ------------------------------------------------------
-
-
 
 # MODULE 6 - HELP ------------------------------------------------------
 tx_6faq <- readr::read_file(file.path(data_dir, "html_6faq.txt"))
@@ -143,11 +135,8 @@ tx_6changelog <- readr::read_file(file.path(data_dir, "html_6changelog.txt"))
 tx_6technical <- readr::read_file(file.path(data_dir, "html_6technical.txt"))
 tx_6references <- readr::read_file(file.path(data_dir, "html_6references.txt"))
 
-
 # MODULE 7 - CREDIT ------------------------------------------------------
 tx_7credit <- readr::read_file(file.path(data_dir, "html_7credit.txt"))
-
-
 
 # HEX STICKER -------------------------------------------------------------
 # Create app-specific Hex sticker if wanted. Otherwise the generic shinyplanr one will be used
