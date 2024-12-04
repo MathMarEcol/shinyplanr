@@ -1,0 +1,39 @@
+nameCommon,nameVariable,category,categoryID,type,targetInitial,targetMin,targetMax,includeApp,includeJust,justification,wsClass
+Deep Lagoon (Coral),coral_algae_deep_lagoon,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Inner Reef Flat (Coral),coral_algae_inner_reef_flat,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Outer Reef Flat (Coral),coral_algae_outer_reef_flat ,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Plateau (Coral),coral_algae_plateau,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Reef Crest (Coral),coral_algae_reef_crest,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Reef Slope (Coral),coral_algae_reef_slope,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Shallow Lagoon (Coral),coral_algae_shallow_lagoon,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Sheltered Reef Slope (Coral),coral_algae_sheltered_reef_slope,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Terrestrial Reef Flat (Coral),coral_algae_terrestrial_reef_flat,Corals,Corals,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Deep Lagoon (Seagrass),seagrass_deep_lagoon,Seagrass,Seagrass,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Reef Flat (Seagrass),seagrass_inner_reef_flat,Seagrass,Seagrass,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Reef Slope (Seagrass),seagrass_reef_slope,Seagrass,Seagrass,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Shallow Lagoon (Seagrass),seagrass_shallow_lagoon,Seagrass,Seagrass,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Sheltered Reef Slope (Seagrass),seagrass_sheltered_reef_slope,Seagrass,Seagrass,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Terrestrial Reef Flat (Seagrass),seagrass_terrestrial_reef_flat,Seagrass,Seagrass,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Rock,rock,Reefs,Reefs,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Rubble,rubble,Reefs,Reefs,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Sand,sand,Reefs,Reefs,Feature,30,0,85,TRUE,TRUE,This feature is important because,NA
+Bottom Fishing,bottom_fishing,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Cast Net,cast_net,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Casting,casting ,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Gathering Reef Gleaning,gathering_reef_gleaning,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Other Torch Fishing,other_torch_fishing,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Spear Harpoon,spear_harpoon ,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Trap Fish Fence Gill Net,trap_fish_fence_gill_net,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Trolling,trolling,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Vertical Longline,vertical_longline ,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This feature is important because,NA
+Trochus Farming,trochus_farming,OUS Fishing,Fishing,Feature,30,0,85,FALSE,FALSE,This cost is important because,NA
+Epipelagic,epipelagic,Depth Zones,Depth,Feature,30,0,85,TRUE,TRUE,This cost is important because,NA
+Mesopelagic,mesopelagic ,Depth Zones,Depth,Feature,30,0,85,TRUE,TRUE,This cost is important because,NA
+OUS Aggregate Fishing,Cost_OUS,Cost,Cost,Cost,NA,NA,NA,TRUE,TRUE,This cost is important because,NA
+Distance to Coast,Cost_Distance,Cost,Cost,Cost,NA,NA,NA,TRUE,TRUE,This cost is important because,NA
+None,Cost_None,Cost,Cost,Cost,NA,NA,NA,TRUE,TRUE,This cost is important because,NA
+Random,Cost_Random ,Cost,Cost,Cost,NA,NA,NA,TRUE,TRUE,This cost is important because,NA
+Global Fishing Watch (Hours),Cost_FishingHrs,Cost,Cost,Cost,NA,NA,NA,TRUE,TRUE,This cost is important because,NA
+Temperature Trend (ssp245),slpTrends_245,Climate,Climate,Climate,NA,NA,NA,TRUE,TRUE,This climate layer is important because,NA
+Temperature Trend (ssp370),slpTrends_370,Climate,Climate,Climate,NA,NA,NA,TRUE,TRUE,This climate layer is important because,NA
+Temperature Trend (ssp585),slpTrends_585,Climate,Climate,Climate,NA,NA,NA,TRUE,TRUE,This climate layer is important because,NA
