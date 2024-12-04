@@ -1,6 +1,6 @@
 Package: shinyplanr
 Title: Spatial Planning in Shiny
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person(
       given = 'Jason D.', 
@@ -52,4 +52,4 @@ Language: en-US
 LazyData: true
 RoxygenNote: 7.3.2
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1)

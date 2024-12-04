@@ -14,7 +14,8 @@ There are many different types of spatial planning problems that can be formulat
  <br>
  <br>
  All regions with habitat suitability model output values lower than the model value (= threshold) of the nth percentile of confirmed presences were omitted. The threshold is therefore defined as the predicted suitability value (output of the species distribution model) for the occurrence point at the nth percentile. To test how the selection of a specific percentile affects the resulting binary habitat suitability map, we calculated the change of the area labelled as suitable habitat (presence area). We estimated a percentile at the 'elbow area', i.e., the location in the graph at which the number of cells did not decrease substantially anymore. We then used the median of the resulting percentiles of the features to determine an individual threshold for each species (and breeding stage). The percentiles were estimated using all available presence data and then applied to the study area of WSMPAII. For tracking data, tracking points were used as presence data points. To reduce spatial and temporal correlation within tracking data, we randomly selected one point daily as the presence point for each individual of each species before applying the methodology described above. Where presence-absence data was available, we additionally applied an alternative threshold estimation method, the maximum of the sum of specificity and sensitivity (maxSSS), which is not reliably applicable to presence-only data since true absence points are required.
-
+<br>
+<br>
  <h2>Climate-resilient spatial planning</h2>
  Climate-resilient spatial plans (sometimes called climate-smart spatial plans) try to ensure that MPAs are robust to future impacts of climate change (Morelli et al., 2017; Pacifici et al., 2015). One way to do this is by preferentially placing MPAs in areas that retain their climates over long periods- i.e., in climate refugia (Arafeh-Dalmau et al., 2021). We represent climate refugia here by a climate-resilience metric characterized by areas of low exposure to warming and slow climate velocity. We define the climate exposure that biodiversity could experience as the rate of cliamte warming in a planning unit (&Delta; &#8451; yr<sup>-1</sup>). We also define climate velocity as the speed of isotherm movement with warming (km yr<sup>-1</sup>); the faster the velocity, the further biodiversity moves to cooler locations (Pinsky et al., 2013). Thus, planning units with slower velocity are more likely to retain biodiversity (Arafeh-Dalmau et al., 2021; Brito-Morales et al., 2022).
  <br>
@@ -27,7 +28,8 @@ There are many different types of spatial planning problems that can be formulat
  <br>
  <br>
  Note the climate-resilient plans are based on temperature change and did not consider future changes in pH or O<sub>2</sub> concentration. This is because temperature is usually the main driver of biodiversity patterns (Chawarski et al. 2022), projections of temperature from Earth system models are more reliable than for other variables (Ra&auml;isa&auml;nen, 2007), and temperature-derived metrics are strongly related to changes in biodiversity under climate change (Burrows et al., 2014; Molinos et al. 2016).
- 
+ <br>
+ <br>
  <h2>Deriving Rational Use layers</h2>
  The minimum set objective function we used in the prioritization aims to meet the given targets whilst minimising the impact on rational use by selecting particular planning units. We provided five different rational use options, each of which provides an estimate of the plausible lost fishing (i.e., the opportunity cost) of locking up a planning unit in an MPA. The higher the rational use values in a planning unit, the
  more the algorithm will avoid these areas in selecting planning units to lock up. 
